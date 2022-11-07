@@ -19,21 +19,10 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.JToggleButton;
-import javax.swing.JList;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -43,19 +32,23 @@ public class GameClientMain extends JFrame {
     public static final int SCREEN_WIDTH = 1500;
     public static final int SCREEN_HEIGHT = 800;
 
-    private ImageIcon backgroundImg = new ImageIcon("res/mainBackground.png");
-    private JPanel userPanel;
-    private JPanel loadingPanel;
-
+    private ImageIcon backgroundImg = new ImageIcon("res/basicBackground.png");
+//    private ImageIcon backgroundPanelImg = new ImageIcon("res/panelBackground.png");
+    private ImageIcon loadingPanelImg = new ImageIcon("res/loadingPanelImg.png");
+    private ImageIcon userPanelImg = new ImageIcon("res/userPanelImg.png");
     private JPanel contentPane;
 
+    private JPanel loadingPanel; //프레임 바로 위에 놓인 왼쪽에 위치한 loading 화면을 보여줄 panel
+    private JPanel userPanel; //프레임 바로 위에 놓인 오른쪽에 위치한 user정보들을 보여주는 panel
 
+    private JPanel profilePanel; // userPanel위에 사용자의 프로필을 보여주는 panel
+    private JLabel profileImgLabel;
+    private JLabel profileInfoLabel;
 
-    private static final long serialVersionUID = 1L;
+    private JPanel scorePanel;
+    private JLabel scoreLabel;
+    private JLabel userScoreLabel;
 
-    private JTextField txtInput;
-    private String UserName;
-    private JButton btnSend;
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
     private Socket socket; // 연결소켓
     private InputStream is;
@@ -65,6 +58,18 @@ public class GameClientMain extends JFrame {
 
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
+
+    private JLabel profileLabel;
+
+
+
+
+    private static final long serialVersionUID = 1L;
+
+    private JTextField txtInput;
+    private String UserName;
+    private JButton btnSend;
+
 
     private JLabel lblUserName;
     // private JTextArea textArea;
@@ -86,32 +91,87 @@ public class GameClientMain extends JFrame {
      * Create the frame.
      * @throws BadLocationException
      */
-    public GameClientMain(String username, String ip_addr, String port_no)  {
+
+    public GameClientMain(String username, String ip_addr, String port_no, String char_no)  {
         setUndecorated(true);
+        setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         setVisible(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT);
+        setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         setResizable(false);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(1, 2));
+        setLayout(null);
 
-        userPanel = new JPanel();
-        userPanel.setBackground(Color.decode("#FFFF99"));
-        userPanel.setBounds(10,10,SCREEN_WIDTH/2-10, SCREEN_HEIGHT-10);
-        add(userPanel);
 
-        loadingPanel = new JPanel();
+        loadingPanel = new JPanel(){
+            public void paintComponent(Graphics g){
+                super.paintComponent(g);
+                g.drawImage(loadingPanelImg.getImage(), 0, 0, SCREEN_WIDTH/2+2, SCREEN_HEIGHT+1, null);
+                setOpaque(false);
+            }
+        };
+
+//        loadingPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        loadingPanel.setLayout(null);
+        loadingPanel.setBounds(0,0,SCREEN_WIDTH/2+1,SCREEN_HEIGHT);
         add(loadingPanel);
 
+        userPanel = new JPanel(){
+            public void paintComponent(Graphics g){
+                super.paintComponent(g);
+                g.drawImage(userPanelImg.getImage(), 0, 0, SCREEN_WIDTH/2+2, SCREEN_HEIGHT+1, null);
+                setOpaque(false);
+            }
+        };
+
+//        userPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        userPanel.setLayout(null);
+        userPanel.setBounds(SCREEN_WIDTH/2,0,SCREEN_WIDTH/2,SCREEN_HEIGHT);
+        add(userPanel);
 
 
+        profilePanel = new JPanel();
+        profilePanel.setBounds(80,80,400,100);
+        profilePanel.setBorder(BorderFactory.createLineBorder(Color.decode("#5D8A5D")));
+        profilePanel.setBackground(Color.white);
+        profilePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 40,0));
+//        profilePanel.setLayout(null);
+        userPanel.add(profilePanel);
+
+        char_no = "char1"; //앞에서 오류 해결 못해서 잠시 초기화.
+        profileImgLabel = new JLabel();
+        if(char_no == "char1") profileImgLabel.setIcon(new ImageIcon("res/profileChar1.png"));
+        else if(char_no == "char2") profileImgLabel.setIcon(new ImageIcon("res/profileChar2.png"));
+        else profileImgLabel.setIcon(new ImageIcon("res/profileChar3.png"));
+        profileImgLabel.setBounds(100, 30, 10, 10);
+        profileImgLabel.setText(null);
+        profilePanel.add(profileImgLabel);
+
+        profileInfoLabel = new JLabel(username);
+        profileInfoLabel.setBounds(150,30,750, 200);
+        profileInfoLabel.setFont(new Font("Serif", Font.PLAIN, 40));
+        profilePanel.add(profileInfoLabel);
+
+        scorePanel = new JPanel();
+        scorePanel.setBounds(495,80,200,100);
+        scorePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0,10));
+        scorePanel.setOpaque(false);
+        userPanel.add(scorePanel);
+
+        scoreLabel = new JLabel("SCORE");
+        scoreLabel.setBounds(0,80,200,50);
+        scoreLabel.setFont(new Font("Serif", Font.PLAIN, 30));
+        scorePanel.add(scoreLabel);
+
+        userScoreLabel = new JLabel("user score");
+        userScoreLabel.setBounds(0,130,200,50);
+        userScoreLabel.setFont(new Font("Serif", Font.PLAIN, 30));
+        scorePanel.add(userScoreLabel);
     }
 
     public void paint(Graphics g) {
         super.paint(g);
-        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
+//        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
     }
-
-
 
 }
