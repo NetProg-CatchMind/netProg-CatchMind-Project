@@ -198,7 +198,7 @@ public class GameClientMain extends JFrame {
             ListenNetwork net = new ListenNetwork();
             net.start();
             TextSendAction action = new TextSendAction();
-            btnSend.addActionListener(action);
+//            btnSend.addActionListener(action);
             txtInput.addActionListener(action);
             txtInput.requestFocus();
             ImageSendAction action2 = new ImageSendAction();
