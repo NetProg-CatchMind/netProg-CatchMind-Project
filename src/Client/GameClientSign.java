@@ -243,7 +243,6 @@ public class GameClientSign extends JFrame {
 
             main = new GameClientMain(username, ip_addr, port_no, selCharNo);
 
-
         }
     }
 
