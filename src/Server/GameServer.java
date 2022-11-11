@@ -151,6 +151,8 @@ public class GameServer extends JFrame {
             AppendText("사용자 " + "[" + UserName + "] 퇴장. 현재 참가자 수 " + UserVec.size());
         }
 
+
+
         // 모든 User들에게 방송. 각각의 UserService Thread의 WriteONe() 을 호출한다.
         public void WriteAll(String str) {
             for (int i = 0; i < user_vc.size(); i++) {
@@ -159,6 +161,31 @@ public class GameServer extends JFrame {
                     user.WriteOne(str);
             }
         }
+
+        public void WriteAll2(String str) {
+            for(int i=0; i<user_vc.size(); i++) {
+                UserService user = (UserService) user_vc.elementAt(i);
+                if(user.UserStatus == "0")
+                    user.WriteOne(str);
+            }
+        }
+
+        public void WriteAll3(String str) {
+            for(int i=0; i<user_vc.size(); i++) {
+                UserService user = (UserService) user_vc.elementAt(i);
+                if(user.UserStatus == "0")
+                    user.WriteOne(str);
+            }
+        }
+
+        public void WriteAll4(String str) {
+            for(int i=0; i<user_vc.size(); i++) {
+                UserService user = (UserService) user_vc.elementAt(i);
+                if(user.UserStatus == "0")
+                    user.WriteOne(str);
+            }
+        }
+
         // 모든 User들에게 Object를 방송. 채팅 message와 image object를 보낼 수 있다
         public void WriteAllObject(Object ob) {
             for (int i = 0; i < user_vc.size(); i++) {
@@ -383,13 +410,12 @@ public class GameServer extends JFrame {
         textArea.setCaretPosition(textArea.getText().length());
     }
 
-
-
     public void AppendText(String str) {
         // textArea.append("사용자로부터 들어온 메세지 : " + str+"\n");
         textArea.append(str + "\n");
         textArea.setCaretPosition(textArea.getText().length());
     }
+
 
     public static void main(String[] args) {
         //실행시키는 코드
@@ -404,6 +430,7 @@ public class GameServer extends JFrame {
             }
         });
     } //main끝
+
 
 
 

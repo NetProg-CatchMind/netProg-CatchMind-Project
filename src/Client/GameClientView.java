@@ -1,55 +1,18 @@
 package Client;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import java.awt.FileDialog;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.text.BadLocationException;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.image.ImageObserver;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.Socket;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Color;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.JToggleButton;
-import javax.swing.JList;
-import java.awt.Canvas;
-import javax.swing.border.TitledBorder;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 public class GameClientView extends JFrame {
-    public static final int SCREEN_WIDTH = 1500;
-    public static final int SCREEN_HEIGHT = 800;
+    public static final int SCREEN_WIDTH = 900;
+    public static final int SCREEN_HEIGHT = 600;
 
     private ImageIcon backgroundImg = new ImageIcon("res/mainBackground.png");
 
@@ -61,6 +24,7 @@ public class GameClientView extends JFrame {
     private JTextField txtInput;
     private String UserName;
     private JButton btnSend;
+    private JButton btnExit;
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
     private Socket socket; // 연결소켓
     private InputStream is;
@@ -106,8 +70,12 @@ public class GameClientView extends JFrame {
         contentPane.setLayout(null);
 
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(12, 10, 352, 471);
+        scrollPane.setBounds(620, 70, 270, 430); //채팅창
         contentPane.add(scrollPane);
+
+        JScrollPane scrollPane1 = new JScrollPane();
+        scrollPane1.setBounds(10, 70, 130, 430);
+        contentPane.add(scrollPane1);
 
         textArea = new JTextPane();
         textArea.setEditable(true);
@@ -115,21 +83,26 @@ public class GameClientView extends JFrame {
         scrollPane.setViewportView(textArea);
 
         txtInput = new JTextField();
-        txtInput.setBounds(74, 489, 209, 40);
+        txtInput.setBounds(675, 510, 150, 30); //채팅 치는 area
         contentPane.add(txtInput);
         txtInput.setColumns(10);
 
-        btnSend = new JButton("Send");
+        btnSend = new JButton("Send"); //send button
         btnSend.setFont(new Font("굴림", Font.PLAIN, 14));
-        btnSend.setBounds(295, 489, 69, 40);
+        btnSend.setBounds(825, 510, 70, 30);
         contentPane.add(btnSend);
 
-        lblUserName = new JLabel("Name");
+        btnExit = new JButton("방 나가기"); //Exit button
+        btnExit.setFont(new Font("굴림", Font.PLAIN, 14));
+        btnExit.setBounds(20, 520, 100, 40);
+        contentPane.add(btnExit);
+
+        lblUserName = new JLabel("Name"); //이름 라벨
         lblUserName.setBorder(new LineBorder(new Color(0, 0, 0)));
         lblUserName.setBackground(Color.WHITE);
         lblUserName.setFont(new Font("굴림", Font.BOLD, 14));
         lblUserName.setHorizontalAlignment(SwingConstants.CENTER);
-        lblUserName.setBounds(12, 539, 62, 40);
+        lblUserName.setBounds(620, 545, 90, 40);
         contentPane.add(lblUserName);
         setVisible(true);
 
@@ -137,12 +110,12 @@ public class GameClientView extends JFrame {
         UserName = username;
         lblUserName.setText(username);
 
-        imgBtn = new JButton("+");
+        imgBtn = new JButton("+"); //+버튼
         imgBtn.setFont(new Font("굴림", Font.PLAIN, 16));
-        imgBtn.setBounds(12, 489, 50, 40);
+        imgBtn.setBounds(620, 510, 50, 30);
         contentPane.add(imgBtn);
 
-        JButton btnNewButton = new JButton("종 료");
+        JButton btnNewButton = new JButton("종 료"); //종료버튼
         btnNewButton.setFont(new Font("굴림", Font.PLAIN, 14));
         btnNewButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -151,13 +124,13 @@ public class GameClientView extends JFrame {
 //                    System.exit(0);
             }
         });
-        btnNewButton.setBounds(295, 539, 69, 40);
+        btnNewButton.setBounds(825, 545, 69, 40);
         contentPane.add(btnNewButton);
 
         panel = new JPanel();
         panel.setBorder(new LineBorder(new Color(0, 0, 0)));
         panel.setBackground(Color.WHITE);
-        panel.setBounds(376, 10, 400, 520);
+        panel.setBounds(160, 70, 450, 430); //그림판 판넬
         contentPane.add(panel);
         gc = panel.getGraphics();
 
@@ -169,12 +142,12 @@ public class GameClientView extends JFrame {
         gc2.setColor(Color.BLACK);
         gc2.drawRect(0,0, panel.getWidth()-1,  panel.getHeight()-1);
 
-        lblMouseEvent = new JLabel("<dynamic>");
+        lblMouseEvent = new JLabel("<dynamic>"); //그림판 밑에 / 색깔팬이랑 지우개 추가하기
         lblMouseEvent.setHorizontalAlignment(SwingConstants.CENTER);
         lblMouseEvent.setFont(new Font("굴림", Font.BOLD, 14));
         lblMouseEvent.setBorder(new LineBorder(new Color(0, 0, 0)));
         lblMouseEvent.setBackground(Color.WHITE);
-        lblMouseEvent.setBounds(376, 539, 400, 40);
+        lblMouseEvent.setBounds(160, 520, 450, 40);
         contentPane.add(lblMouseEvent);
 
         try {
@@ -208,7 +181,4 @@ public class GameClientView extends JFrame {
         // Image 영역이 가려졌다 다시 나타날 때 그려준다.
         gc.drawImage(panelImage, 0, 0, this);
     }
-
-
-
 }
