@@ -1,10 +1,12 @@
 package Server;
 
+import javax.swing.*;
+import javax.swing.text.BadLocationException;
 import java.awt.*;
+import java.io.*;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.awt.event.*;
-import java.io.*;
 import java.net.*;
 import java.util.*;
 

@@ -1,14 +1,14 @@
 package Client;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
-import java.net.Socket;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import java.net.*;
+import java.util.*;
 
 public class GameClientView extends JFrame {
     public static final int SCREEN_WIDTH = 900;
@@ -50,12 +50,15 @@ public class GameClientView extends JFrame {
     // 그려진 Image를 보관하는 용도, paint() 함수에서 이용한다.
     private Image panelImage = null;
     private Graphics gc2 = null;
+    public Color c = new Color(0,0,0);
 
     /**
      * Create the frame.
+     *
      * @throws BadLocationException
      */
-    public GameClientView(String username, String ip_addr, String port_no)  {
+
+    public GameClientView(String username, String ip_addr, String port_no) {
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -138,17 +141,91 @@ public class GameClientView extends JFrame {
         panelImage = createImage(panel.getWidth(), panel.getHeight());
         gc2 = panelImage.getGraphics();
         gc2.setColor(panel.getBackground());
-        gc2.fillRect(0,0, panel.getWidth(),  panel.getHeight());
+        gc2.fillRect(0, 0, panel.getWidth(), panel.getHeight());
         gc2.setColor(Color.BLACK);
-        gc2.drawRect(0,0, panel.getWidth()-1,  panel.getHeight()-1);
+        gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
 
-        lblMouseEvent = new JLabel("<dynamic>"); //그림판 밑에 / 색깔팬이랑 지우개 추가하기
+        /*lblMouseEvent = new JLabel("<dynamic>"); //그림판 밑에 / 색깔팬이랑 지우개 추가하기
         lblMouseEvent.setHorizontalAlignment(SwingConstants.CENTER);
         lblMouseEvent.setFont(new Font("굴림", Font.BOLD, 14));
         lblMouseEvent.setBorder(new LineBorder(new Color(0, 0, 0)));
         lblMouseEvent.setBackground(Color.WHITE);
         lblMouseEvent.setBounds(160, 520, 450, 40);
-        contentPane.add(lblMouseEvent);
+        contentPane.add(lblMouseEvent);*/
+
+        JButton btnNewButton1 = new JButton(".");
+        btnNewButton1.setBackground(Color.RED);
+        btnNewButton1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                c = new Color(255, 0, 0);
+            }
+        });
+        btnNewButton1.setForeground(Color.RED);
+        btnNewButton1.setBounds(160, 520, 62, 42);
+        contentPane.add(btnNewButton1);
+
+
+        JButton btnNewButton2 = new JButton(",");
+        btnNewButton2.setBackground(Color.BLUE);
+        btnNewButton2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                c = new Color(0, 0, 255);
+            }
+        });
+        btnNewButton2.setForeground(Color.BLUE);
+        btnNewButton2.setBounds(222, 520, 62, 42);
+        contentPane.add((btnNewButton2));
+
+
+        JButton btnNewButton3 = new JButton(",");
+        btnNewButton3.setBackground(Color.YELLOW);
+        btnNewButton3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                c = new Color(255, 255, 0);
+            }
+        });
+        btnNewButton3.setForeground(Color.YELLOW);
+        btnNewButton3.setBounds(284, 520, 62, 42);
+        contentPane.add((btnNewButton3));
+
+
+        JButton btnNewButton4 = new JButton(",");
+        btnNewButton4.setBackground(Color.GREEN);
+        btnNewButton4.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                c = new Color(12, 134, 23);
+            }
+        });
+        btnNewButton4.setForeground(Color.GREEN);
+        btnNewButton4.setBounds(346, 520, 62, 42);
+        contentPane.add((btnNewButton4));
+
+        JButton btnNewButton5 = new JButton(",");
+        btnNewButton5.setBackground(Color.BLACK);
+        btnNewButton5.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                c = new Color(0, 0, 0);
+            }
+        });
+        btnNewButton5.setForeground(Color.BLACK);
+        btnNewButton5.setBounds(404, 520, 62, 42);
+        contentPane.add((btnNewButton5));
+
+
+        JButton btnNewButton6 = new JButton("지우개"); //지우개버튼
+        btnNewButton.setFont(new Font("굴림", Font.PLAIN, 14));
+        btnNewButton6.setBounds(500, 520, 85, 30);
+        contentPane.add(btnNewButton6);
+        btnNewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
 
         try {
             socket = new Socket(ip_addr, Integer.parseInt(port_no));
@@ -166,7 +243,6 @@ public class GameClientView extends JFrame {
 //                SendObject(obcm);
 
 
-
         } catch (NumberFormatException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -175,10 +251,33 @@ public class GameClientView extends JFrame {
 
     }
 
+
     public void paint(Graphics g) {
         super.paint(g);
         g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
         // Image 영역이 가려졌다 다시 나타날 때 그려준다.
         gc.drawImage(panelImage, 0, 0, this);
     }
+
+
+
+
+    class MyMouseWheelEvent implements MouseWheelListener {
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            // TODO Auto-generated method stub
+            if (e.getWheelRotation() < 0) { // 위로 올리는 경우 pen_size 증가
+                if (pen_size < 20)
+                    pen_size++;
+            } else {
+                if (pen_size > 2)
+                    pen_size--;
+            }
+            //lblMouseEvent.setText("mouseWheelMoved Rotation=" + e.getWheelRotation() + " pen_size = " + pen_size + " " + e.getX() + "," + e.getY());
+
+        }
+
+    }
+
+
 }
