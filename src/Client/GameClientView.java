@@ -94,7 +94,7 @@ public class GameClientView extends JFrame {
         lblNewLabel = new JLabel("   CatchMind Game    "); //안내 공지하는 label
         lblNewLabel.setForeground(Color.BLACK);
         lblNewLabel.setFont(new Font("나눔고딕", Font.PLAIN, 17));
-        lblNewLabel.setBounds(100, 20, 550, 40);
+        lblNewLabel.setBounds(35, 20, 550, 40);
         contentPane.add(lblNewLabel);
 
         txtInput = new JTextField();
