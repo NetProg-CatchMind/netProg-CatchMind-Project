@@ -36,8 +36,10 @@ public class GameClientView extends JFrame {
     private ObjectOutputStream oos;
 
     private JLabel lblUserName;
-    // private JTextArea textArea;
+    private JLabel lblNewLabel; //공지사항 알려주는 label
+    //private JTextArea textArea;
     private JTextPane textArea;
+    private JTextPane textArea1;
 
     private Frame frame;
     private FileDialog fd;
@@ -73,17 +75,27 @@ public class GameClientView extends JFrame {
         contentPane.setLayout(null);
 
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(620, 70, 270, 430); //채팅창
+        scrollPane.setBounds(620, 190, 270, 310); //채팅창
         contentPane.add(scrollPane);
-
-        JScrollPane scrollPane1 = new JScrollPane();
-        scrollPane1.setBounds(10, 70, 130, 430);
-        contentPane.add(scrollPane1);
-
         textArea = new JTextPane();
         textArea.setEditable(true);
         textArea.setFont(new Font("굴림체", Font.PLAIN, 14));
         scrollPane.setViewportView(textArea);
+
+        JScrollPane scrollPane1 = new JScrollPane();
+        scrollPane1.setBounds(620, 70, 270, 100); //접속한 유저 정보창
+        contentPane.add(scrollPane1);
+        textArea1 = new JTextPane();
+        textArea1.setEditable(true);
+        textArea1.setFont(new Font("굴림체", Font.PLAIN, 14));
+        scrollPane1.setViewportView(textArea1);
+
+
+        lblNewLabel = new JLabel("   CatchMind Game    "); //안내 공지하는 label
+        lblNewLabel.setForeground(Color.BLACK);
+        lblNewLabel.setFont(new Font("나눔고딕", Font.PLAIN, 17));
+        lblNewLabel.setBounds(100, 20, 550, 40);
+        contentPane.add(lblNewLabel);
 
         txtInput = new JTextField();
         txtInput.setBounds(675, 510, 150, 30); //채팅 치는 area
@@ -133,7 +145,7 @@ public class GameClientView extends JFrame {
         panel = new JPanel();
         panel.setBorder(new LineBorder(new Color(0, 0, 0)));
         panel.setBackground(Color.WHITE);
-        panel.setBounds(160, 70, 450, 430); //그림판 판넬
+        panel.setBounds(20, 70, 565, 430); //그림판 판넬
         contentPane.add(panel);
         gc = panel.getGraphics();
 
@@ -152,6 +164,18 @@ public class GameClientView extends JFrame {
         lblMouseEvent.setBackground(Color.WHITE);
         lblMouseEvent.setBounds(160, 520, 450, 40);
         contentPane.add(lblMouseEvent);*/
+
+        JButton buttonFirst = new JButton("첫글자");
+        buttonFirst.setBounds(620, 20, 70, 40);
+        contentPane.add(buttonFirst);
+
+        JButton buttonInit = new JButton("초성");
+        buttonInit.setBounds(710, 20, 70, 40);
+        contentPane.add(buttonInit);
+
+        JButton buttonBack = new JButton("배경");
+        buttonBack.setBounds(800, 20, 70, 40);
+        contentPane.add(buttonBack);
 
         JButton btnNewButton1 = new JButton(".");
         btnNewButton1.setBackground(Color.RED);
@@ -279,5 +303,8 @@ public class GameClientView extends JFrame {
 
     }
 
+    public static void main(String[] args) {
+        GameClientView game = new GameClientView("user", "192", "1111");
 
+    }
 }
