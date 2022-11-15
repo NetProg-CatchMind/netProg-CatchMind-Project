@@ -203,7 +203,7 @@ public class GameClientSign extends JFrame {
             String port_no = txtPortNumber.getText().trim();
 
             main = new GameClientMain(username, ip_addr, port_no, selCharNo);
-//            view = new GameClientView(username, ip_addr, port_no);
+            //view = new GameClientView(username, ip_addr, port_no);
         }
     }
 
