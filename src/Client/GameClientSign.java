@@ -6,11 +6,11 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class GameClientSign extends JFrame {
@@ -40,17 +40,17 @@ public class GameClientSign extends JFrame {
     private ImageIcon char3Img = new ImageIcon("res/character3.png");
     private ImageIcon mouseOverChar3 = new ImageIcon("res/mouseOverChar3.png");
 
-    private JButton char1, char2, char3;
+    private ButtonGroup g;
+    private JRadioButton char1, char2, char3;
+
 
     private String selCharNo;
 
     private GameClientMain main;
+    private GameClientView view;
 
     public boolean isPressedChar1 = false, isPressedChar2 = false, isPressedChar3 = false;
 
-
-//    private Image screenImage; // 스크린 화면
-//    private Graphics screenGraphic; //스크린 그래픽
     /**
      * Launch the application.
      */
@@ -61,10 +61,10 @@ public class GameClientSign extends JFrame {
      */
     public GameClientSign() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT);
-        setResizable(false);
+        setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT+38);
+//        setResizable(false);
         setLocationRelativeTo(null);
-        setUndecorated(true);
+//        setUndecorated(true);
         setVisible(true);
 
         contentPane = new JPanel(){
@@ -121,79 +121,46 @@ public class GameClientSign extends JFrame {
         txtPortNumber.setFont(new Font("Serif", Font.PLAIN, 25));
         contentPane.add(txtPortNumber);
 
-        char1 = new JButton(char1Img);
-        char1.setBounds(560,470,80,110);
+        g = new ButtonGroup();
+
+        char1 = new JRadioButton("char1", char1Img);
+        char1.setBounds(560,470,90,110);
         char1.setBorderPainted(false);
         char1.setContentAreaFilled(false);
-        char1.setRolloverIcon(new ImageIcon("res/mouseOverChar1.png"));
         char1.setOpaque(false);
-        char1.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (isPressedChar2 == true || isPressedChar3 == true) {
-                    char1.setIcon(char1Img);
-                    selCharNo = "char1";
-                    return;
-                }
-//                if(isPressedChar2 == false && isPressedChar3 == false){
-                else {
-                    char1.setIcon(mouseOverChar1);
-                    selCharNo = "char1";
-//                }
-                }
-            }
-        });
-        this.add(char1);
+        char1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        char1.setRolloverIcon(mouseOverChar1);
+        char1.setSelectedIcon(mouseOverChar1);
 
-        char2 = new JButton(new ImageIcon("res/character2.png"));
-        char2.setBounds(710,470,80,110);
+        char2 = new JRadioButton("char2", char2Img);
+        char2.setBounds(710,470,90,110);
         char2.setBorderPainted(false);
         char2.setContentAreaFilled(false);
-        char2.setRolloverIcon(new ImageIcon("res/mouseOverChar2.png"));
         char2.setOpaque(false);
-        char2.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if(isPressedChar1 == true || isPressedChar3 == true){
-                    char2.setIcon(char2Img);
-                    selCharNo = "char2";
-                    return;
-                }
-//                if(isPressedChar1 == false && isPressedChar3 == false){
-                else{
-                    char2.setIcon(mouseOverChar2);
-                    selCharNo = "char2";
-                }
+        char2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        char2.setRolloverIcon(mouseOverChar2);
+        char2.setSelectedIcon(mouseOverChar2);
 
-//                }
-            }
-
-        });
-        this.add(char2);
-
-        char3 = new JButton(new ImageIcon("res/character3.png"));
-        char3.setBounds(860,470,80,110);
+        char3 = new JRadioButton("char3", char3Img);
+        char3.setBounds(860,470,90,110);
         char3.setBorderPainted(false);
         char3.setContentAreaFilled(false);
-        char3.setRolloverIcon(new ImageIcon("res/mouseOverChar3.png"));
         char3.setOpaque(false);
-        char3.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if(isPressedChar1 == true || isPressedChar2 == true){
-                    char3.setIcon(char3Img);
-                    selCharNo = "char3";
-                    return;
-                }
-//               if(isPressedChar1 == false && isPressedChar3 == false){
-                else{
-                    char3.setIcon(mouseOverChar3);
-                    selCharNo = "char3";
-                }
+        char3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        char3.setRolloverIcon(mouseOverChar3);
+        char3.setSelectedIcon(mouseOverChar3);
 
-//                }
-            }
-        });
+        CharAction charAction = new CharAction();
+        char1.addActionListener(charAction);
+        char2.addActionListener(charAction);
+        char3.addActionListener(charAction);
+
+        g.add(char1);
+        g.add(char2);
+        g.add(char3);
+
+        this.add(char1);
+        this.add(char2);
         this.add(char3);
 
         JButton gameStartBtn = new JButton(new ImageIcon("res/gameStartBtn.png"));
@@ -210,11 +177,6 @@ public class GameClientSign extends JFrame {
         txtIpAddress.addActionListener(action);
         txtPortNumber.addActionListener(action);
 
-        CharAction charAction = new CharAction();
-        char1.addActionListener(charAction);
-        char2.addActionListener(charAction);
-        char3.addActionListener(charAction);
-
     }
 
     public static void main(String[] args) {
@@ -230,7 +192,6 @@ public class GameClientSign extends JFrame {
         });
     }
 
-
     class Myaction implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
     {
         @Override
@@ -242,28 +203,30 @@ public class GameClientSign extends JFrame {
             String port_no = txtPortNumber.getText().trim();
 
             main = new GameClientMain(username, ip_addr, port_no, selCharNo);
-
+//            view = new GameClientView(username, ip_addr, port_no);
         }
     }
+
 
     class CharAction implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e){
             if(e.getSource() == "char1"){
-                if(isPressedChar2 == false && isPressedChar3 == false){
-//                    isPressedChar1 == true;
-                }
+//                char1.setCursor(Cursor.getDefaultCursor());
+                selCharNo = "char1";
             }
+
             else if(e.getSource() == "char2"){
-                if(isPressedChar1 == false && isPressedChar3 == false){
-//                    isPressedChar2 == true;
-                }
+//                char2.setCursor(Cursor.getDefaultCursor());
+                selCharNo = "char2";
             }
+
             else{
-                if(isPressedChar1 == false && isPressedChar2 == false){
-//                    isPressedChar3 == true;
-                }
+//                char3.setCursor(Cursor.getDefaultCursor());
+                selCharNo = "char3";
             }
+
+
         }
     }
 }
