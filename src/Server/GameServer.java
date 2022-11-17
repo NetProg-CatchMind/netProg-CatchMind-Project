@@ -296,24 +296,7 @@ public class GameServer extends JFrame {
         public void run() {
             while (true) { // 사용자 접속을 계속해서 받기 위해 while문
                 try {
-                    // String msg = dis.readUTF();
-//					byte[] b = new byte[BUF_LEN];
-//					int ret;
-//					ret = dis.read(b);
-//					if (ret < 0) {
-//						AppendText("dis.read() < 0 error");
-//						try {
-//							dos.close();
-//							dis.close();
-//							client_socket.close();
-//							Logout();
-//							break;
-//						} catch (Exception ee) {
-//							break;
-//						} // catch문 끝
-//					}
-//					String msg = new String(b, "euc-kr");
-//					msg = msg.trim(); // 앞뒤 blank NULL, \n 모두 제거
+
                     Object obcm = null;
                     String msg = null;
                     ChatMsg cm = null;
@@ -383,7 +366,7 @@ public class GameServer extends JFrame {
                     } else if (cm.code.matches("400")) { // logout message 처리
                         Logout();
                         break;
-                    } else { // 300, 500, ... 기타 object는 모두 방송한다.
+                    } else if(cm.code.matches("500")){ // 300, 500, ... 기타 object는 모두 방송한다.
                         WriteAllObject(cm);
                     }
                 } catch (IOException e) {

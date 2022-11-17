@@ -1,5 +1,7 @@
 package Client;
 
+import Server.ChatMsg;
+
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
@@ -88,7 +90,7 @@ public class GameClientView extends JFrame {
     private FileDialog fd;
     private JButton imgBtn;
 
-    JPanel panel;
+    JPanel panel; //뭐였지,,
     private JLabel lblMouseEvent;
     private Graphics gc;
     private int pen_size = 2; // minimum 2
@@ -103,6 +105,7 @@ public class GameClientView extends JFrame {
     public MyMouseWheelEvent wheel;
 
     public boolean linee = true;
+    private JTextField textField;
 
     /**
      * Create the frame.
@@ -113,7 +116,7 @@ public class GameClientView extends JFrame {
     public GameClientView(String username, String ip_addr, String port_no) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT+38);
-//        setResizable(false);
+//       setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
 //        setUndecorated(true);
@@ -310,7 +313,7 @@ public class GameClientView extends JFrame {
         btnNewButton1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 c = new Color(255, 0, 0);
-                startss();
+                //startss();
             }
         });
         btnNewButton1.setForeground(Color.RED);
@@ -324,7 +327,7 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 c = new Color(0, 0, 255);
-                startss();
+                //startss();
             }
         });
         btnNewButton2.setForeground(Color.BLUE);
@@ -338,7 +341,7 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 c = new Color(255, 255, 0);
-                startss();
+                //startss();
             }
         });
         btnNewButton3.setForeground(Color.YELLOW);
@@ -352,7 +355,7 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 c = new Color(12, 134, 23);
-                startss();
+                //startss();
             }
         });
         btnNewButton4.setForeground(Color.GREEN);
@@ -365,7 +368,7 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 c = new Color(0, 0, 0);
-                startss();
+                //startss();
             }
         });
         btnNewButton5.setForeground(Color.BLACK);
@@ -381,7 +384,7 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 c = new Color(255,255,255);
-                startss();
+                //startss();
             }
         });
 
@@ -492,16 +495,20 @@ public class GameClientView extends JFrame {
             oos.flush();
             ois = new ObjectInputStream(socket.getInputStream());
 
+            ChatMsg obcm = new ChatMsg(UserName, "100", "Hello");
+            SendObject(obcm);
+
             // SendMessage("/login " + UserName);
 //                ChatMsg obcm = new ChatMsg(UserName, "100", "Hello");
 //                SendObject(obcm);
 
-            startss();
+            //startss();
 
 
         } catch (NumberFormatException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            AppendText("connect error");
 
         }
 
@@ -513,7 +520,6 @@ public class GameClientView extends JFrame {
         panel.addMouseListener(mouse);
         wheel = new MyMouseWheelEvent();
         panel.addMouseWheelListener(wheel);
-
     }
 
     public void endss() {
@@ -560,6 +566,19 @@ public class GameClientView extends JFrame {
                             else
                                 AppendText(msg);
                             break;
+
+                        case "201": //정답 message
+                            if(cm.UserName.equals(UserName))
+                                AppendTextR(msg);
+                            else
+                                AppendText(msg);
+
+                        case "202": //오답 message
+                            if(cm.UserName.equals(UserName))
+                                AppendTextR(msg);
+                            else
+                                AppendText(msg);
+
                         case "300": // Image 첨부
                             if (cm.UserName.equals(UserName))
                                 AppendTextR("[" + cm.UserName + "]");
@@ -569,9 +588,26 @@ public class GameClientView extends JFrame {
                             break;
                         case "500": // Mouse Event 수신
                             DoMouseEvent(cm, cm.co, cm.shape);
-                            startss();
+                            //startss();
                             break;
 
+                        case"600":  //game start
+                            String arg2[]=msg.split("]");
+                            textField.setText(arg2[1]);
+                            panel.removeAll();
+                            panel.repaint();
+                            panel.revalidate();
+                            if(cm.data.matches("문제를 맞춰보세요")) {
+                                endss();
+                            }else {
+                                startss();
+                            }
+                            break;
+
+                        case "800": //순서 변경
+                            String arg1[]=msg.split("]");
+                            textField.setText(arg1[1]);
+                            break;
                     }
 
                 } catch (IOException e) {
@@ -615,9 +651,6 @@ public class GameClientView extends JFrame {
 
                 gc.fillRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
 
-
-
-
             }
             shape=0;
         }else if(cm.lines==true) {
@@ -639,13 +672,11 @@ public class GameClientView extends JFrame {
 
             }else if(pointss.size() ==1)
                 pointss.add(cm.mouse_e.getPoint());
-
         }
-
     }
 
-    public void SendMouseEvent(MouseEvent e) {
 
+    public void SendMouseEvent(MouseEvent e) {
         ChatMsg cm = new ChatMsg(UserName, "500", "MOUSE");
         cm.mouse_e = e;
         cm.pen_size = pen_size;
@@ -661,6 +692,7 @@ public class GameClientView extends JFrame {
     class MyMouseEvent implements MouseListener, MouseMotionListener {
 
         List<Point> points = new ArrayList<Point>();
+
         @Override
         public void mouseDragged(MouseEvent e) {
             linee=true;
@@ -668,12 +700,8 @@ public class GameClientView extends JFrame {
             gc.setColor(c);
             points.add(e.getPoint());
 
-            //System.out.println(points);
-            //gc.fillOval(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-
             linee=true;
             if (points.size() > 1) {
-
                 Point p1 = points.get(0);
                 Graphics2D g2=(Graphics2D)gc;
 
@@ -684,7 +712,6 @@ public class GameClientView extends JFrame {
                     gc.drawLine(p1.x, p1.y, p2.x, p2.y);
                     p1 = p2;
                 }
-
             }
             else
                 points.add(e.getPoint());
@@ -702,6 +729,7 @@ public class GameClientView extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
+
             linee=false;
 
             //points.clear();
@@ -743,23 +771,18 @@ public class GameClientView extends JFrame {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            //points.clear();
+            points.clear();
             //lblMouseEvent.setText(e.getButton() + " mousePressed " + e.getX() + "," + e.getY());
         }
 
         @Override
         public void mouseReleased(MouseEvent e) { //구현해야함!
-            //lblMouseEvent.setText(e.getButton() + " mouseReleased " + e.getX() + "," + e.getY());
+            lblMouseEvent.setText(e.getButton() + " mouseReleased " + e.getX() + "," + e.getY());
             // 드래그중 멈출시 보임
-            //points.add(e.getPoint());
-            //points.clear();
-            //linee=false;
-            //SendMouseEvent(e);
             points.add(e.getPoint());
             points.clear();
             linee=false;
             SendMouseEvent(e);
-
         }
     }
 
@@ -896,5 +919,6 @@ public class GameClientView extends JFrame {
 
     /*public static void main(String[] args) {
         GameClientView game = new GameClientView("user", "192", "1111");
-    }*/
+        game.startss();
+    } */
 }
