@@ -15,5 +15,4 @@ public class RoomMsg implements Serializable {
         this.userCnt = userCnt;
     }
 
-
 }

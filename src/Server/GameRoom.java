@@ -90,6 +90,7 @@ public class GameRoom extends Thread{
                     } else if (args[1].matches("/exit")) {
 //                        Logout();
                         break;
+
                     } else if (args[1].matches("/list")) {
                         WriteOne("User list\n");
                         WriteOne("Name\tStatus\n");
@@ -99,10 +100,13 @@ public class GameRoom extends Thread{
                             WriteOne(user.UserName + "\t" + user.UserStatus + "\n");
                         }
                         WriteOne("-----------------------------\n");
+
                     } else if (args[1].matches("/sleep")) {
                         UserStatus = "S";
+
                     } else if (args[1].matches("/wakeup")) {
                         UserStatus = "O";
+
                     } else if (args[1].matches("/to")) { // 귓속말
                         for (int i = 0; i < user_vc.size(); i++) {
                             GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(i);

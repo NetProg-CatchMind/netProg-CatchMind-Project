@@ -166,7 +166,7 @@ public class GameServer extends JFrame {
 
         // userThread 클래스 메인-----------------------------------------------------------------
         public void run() {
-            while (true) { // 사용자 접속을 계속해서 받기 위해 while문
+            while (true) { // 사용자 접속을 계속해서 받기 위해 while문 / 포트번호에 따라 if문 쓰기
 
                 Object obcm = null;
                 String msg = null;
@@ -256,7 +256,9 @@ public class GameServer extends JFrame {
 //            textArea.setCaretPosition(textArea.getText().length());
 //        }
 
-        // UserService Thread가 담당하는 Client 에게 1:1 전송
+
+
+        // UserService Thread가 담당하는 Client 에게 1:1 전송 / 프로토콜 200
         public void WriteOne(String msg) {
             try {
                 // dos.writeUTF(msg);
@@ -284,13 +286,143 @@ public class GameServer extends JFrame {
             }
         }
 
-        public void WriteAllObject(Object ob) {
-            for (int i = 0; i < user_vc.size(); i++) {
-                GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(i);
-                if (user.UserStatus == "O")
-                    user.WriteOneObject(ob);
+        public void WriteOne2(String msg) { //사용자 목록 업데이트 방송
+            try {
+                // dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+
+                ChatMsg obcm = new ChatMsg("SERVER", "700", msg);
+                oos.writeObject(obcm);
+            } catch (IOException e) {
+                AppendText("dos.writeObject() error");
+                try {
+//					dos.close();
+//					dis.close();
+                    ois.close();
+                    oos.close();
+                    client_socket.close();
+                    client_socket = null;
+                    ois = null;
+                    oos = null;
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
             }
         }
+
+        public void WriteOne6(String msg) { //protocol 600, game start시
+            try {
+                // dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+                ChatMsg obcm = new ChatMsg("SERVER", "600", msg);
+                oos.writeObject(obcm);
+            } catch (IOException e) {
+                AppendText("dos.writeObject() error");
+                try {
+//					dos.close();
+//					dis.close();
+                    ois.close();
+                    oos.close();
+                    client_socket.close();
+                    client_socket = null;
+                    ois = null;
+                    oos = null;
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+            }
+        }
+
+        public void WriteOne6_3(String msg) { //protocol 603 사용자 목록 업데이트
+            try {
+                // dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+                ChatMsg obcm = new ChatMsg("SERVER", "603", msg);
+                oos.writeObject(obcm);
+            } catch (IOException e) {
+                AppendText("dos.writeObject() error");
+                try {
+//					dos.close();
+//					dis.close();
+                    ois.close();
+                    oos.close();
+                    client_socket.close();
+                    client_socket = null;
+                    ois = null;
+                    oos = null;
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+            }
+        }
+
+        public void WriteOne8(String msg) { //순서 변경시의 안내방송
+
+            try {
+                // dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+                ChatMsg obcm = new ChatMsg("SERVER", "800", msg);
+                oos.writeObject(obcm);
+            } catch (IOException e) {
+                AppendText("dos.writeObject() error");
+                try {
+//					dos.close();
+//					dis.close();
+                    ois.close();
+                    oos.close();
+                    client_socket.close();
+                    client_socket = null;
+                    ois = null;
+                    oos = null;
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+            }
+        }
+
+        public void WriteOne11(String msg) { //1100 배경사진 뿌려주는 메서드(문제 그리는 사람한테만 활성화할것)
+            try {
+                // dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+                ChatMsg obcm = new ChatMsg("SERVER", "1100", msg);
+                oos.writeObject(obcm);
+            } catch (IOException e) {
+                AppendText("dos.writeObject() error");
+                try {
+//					dos.close();
+//					dis.close();
+                    ois.close();
+                    oos.close();
+                    client_socket.close();
+                    client_socket = null;
+                    ois = null;
+                    oos = null;
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+            }
+        }
+
 
         // 모든 User들에게 방송. 각각의 UserService Thread의 WriteONe() 을 호출한다.
         public void WriteAll(String str) {
@@ -298,6 +430,34 @@ public class GameServer extends JFrame {
                 UserService user = (UserService) user_vc.elementAt(i);
                 if (user.UserStatus == "O")
                     user.WriteOne(str);
+            }
+        }
+
+        public void WriteAll2(String str) { //클라이언트에게 사용자 목록과 점수를 보여줌
+            for(int i=0; i< user_vc.size(); i++) {
+                UserService user = (UserService) user_vc.elementAt(i);
+                if(user.UserStatus == "0")
+                    user.WriteOne2(str);
+            }
+        }
+
+
+        public void WriteAll3(String str) { //
+            for(int i=0; i<user_vc.size(); i++) {
+                UserService user = (UserService) user_vc.elementAt(i);
+                if(user.UserStatus == "0")
+                    user.WriteOne(str);
+            }
+        }
+
+
+
+
+        public void WriteAllObject(Object ob) {
+            for (int i = 0; i < user_vc.size(); i++) {
+                GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(i);
+                if (user.UserStatus == "O")
+                    user.WriteOneObject(ob);
             }
         }
 
@@ -355,22 +515,6 @@ public class GameServer extends JFrame {
         }
 
 //
-//        public void WriteAll2(String str) {
-//            for(int i=0; i<user_vc.size(); i++) {
-//                UserService user = (UserService) user_vc.elementAt(i);
-//                if(user.UserStatus == "0")
-//                    user.WriteOne(str);
-//            }
-//        }
-
-//        public void WriteAll3(String str) {
-//            for(int i=0; i<user_vc.size(); i++) {
-//                UserService user = (UserService) user_vc.elementAt(i);
-//                if(user.UserStatus == "0")
-//                    user.WriteOne(str);
-//            }
-//        }
-//
 //        public void WriteAll4(String str) {
 //            for(int i=0; i<user_vc.size(); i++) {
 //                UserService user = (UserService) user_vc.elementAt(i);
@@ -400,23 +544,6 @@ public class GameServer extends JFrame {
 //                packet[i] = bb[i];
 //            return packet;
 //        }
-
-
-
-
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
 
 }
