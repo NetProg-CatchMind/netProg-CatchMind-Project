@@ -14,13 +14,12 @@ import java.util.Map;
 
 
 public class GameClientSign extends JFrame {
-    /**
-     *
-     */
     public static final int SCREEN_WIDTH = 1500;
     public static final int SCREEN_HEIGHT = 800;
 
     private static final long serialVersionUID = 1L;
+
+    //UI 변수들 선언====================================================================================================
     private JPanel contentPane;
     private JTextField txtUserName;
     private JTextField txtIpAddress;
@@ -46,19 +45,28 @@ public class GameClientSign extends JFrame {
 
     private String selCharNo;
 
+
+    // 다음으로 넘어갈 Frame들 변수 =====================================================================================
     private GameClientMain main;
     private GameClientView view;
 
-    public boolean isPressedChar1 = false, isPressedChar2 = false, isPressedChar3 = false;
 
-    /**
-     * Launch the application.
-     */
+    //프레임 만들기 ===================================================================================================
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    GameClientSign frame = new GameClientSign();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
 
-    /**
-     * Create the frame.
-     */
+    //GameClientSign 프레임 기본 설정 ==================================================================================
     public GameClientSign() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT+38);
@@ -176,22 +184,11 @@ public class GameClientSign extends JFrame {
         txtUserName.addActionListener(action);
         txtIpAddress.addActionListener(action);
         txtPortNumber.addActionListener(action);
-
     }
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    GameClientSign frame = new GameClientSign();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 
+
+    // GameStart 버튼 눌렀을 때 액션 처리 -> GameClientMain 실행 ========================================================
     class Myaction implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
     {
         @Override
@@ -201,13 +198,16 @@ public class GameClientSign extends JFrame {
             String username = txtUserName.getText().trim();
             String ip_addr = txtIpAddress.getText().trim();
             String port_no = txtPortNumber.getText().trim();
+            String char_no = selCharNo;
 
-            main = new GameClientMain(username, ip_addr, port_no, selCharNo);
-            //view = new GameClientView(username, ip_addr, port_no);
+            main = new GameClientMain(username, ip_addr, port_no, char_no);
+//            view = new GameClientView(username, ip_addr, port_no);
+//            return null;
         }
     }
 
-
+    // TODO Not Complete
+    // 각 character 눌렀을 때, 캐릭터 설정 액션 처리 =====================================================================
     class CharAction implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e){

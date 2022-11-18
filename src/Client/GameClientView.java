@@ -113,7 +113,7 @@ public class GameClientView extends JFrame {
      * @throws BadLocationException
      */
 
-    public GameClientView(String username, String ip_addr, String port_no) {
+    public GameClientView(String username, String ip_addr, String port_no, String char_no) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT+38);
 //       setResizable(false);

@@ -1,6 +1,7 @@
 package Client;
 
 import Server.ChatMsg;
+import Server.RoomMsg;
 import com.sun.tools.javac.Main;
 
 import java.awt.*;
@@ -16,6 +17,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -30,6 +32,12 @@ public class GameClientMain extends JFrame {
     public static final int SCREEN_WIDTH = 1500;
     public static final int SCREEN_HEIGHT = 800;
 
+    public String username;
+    public String ip_addr;
+    public String port_no;
+    public String char_no;
+
+    //UI 설정 변수들 선언 ==============================================================================================
     private ImageIcon backgroundImg = new ImageIcon("res/basicBackground.png");
     //    private ImageIcon backgroundPanelImg = new ImageIcon("res/panelBackground.png");
     private ImageIcon loadingPanelImg = new ImageIcon("res/loadingPanelImg.png");
@@ -47,7 +55,9 @@ public class GameClientMain extends JFrame {
     private ImageIcon mouseOverScoreItem = new ImageIcon("res/mouseOverItemScore.png");
     private ImageIcon categoryItemImg = new ImageIcon("res/item_showCategory.png");
     private ImageIcon mouseOverCategoryItem = new ImageIcon("res/mouseOverItemCategory.png");
+    private ImageIcon roomTitleImg = new ImageIcon("res/roomTitle.png");
     private ImageIcon coinImg = new ImageIcon("res/coinImg.png");
+    private ImageIcon makeRoomBtnImg = new ImageIcon("res/makeRoomBtn.png");
 
     private JTable questionItemTable;
     private JTable answerItemTabel;
@@ -66,8 +76,6 @@ public class GameClientMain extends JFrame {
 
     private Boolean isSelectedItem[] = {false,false,false,false,false,false };
 
-
-    private JPanel loadingPanel; //프레임 바로 위에 놓인 왼쪽에 위치한 loading 화면을 보여줄 panel
     private JPanel userPanel; //프레임 바로 위에 놓인 오른쪽에 위치한 user정보들을 보여주는 panel
 
     private JPanel profilePanel; // userPanel위에 사용자의 프로필을 보여주는 panel
@@ -76,6 +84,23 @@ public class GameClientMain extends JFrame {
     private int coin = 10;
     private JLabel profileCoinImgLabel;
     private JLabel profileCoinCntLabel;
+    private JLabel makeRoomLabel;
+
+    private JPanel loadingPanel; //프레임 바로 위에 놓인 왼쪽에 위치한 loading 화면을 보여줄 panel
+    private JPanel roomTitlePanel;
+    private JLabel roomTitleLabel;
+    private JButton makeRoomButton;
+
+    private JButton roomSelectButton;
+    private JPanel roomSelectPanel;
+
+    private JScrollPane roomListScrollPanel;
+    private JPanel roomListPanel;
+
+
+//    private String roomName;
+//    private String roomSubject;
+//    private String roomMemberCnt;
 
     private int score = 0;
     private JPanel scorePanel;
@@ -84,9 +109,17 @@ public class GameClientMain extends JFrame {
 
     private JPanel itemPanel;
 
+//    private GameClientView view;
 
-//    public JavaGameClientViewDrawing drawing;
 
+    public static String labelName[] = { "방 번호 :", "      ", "방 주제 :", "      ", "인원 수 : ", "      ", "방 제목 : ",
+            "      ", "      " };
+    public JLabel labelArray[];
+
+    Vector<GameRoom> gameRooms = new Vector<GameRoom>();//개설된 대화방 Room-vs(Vector) : 대화방사용자
+
+
+    //통신을 위한 소켓 변수들 선언 =======================================================================================
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
     private Socket socket; // 연결소켓
     private InputStream is;
@@ -100,22 +133,16 @@ public class GameClientMain extends JFrame {
     private JLabel profileLabel;
 
     //Communication
-//    public Socket socket = null;
     public PrintWriter pw = null;
     public BufferedReader br = null;
+
+    public String UserName = "";
 
 
     private static final long serialVersionUID = 1L;
 
-    private JTextField txtInput;
-    private String UserName;
-    private JButton btnSend;
 
-
-    private JLabel lblUserName;
-    // private JTextArea textArea;
-    private JTextPane textArea;
-
+    // 미사용 -> 혹시 몰라서 그냥 둠 ======================================================================================
     private Frame frame;
     private FileDialog fd;
     private JButton imgBtn;
@@ -128,13 +155,15 @@ public class GameClientMain extends JFrame {
     private Image panelImage = null;
     private Graphics gc2 = null;
 
-    /**
-     * Create the frame.
-     *
-     * @throws BadLocationException
-     */
 
+    //GameClinentMain 프레임 초기화 및 소켓 연결 ========================================================================
     public GameClientMain(String username, String ip_addr, String port_no, String char_no) {
+        this.username = username;
+        this.ip_addr = ip_addr;
+        this.port_no = port_no;
+        this.char_no = char_no;
+
+        //프레임 UI 배치 ----------------------------------------------------------------------------------
 //        setUndecorated(true);
         setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         setVisible(true);
@@ -143,7 +172,6 @@ public class GameClientMain extends JFrame {
 //        setResizable(true);
         setLocationRelativeTo(null);
         setLayout(null);
-
 
         loadingPanel = new JPanel() {
             public void paintComponent(Graphics g) {
@@ -154,9 +182,6 @@ public class GameClientMain extends JFrame {
         };
 
 //        loadingPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        loadingPanel.setLayout(null);
-        loadingPanel.setBounds(0, 0, SCREEN_WIDTH / 2 + 1, SCREEN_HEIGHT);
-        add(loadingPanel);
 
         userPanel = new JPanel() {
             public void paintComponent(Graphics g) {
@@ -349,24 +374,87 @@ public class GameClientMain extends JFrame {
         categoryItemBtn.addActionListener(itemAction);
 
 
+        loadingPanel.setLayout(null);
+        loadingPanel.setBounds(0, 0, SCREEN_WIDTH / 2 + 1, SCREEN_HEIGHT);
+        add(loadingPanel);
+
+        roomTitlePanel = new JPanel();
+        roomTitlePanel.setBounds(85,60,600,100);
+//        roomTitlePanel.setBackground(Color.green);
+        roomTitlePanel.setLayout(null);
+        roomTitlePanel.setOpaque(false);
+//        roomTitlePanel.setLayout(new BorderLayout());
+        loadingPanel.add(roomTitlePanel);
+
+        roomTitleLabel = new JLabel(roomTitleImg);
+        roomTitleLabel.setIcon(roomTitleImg);
+        roomTitleLabel.setBounds(0,0,480,120);
+        wordCountLabel.setFont(new Font("Serif", Font.BOLD, 200));
+        roomTitlePanel.add(roomTitleLabel);
+
+        makeRoomButton = new JButton(makeRoomBtnImg);
+        makeRoomButton.setBounds(500, 0, 80,80);
+//        makeRoomButton.setBackground(Color.red);
+        makeRoomButton.setBorderPainted(false);
+        makeRoomButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        makeRoomButton.setContentAreaFilled(false);
+        makeRoomButton.setOpaque(false);
+        RoomAction roomAction = new RoomAction();
+        makeRoomButton.addActionListener(roomAction);
+        roomTitlePanel.add(makeRoomButton);
+
+        roomListScrollPanel = new JScrollPane();
+        roomListScrollPanel.setBounds(85, 170, 600, 470);
+
+        roomListPanel = new JPanel();
+        roomListPanel.setLayout(new GridLayout(100, 2, 10, 10));
+        roomListScrollPanel.add(roomListPanel);
+
+//        roomListPanel.setLayout(new GridLayout(100, 2, 10, 10));
+//        roomListPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        // 100개
+
+        System.out.println(gameRooms.size());
+        for(int i =0; i<gameRooms.size(); i++){
+            RoomPanel roomPanel = new RoomPanel();
+
+            roomListPanel.add(roomPanel);
+        }
+
+        loadingPanel.add(roomListScrollPanel);
+
+
+        roomSelectPanel = new JPanel();
+        roomSelectPanel.setBounds(85,650,600,100);
+        roomSelectPanel.setBackground(Color.green);
+        roomSelectPanel.setLayout(new BorderLayout());
+        loadingPanel.add(roomSelectPanel);
+
+        roomSelectButton = new JButton("game Start");
+        roomSelectButton.setBounds(0,0,600,100);
+        Myaction action = new Myaction();
+        roomSelectButton.addActionListener(action);
+        roomSelectPanel.add(roomSelectButton);
+
+
+        // 소켓 연결 ------------------------------------------------------------------------------
         try {
             socket = new Socket(ip_addr, Integer.parseInt(port_no));
             oos = new ObjectOutputStream(socket.getOutputStream());
             oos.flush();
             ois = new ObjectInputStream(socket.getInputStream());
 
-            // SendMessage("/login " + UserName);
-            ChatMsg obcm = new ChatMsg(UserName, "100", "Hello");
+            ChatMsg obcm = new ChatMsg(username, "100", "Login");
             SendObject(obcm);
 
             ListenNetwork net = new ListenNetwork();
             net.start();
-            TextSendAction action = new TextSendAction();
+//            TextSendAction textSendAction = new TextSendAction();
 //            btnSend.addActionListener(action);
 //            txtInput.addActionListener(action);
-            txtInput.requestFocus();
-            ImageSendAction action2 = new ImageSendAction();
-            imgBtn.addActionListener(action2);
+//            txtInput.requestFocus();
+//            ImageSendAction action2 = new ImageSendAction();
+//            imgBtn.addActionListener(action2);
 
 
         } catch (NumberFormatException | IOException e) {
@@ -375,6 +463,134 @@ public class GameClientMain extends JFrame {
             AppendText("connect error");
         }
     }
+
+    // Server에게 network으로 전송
+    public void SendMessage(String msg) {
+        try {
+            // dos.writeUTF(msg);
+//			byte[] bb;
+//			bb = MakePacket(msg);
+//			dos.write(bb, 0, bb.length);
+            ChatMsg obcm = new ChatMsg(username, "200", msg);
+            oos.writeObject(obcm);
+        } catch (IOException e) {
+            // AppendText("dos.write() error");
+            AppendText("oos.writeObject() error");
+            try {
+//				dos.close();
+//				dis.close();
+                ois.close();
+                oos.close();
+                socket.close();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+                System.exit(0);
+            }
+        }
+    }
+
+    //서버와 통신할 스레드 -> user마다 하나씩 만들어서 서버와 통신 --------------------------------------------------
+    class ListenNetwork extends Thread {
+        public void run() {
+            while (true) {
+                try {
+                    Object obcm = null;
+                    String msg = null;
+                    ChatMsg cm;
+                    RoomMsg rm;
+                    try {
+                        obcm = ois.readObject();
+                    } catch (ClassNotFoundException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                        break;
+                    }
+
+
+                    if (obcm == null)
+                        break;
+
+                    if(obcm instanceof RoomMsg) {
+                        rm = (RoomMsg) obcm;
+                        makeRoom(rm.roomTitle, rm.roomSubject ,rm.userCnt);
+                    }
+
+                    if (obcm instanceof ChatMsg) {
+                        cm = (ChatMsg) obcm;
+                        msg = String.format("[%s]\n%s", cm.UserName, cm.data);
+                    } else
+                        continue;
+//                    switch (cm.code) {
+//                        case "200": // chat message
+//                            if (cm.UserName.equals(username))
+//                                AppendTextR(msg); // 내 메세지는 우측에
+//                            else
+//                                AppendText(msg);
+//                            break;
+//                        case "300": // Image 첨부
+//                            if (cm.UserName.equals(username))
+//                                AppendTextR("[" + cm.UserName + "]");
+//                            else
+//                                AppendText("[" + cm.UserName + "]");
+//                            AppendImage(cm.img);
+//                            break;
+//                        case "500": // Mouse Event 수신
+////                            drawing.DoMouseEvent(cm);
+//                            break;
+//                    }
+                } catch (IOException e) {
+                    AppendText("ois.readObject() error");
+                    try {
+//						dos.close();
+//						dis.close();
+                        ois.close();
+                        oos.close();
+                        socket.close();
+
+                        break;
+                    } catch (Exception ee) {
+                        break;
+                    } // catch문 끝
+                } // 바깥 catch문끝
+
+            }
+        }
+    }
+
+    //사용자가 방을 만들었을때 서버로 RoomMsg형태로 객체 전송하는 frame 객체 만들기 --------------------------------------------------------------
+    class RoomAction implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            RoomMake makeRoom = new RoomMake(gameRooms, socket, oos);
+            makeRoom.setVisible(true);
+        }
+    }
+
+    public void makeRoom(String title, String subject, int cnt){
+        GameRoom gameRoom = new GameRoom(title, subject, cnt);
+        gameRooms.add(gameRoom);
+    }
+
+    class Myaction implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
+    {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            setVisible(false);
+
+//            String username = txtUserName.getText().trim();
+//            String ip_addr = txtIpAddress.getText().trim();
+//            String port_no = txtPortNumber.getText().trim();
+
+//            view = new GameClientView(username, ip_addr, port_no,char_no );
+//            view = new GameClientView(username, ip_addr, port_no);
+
+
+//            return null;
+        }
+    }
+
+
 
     class itemAction implements ActionListener {
         @Override
@@ -455,26 +671,28 @@ public class GameClientMain extends JFrame {
                 }
             }
             profileCoinCntLabel.setText(String.valueOf(coin));
+//            return null;
         }
     }
 
     // keyboard enter key 치면 서버로 전송
-    class TextSendAction implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Send button을 누르거나 메시지 입력하고 Enter key 치면
-            if (e.getSource() == btnSend || e.getSource() == txtInput) {
-                String msg = null;
-                // msg = String.format("[%s] %s\n", UserName, txtInput.getText());
-                msg = txtInput.getText();
-                SendMessage(msg);
-                txtInput.setText(""); // 메세지를 보내고 나면 메세지 쓰는창을 비운다.
-                txtInput.requestFocus(); // 메세지를 보내고 커서를 다시 텍스트 필드로 위치시킨다
-                if (msg.contains("/exit")) // 종료 처리
-                    System.exit(0);
-            }
-        }
-    }
+//    class TextSendAction implements ActionListener {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            // Send button을 누르거나 메시지 입력하고 Enter key 치면
+//            if (e.getSource() == btnSend || e.getSource() == txtInput) {
+//                String msg = null;
+//                // msg = String.format("[%s] %s\n", UserName, txtInput.getText());
+//                msg = txtInput.getText();
+//                SendMessage(msg);
+//                txtInput.setText(""); // 메세지를 보내고 나면 메세지 쓰는창을 비운다.
+//                txtInput.requestFocus(); // 메세지를 보내고 커서를 다시 텍스트 필드로 위치시킨다
+//                if (msg.contains("/exit")) // 종료 처리
+//                    System.exit(0);
+//            }
+////            return null;
+//        }
+//    }
 
     class ImageSendAction implements ActionListener {
         @Override
@@ -488,161 +706,114 @@ public class GameClientMain extends JFrame {
                 fd.setVisible(true);
                 // System.out.println(fd.getDirectory() + fd.getFile());
                 if (fd.getDirectory().length() > 0 && fd.getFile().length() > 0) {
-                    ChatMsg obcm = new ChatMsg(UserName, "300", "IMG");
+                    ChatMsg obcm = new ChatMsg(username, "300", "IMG");
                     ImageIcon img = new ImageIcon(fd.getDirectory() + fd.getFile());
                     obcm.img = img;
                     SendObject(obcm);
                 }
             }
+//            return null;
+        }
+    }
+
+    public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
+        try {
+            oos.writeObject(ob);
+        } catch (IOException e) {
+            // textArea.append("메세지 송신 에러!!\n");
+            AppendText("SendObject Error");
         }
     }
 
     // Server Message를 수신해서 화면에 표시
-    class ListenNetwork extends Thread {
-        public void run() {
-            while (true) {
-                try {
 
-                    Object obcm = null;
-                    String msg = null;
-                    ChatMsg cm;
-                    try {
-                        obcm = ois.readObject();
-                    } catch (ClassNotFoundException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                        break;
-                    }
-                    if (obcm == null)
-                        break;
-                    if (obcm instanceof ChatMsg) {
-                        cm = (ChatMsg) obcm;
-                        msg = String.format("[%s]\n%s", cm.UserName, cm.data);
-                    } else
-                        continue;
-                    switch (cm.code) {
-                        case "200": // chat message
-                            if (cm.UserName.equals(UserName))
-                                AppendTextR(msg); // 내 메세지는 우측에
-                            else
-                                AppendText(msg);
-                            break;
-                        case "300": // Image 첨부
-                            if (cm.UserName.equals(UserName))
-                                AppendTextR("[" + cm.UserName + "]");
-                            else
-                                AppendText("[" + cm.UserName + "]");
-                            AppendImage(cm.img);
-                            break;
-                        case "500": // Mouse Event 수신
-//                            drawing.DoMouseEvent(cm);
-                            break;
-                    }
-                } catch (IOException e) {
-                    AppendText("ois.readObject() error");
-                    try {
-//						dos.close();
-//						dis.close();
-                        ois.close();
-                        oos.close();
-                        socket.close();
-
-                        break;
-                    } catch (Exception ee) {
-                        break;
-                    } // catch문 끝
-                } // 바깥 catch문끝
-
-            }
-        }
-    }
 
     // 화면에 출력
     public void AppendText(String msg) {
         // textArea.append(msg + "\n");
         // AppendIcon(icon1);
         msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.
-        int len = textArea.getDocument().getLength();
+//        int len = textArea.getDocument().getLength();
         // 끝으로 이동
         //textArea.setCaretPosition(len);
         //textArea.replaceSelection(msg + "\n");
 
-        StyledDocument doc = textArea.getStyledDocument();
+//        StyledDocument doc = textArea.getStyledDocument();
         SimpleAttributeSet left = new SimpleAttributeSet();
         StyleConstants.setAlignment(left, StyleConstants.ALIGN_LEFT);
         StyleConstants.setForeground(left, Color.BLACK);
-        doc.setParagraphAttributes(doc.getLength(), 1, left, false);
-        try {
-            doc.insertString(doc.getLength(), msg + "\n", left);
-        } catch (BadLocationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        len = textArea.getDocument().getLength();
-        textArea.setCaretPosition(len);
+//        doc.setParagraphAttributes(doc.getLength(), 1, left, false);
+//        try {
+//            doc.insertString(doc.getLength(), msg + "\n", left);
+//        } catch (BadLocationException e) {
+
+//            e.printStackTrace();
+//        }
+//        len = textArea.getDocument().getLength();
+//        textArea.setCaretPosition(len);
 
 
     }
 
     // 화면 우측에 출력
-    public void AppendTextR(String msg) {
-        msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.
-        StyledDocument doc = textArea.getStyledDocument();
-        SimpleAttributeSet right = new SimpleAttributeSet();
-        StyleConstants.setAlignment(right, StyleConstants.ALIGN_RIGHT);
-        StyleConstants.setForeground(right, Color.BLUE);
-        doc.setParagraphAttributes(doc.getLength(), 1, right, false);
-        try {
-            doc.insertString(doc.getLength(), msg + "\n", right);
-        } catch (BadLocationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        int len = textArea.getDocument().getLength();
-        textArea.setCaretPosition(len);
+//    public void AppendTextR(String msg) {
+//        msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.
+//        StyledDocument doc = textArea.getStyledDocument();
+//        SimpleAttributeSet right = new SimpleAttributeSet();
+//        StyleConstants.setAlignment(right, StyleConstants.ALIGN_RIGHT);
+//        StyleConstants.setForeground(right, Color.BLUE);
+//        doc.setParagraphAttributes(doc.getLength(), 1, right, false);
+//        try {
+//            doc.insertString(doc.getLength(), msg + "\n", right);
+//        } catch (BadLocationException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//        int len = textArea.getDocument().getLength();
+//        textArea.setCaretPosition(len);
+//
+//    }
 
-    }
-
-    public void AppendImage(ImageIcon ori_icon) {
-//        drawing.AppendImage(ori_icon);
-
-        int len = textArea.getDocument().getLength();
-        textArea.setCaretPosition(len); // place caret at the end (with no selection)
-        Image ori_img = ori_icon.getImage();
-        Image new_img;
-        ImageIcon new_icon;
-        int width, height;
-        double ratio;
-        width = ori_icon.getIconWidth();
-        height = ori_icon.getIconHeight();
-        // Image가 너무 크면 최대 가로 또는 세로 200 기준으로 축소시킨다.
-        if (width > 200 || height > 200) {
-            if (width > height) { // 가로 사진
-                ratio = (double) height / width;
-                width = 200;
-                height = (int) (width * ratio);
-            } else { // 세로 사진
-                ratio = (double) width / height;
-                height = 200;
-                width = (int) (height * ratio);
-            }
-            new_img = ori_img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-            new_icon = new ImageIcon(new_img);
-            textArea.insertIcon(new_icon);
-        } else {
-            textArea.insertIcon(ori_icon);
-            new_img = ori_img;
-        }
-        len = textArea.getDocument().getLength();
-        textArea.setCaretPosition(len);
-        // ImageViewAction viewaction = new ImageViewAction();
-        // new_icon.addActionListener(viewaction); // 내부클래스로 액션 리스너를 상속받은 클래스로
-        // panelImage = ori_img.getScaledInstance(panel.getWidth(), panel.getHeight(), Image.SCALE_DEFAULT);
-
-        //gc2.drawImage(ori_img,  0,  0, panel.getWidth(), panel.getHeight(), panel);
-        //gc.drawImage(panelImage, 0, 0, panel.getWidth(), panel.getHeight(), panel);
-
-    }
+//    public void AppendImage(ImageIcon ori_icon) {
+////        drawing.AppendImage(ori_icon);
+//
+//        int len = textArea.getDocument().getLength();
+//        textArea.setCaretPosition(len); // place caret at the end (with no selection)
+//        Image ori_img = ori_icon.getImage();
+//        Image new_img;
+//        ImageIcon new_icon;
+//        int width, height;
+//        double ratio;
+//        width = ori_icon.getIconWidth();
+//        height = ori_icon.getIconHeight();
+//        // Image가 너무 크면 최대 가로 또는 세로 200 기준으로 축소시킨다.
+//        if (width > 200 || height > 200) {
+//            if (width > height) { // 가로 사진
+//                ratio = (double) height / width;
+//                width = 200;
+//                height = (int) (width * ratio);
+//            } else { // 세로 사진
+//                ratio = (double) width / height;
+//                height = 200;
+//                width = (int) (height * ratio);
+//            }
+//            new_img = ori_img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+//            new_icon = new ImageIcon(new_img);
+//            textArea.insertIcon(new_icon);
+//        } else {
+//            textArea.insertIcon(ori_icon);
+//            new_img = ori_img;
+//        }
+//        len = textArea.getDocument().getLength();
+//        textArea.setCaretPosition(len);
+//        // ImageViewAction viewaction = new ImageViewAction();
+//        // new_icon.addActionListener(viewaction); // 내부클래스로 액션 리스너를 상속받은 클래스로
+//        // panelImage = ori_img.getScaledInstance(panel.getWidth(), panel.getHeight(), Image.SCALE_DEFAULT);
+//
+//        //gc2.drawImage(ori_img,  0,  0, panel.getWidth(), panel.getHeight(), panel);
+//        //gc.drawImage(panelImage, 0, 0, panel.getWidth(), panel.getHeight(), panel);
+//
+//    }
 
     // Windows 처럼 message 제외한 나머지 부분은 NULL 로 만들기 위한 함수
     public byte[] MakePacket(String msg) {
@@ -663,40 +834,9 @@ public class GameClientMain extends JFrame {
         return packet;
     }
 
-    // Server에게 network으로 전송
-    public void SendMessage(String msg) {
-        try {
-            // dos.writeUTF(msg);
-//			byte[] bb;
-//			bb = MakePacket(msg);
-//			dos.write(bb, 0, bb.length);
-            ChatMsg obcm = new ChatMsg(UserName, "200", msg);
-            oos.writeObject(obcm);
-        } catch (IOException e) {
-            // AppendText("dos.write() error");
-            AppendText("oos.writeObject() error");
-            try {
-//				dos.close();
-//				dis.close();
-                ois.close();
-                oos.close();
-                socket.close();
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-                System.exit(0);
-            }
-        }
-    }
 
-    public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
-        try {
-            oos.writeObject(ob);
-        } catch (IOException e) {
-            // textArea.append("메세지 송신 에러!!\n");
-            AppendText("SendObject Error");
-        }
-    }
+
+
 
 }
     class ListenNetwork extends Thread {
