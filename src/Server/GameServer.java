@@ -242,6 +242,11 @@ public class GameServer extends JFrame {
             AppendText("사용자 " + "[" + UserName + "] 퇴장. 현재 참가자 수 " + UserVec.size());
         }
 
+        public void Logout2() {
+            // String msg = "[" + UserName + "]님이 퇴장 하였습니다.\n";
+            UserVec.removeElement(this); // Logout한 현재 객체를 벡터에서 지운다
+        }
+
         public void AppendObject(ChatMsg msg) {
             // textArea.append("사용자로부터 들어온 object : " + str+"\n");
             textArea.append("code = " + msg.code + "\n");
@@ -255,7 +260,6 @@ public class GameServer extends JFrame {
 //            textArea.append(str + "\n");
 //            textArea.setCaretPosition(textArea.getText().length());
 //        }
-
 
 
         // UserService Thread가 담당하는 Client 에게 1:1 전송 / 프로토콜 200
@@ -286,14 +290,14 @@ public class GameServer extends JFrame {
             }
         }
 
-        public void WriteOne2(String msg) { //사용자 목록 업데이트 방송
+        public void WriteOne2(String msg) { //사용자 목록 업데이트 방송 / 프로토콜 603
             try {
                 // dos.writeUTF(msg);
 //				byte[] bb;
 //				bb = MakePacket(msg);
 //				dos.write(bb, 0, bb.length);
 
-                ChatMsg obcm = new ChatMsg("SERVER", "700", msg);
+                ChatMsg obcm = new ChatMsg("SERVER", "603", msg);
                 oos.writeObject(obcm);
             } catch (IOException e) {
                 AppendText("dos.writeObject() error");
@@ -341,6 +345,33 @@ public class GameServer extends JFrame {
             }
         }
 
+        public void WriteOne6_1(String msg) { //protocol 601 게임 상황 전달(?)
+            try {
+                // dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+                ChatMsg obcm = new ChatMsg("SERVER", "601", msg);
+                oos.writeObject(obcm);
+            } catch (IOException e) {
+                AppendText("dos.writeObject() error");
+                try {
+//					dos.close();
+//					dis.close();
+                    ois.close();
+                    oos.close();
+                    client_socket.close();
+                    client_socket = null;
+                    ois = null;
+                    oos = null;
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+            }
+        }
+
         public void WriteOne6_3(String msg) { //protocol 603 사용자 목록 업데이트
             try {
                 // dos.writeUTF(msg);
@@ -368,7 +399,35 @@ public class GameServer extends JFrame {
             }
         }
 
-        public void WriteOne8(String msg) { //순서 변경시의 안내방송
+
+        public void WriteOne7(String msg) { //protocol 700 퇴장
+            try {
+                // dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+                ChatMsg obcm = new ChatMsg("SERVER", "700", msg);
+                oos.writeObject(obcm);
+            } catch (IOException e) {
+                AppendText("dos.writeObject() error");
+                try {
+//					dos.close();
+//					dis.close();
+                    ois.close();
+                    oos.close();
+                    client_socket.close();
+                    client_socket = null;
+                    ois = null;
+                    oos = null;
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+            }
+        }
+
+        public void WriteOne8(String msg) { //순서 변경시의 안내방송 / 프로토콜 800
 
             try {
                 // dos.writeUTF(msg);
@@ -450,7 +509,14 @@ public class GameServer extends JFrame {
             }
         }
 
-
+        // 모든 User들에게 방송. 각각의 UserService Thread의 WriteONe() 을 호출한다.
+        public void WriteAll4(String str) {
+            for (int i = 0; i < user_vc.size(); i++) {
+                UserService user = (UserService) user_vc.elementAt(i);
+                if (user.UserStatus == "O")
+                    user.WriteOne6_1(str);
+            }
+        }
 
 
         public void WriteAllObject(Object ob) {
@@ -468,6 +534,40 @@ public class GameServer extends JFrame {
                 if (user != this && user.UserStatus == "O")
                     user.WriteOne(str);
             }
+        }
+
+        public void WriteOthersimg(Object ob) {
+            for (int i = 0; i < user_vc.size(); i++) {
+                UserService user = (UserService) user_vc.elementAt(i);
+                if (user.UserName != this.UserName && user.UserStatus == "O")
+                    user.WriteOneObject(ob);
+            }
+        }
+
+        public void WriteOthers2(String str) {
+            for (int i = 0; i < user_vc.size(); i++) {
+                UserService user = (UserService) user_vc.elementAt(i);
+                if (user != this && user.UserStatus == "O")
+                    user.WriteOne6(str);
+            }
+        }
+
+        // Windows 처럼 message 제외한 나머지 부분은 NULL 로 만들기 위한 함수
+        public byte[] MakePacket(String msg) {
+            byte[] packet = new byte[BUF_LEN];
+            byte[] bb = null;
+            int i;
+            for (i = 0; i < BUF_LEN; i++)
+                packet[i] = 0;
+            try {
+                bb = msg.getBytes("euc-kr");
+            } catch (UnsupportedEncodingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            for (i = 0; i < bb.length; i++)
+                packet[i] = bb[i];
+            return packet;
         }
 
         public void WriteOneObject(Object ob) {
