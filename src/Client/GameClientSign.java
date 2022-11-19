@@ -71,7 +71,7 @@ public class GameClientSign extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT+38);
 //        setResizable(false);
-        setLocationRelativeTo(null);
+//        setLocationRelativeTo(null);
 //        setUndecorated(true);
         setVisible(true);
 

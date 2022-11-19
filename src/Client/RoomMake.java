@@ -65,6 +65,8 @@ class RoomMake extends JFrame {
         RoomMakeAction roomMakeAction  = new RoomMakeAction();
         makeRoomBtn.addActionListener(roomMakeAction);
         cancleBtn = new JButton("취 소");
+        CancleAction cancleAction = new CancleAction();
+        cancleBtn.addActionListener(cancleAction);
 
         JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel1.setOpaque(false);
@@ -99,20 +101,7 @@ class RoomMake extends JFrame {
         rmPanel.add("Center", totpanel);
         rmPanel.add("South", btpanel);
 
-
     }
-
-//                public String getTitle(){
-//                    return titleField.getText();
-//                }
-//
-//                public String getSubject(){
-//                    return subjectCombo.getSelectedItem().toString();
-//                }
-//
-//                public int getMemberCnt(){
-//                    return Integer.parseInt(memberCntCombo.getSelectedItem().toString());
-//                }
 
     // JPanel을 상속받는 새 패널 구현
     class RoomMakePanel extends JPanel {
@@ -130,11 +119,10 @@ class RoomMake extends JFrame {
             int cnt;
 
             title = titleField.getText();
-            System.out.println(subjectCombo.getSelectedItem());
             subject = subjects[subjectCombo.getSelectedIndex()];
             cnt = Integer.parseInt(memberCntCombo.getSelectedItem().toString());
             roomId = "room@" + username+ "/" + title+ "/" + subject;
-            RoomMsg obmr = new RoomMsg("1200", roomId, title, subject, cnt); //방만들기 프로토콜 번호 1200
+            Client.RoomMsg obmr = new Client.RoomMsg("1200", roomId, title, subject, cnt); //방만들기 프로토콜 번호 1200
             SendObject(obmr);
 //                        try {
 //                            oos.writeObject(obmr);
@@ -155,8 +143,16 @@ class RoomMake extends JFrame {
 //            if(e.getSource() == "movie") roomImg = subMovieImg;
 //            if(e.getSource() == "animal") roomImg = subAnimalImg;
 //            if(e.getSource() == "thing") roomImg = subThingImg;
-            
+
         }
+    }
+
+    class CancleAction implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e){
+            setVisible(false);
+        }
+
     }
 
     public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드

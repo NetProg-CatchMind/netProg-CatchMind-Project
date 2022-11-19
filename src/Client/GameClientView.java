@@ -115,7 +115,7 @@ public class GameClientView extends JFrame {
      * @throws BadLocationException
      */
 
-    public GameClientView(String roomId, String username, Socket socket, String ip_addr, String port_no) {
+    public GameClientView(String roomId, String userList, String username, Socket socket, String ip_addr, String port_no) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT+38);
 //       setResizable(false);
@@ -124,7 +124,7 @@ public class GameClientView extends JFrame {
 //        setUndecorated(true);
 
         userVec.add(socket);
-
+        userVec.add(userList.split(" "));
 
         contentPane = new JPanel(){
             public void paintComponents(Graphics g) {
@@ -224,6 +224,7 @@ public class GameClientView extends JFrame {
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
+
         scorePanel.setBounds(270,0,260,150);
         infoPanel.add(scorePanel);
 

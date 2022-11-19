@@ -10,9 +10,11 @@ public class GameRoom extends Thread{
     private JPanel contentPane;
     JTextArea textArea;
     private JTextField txtPortNumber;
-    String roomId;
-    String title, subject;
+    public String roomId;
+    public String title, subject;
     int memberCnt;
+
+    private Vector user_vc; //???
     Vector memberList = new Vector(); //현재 방에 있는 사용자들 리스트
 
     Vector UserVec = new Vector(); //방에 상관없이 접속한 모든 사용자들.
@@ -26,17 +28,16 @@ public class GameRoom extends Thread{
     private DataOutputStream dos;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
-    private Vector user_vc;
+
 
     public String UserName = "";
     public String UserStatus;
 
-    public GameRoom(String roomId, String title, String subject, int memberCnt, ServerSocket socket, Socket client_socket, Vector UserVec ){
+    public GameRoom(String roomId, String title, String subject, int memberCnt, ServerSocket socket, Socket client_socket ){
         this.roomId = roomId;
         this.title = title;
         this.subject = subject;
         this.memberCnt = memberCnt;
-        this.memberList = memberList;
 
         this.socket = socket;
         this.client_socket = client_socket;

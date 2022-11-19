@@ -25,7 +25,11 @@ public class GameServer extends JFrame {
     private Socket client_socket; // accept() 에서 생성된 client 소켓
 
     private Vector UserVec = new Vector(); // 연결된 사용자를 저장할 벡터
-    private Vector RoomVec = new Vector(); //생성된 방을 저장할 벡터.
+    private Vector<GameRoom> RoomVec = new Vector<GameRoom>(); //생성된 방을 저장할 벡터.
+    String roomIdList = "";
+    String roomTitleList = "";
+    String roomSubjectList = "";
+    String roomCntList ="";
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 
@@ -172,7 +176,8 @@ public class GameServer extends JFrame {
 
                 Object obcm = null;
                 String msg = null;
-                RoomMsg rm = null;
+                Client.RoomMsg rm = null;
+                JoinMsg jm = null;
                 ChatMsg cm = null;
 
                 if (socket == null)
@@ -188,28 +193,47 @@ public class GameServer extends JFrame {
                     throw new RuntimeException(e);
                 }
 
-                if (obcm == null)
+                if (obcm == null){
                     break;
+                }
 
-                if(obcm instanceof RoomMsg){
-                    rm = (RoomMsg) obcm;
-                    System.out.println(rm.code);
+                //방만들기 메세지일 경우 --------------------------------------------------------------
+                if(obcm instanceof Client.RoomMsg){
+                    rm = (Client.RoomMsg) obcm;
 
                     //방만들기!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     if(rm.code.matches("1200")){
                         makeRoom(rm.roomId, rm.roomTitle, rm.roomSubject, rm.userCnt);
                     }
-                    //방 입장!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    else if(rm.code.matches("1201")){
-                        joinRoom(rm.roomId, rm.roomTitle, rm.roomSubject, rm.userCnt);// 사용자가 방 입장 버튼 눌렀을때 .. -> 룸 번호에 따라 스레드로 관리, 동작
+                }
+
+                //방 입장 메세지일 경우 --------------------------------------------------------------
+                if(obcm instanceof JoinMsg) {
+                    jm = (JoinMsg) obcm;
+
+                    //방 입장!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+                    if(jm.code.matches("1201")) {
+                        String userList = "";
+                        GameRoom curRoom = null;
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            if (RoomVec.get(i).roomId.equals(jm.roomId)) {
+                                curRoom = RoomVec.get(i);
+                            }
+                        }
+                        curRoom.memberList.add(client_socket);
+                        for (int i = 0; i < curRoom.memberList.size(); i++) {
+                            userList += curRoom.memberList.get(i) + " ";
+                        }
+                        JoinMsg joinMsg = new JoinMsg("1201", jm.roomId, userList);
+                        WriteOneObject(joinMsg);
                     }
                 }
 
-                else continue;
-
+                //채팅 메세지일 경우 -------------------------------------------------------------- (다른 클래스에서 구현할 가능성 있음)
                 if (obcm instanceof ChatMsg) { //obcm(읽어들인 object)이 ChatMsg라면
+
                     cm = (ChatMsg) obcm; //ChatMsg 형식으로 바꿔서
-                    AppendObject(cm);
+//                    AppendObject(cm);
 
                     //로그인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     if (cm.code.matches("100")) {
@@ -226,23 +250,31 @@ public class GameServer extends JFrame {
                         WriteAllObject(cm);
                     }
 
-                } else
-                    continue;
+                }
 
 
             }
         } // run
 
         public void makeRoom(String roomId, String title, String subject, int cnt){
-            GameRoom gameRoom = new GameRoom(roomId, title, subject, cnt, socket , client_socket, UserVec);
+            GameRoom gameRoom = new GameRoom(roomId, title, subject, cnt, socket , client_socket);
+            gameRoom.memberList.add(client_socket);
 
             RoomVec.add(gameRoom);
-            RoomMsg roomMsg = new RoomMsg("1200",  gameRoom.roomId, title, subject,cnt);
-            WriteOneObject(roomMsg);
+
+            roomIdList += (gameRoom.roomId + " ");
+            roomTitleList += (gameRoom.title + " ");
+            roomSubjectList += (gameRoom.subject + " ");
+            roomCntList += (gameRoom.memberCnt + " ");
+
+//            RoomMsg roomMsg = new RoomMsg("1200", gameRoom.roomId, title, subject, cnt);
+            Server.RoomMsg roomMsg = new Server.RoomMsg("1200", roomIdList, roomTitleList, roomSubjectList, roomCntList);
+            WriteAllObject(roomMsg);
+//            WriteAllObject(roomMsg);
         }
 
         public void joinRoom(String roomId, String title, String subject, int cnt){
-            RoomMsg roomMsg = new RoomMsg("1201",  roomId, title, subject,cnt);
+            RoomMsg roomMsg = new RoomMsg("1201", roomIdList, roomTitleList, roomSubjectList, roomCntList);
             WriteOneObject(roomMsg);
         }
 
@@ -251,8 +283,12 @@ public class GameServer extends JFrame {
             AppendText("새로운 참가자 " + UserName + " 입장.");
             WriteOne("Welcome to Java chat server\n");
             WriteOne(UserName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
+            user_vc.addElement(this);
+            Server.RoomMsg roomMsg = new Server.RoomMsg("100", roomIdList, roomTitleList, roomSubjectList, roomCntList);
+            WriteOneObject(roomMsg);
             String msg = "[" + UserName + "]님이 입장 하였습니다.\n";
             WriteOthers(msg); // 아직 user_vc에 새로 입장한 user는 포함되지 않았다.
+
         }
 
         public void Logout() {
@@ -540,10 +576,10 @@ public class GameServer extends JFrame {
 
 
         public void WriteAllObject(Object ob) {
-            for (int i = 0; i < user_vc.size(); i++) {
-                GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(i);
-                if (user.UserStatus == "O")
-                    user.WriteOneObject(ob);
+            for (int i = 0; i < UserVec.size(); i++) {
+
+                GameServer.UserService user = (GameServer.UserService) UserVec.elementAt(i);
+                user.WriteOneObject(ob);
             }
         }
 
