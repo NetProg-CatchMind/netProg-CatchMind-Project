@@ -6,7 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
-public class GameRoom extends Thread{
+public class GameRoom extends Thread{ //game room 입장 후 서버에서 방에 뿌리는 방송 클래스
     private JPanel contentPane;
     JTextArea textArea;
     private JTextField txtPortNumber;
