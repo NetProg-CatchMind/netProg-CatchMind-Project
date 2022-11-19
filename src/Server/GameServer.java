@@ -32,6 +32,10 @@ public class GameServer extends JFrame {
     String roomCntList ="";
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
+    public int gameStart = 0; //시작시 1로 변경하기
+    public String argp[] = { "사과", "오징어", "사람", "나무", "토끼" }; //제시어 뿌리는 배열,,다른 방식 생각해볼것
+
+
 
     public String word[] = {"새", "나무", "사람"}; //단어 서버에서 어떤 방식으로 뿌릴지 정하기,, -> 더미 데이터로 처리
 
@@ -238,9 +242,26 @@ public class GameServer extends JFrame {
                     //로그인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     if (cm.code.matches("100")) {
                         UserName = cm.UserName;
-                        UserStatus = "O"; // Online 상태
-                        Login();
+                        if (gameStart == 1) { //게임이 진행중일시
+                            WriteOne6("게임중에는 접속할 수 없습니다!");
+                            Logout2();
+                            break;
+                        } else {
+                            UserStatus = "O"; // Online 상태
+                            Login();
+                        }
                     }
+
+                    else if(cm.code.matches("200")) { //채팅 message 처리
+                        msg = String.format("[%s] %s", cm.UserName, cm.data);
+
+                        AppendText(msg); //server 오른쪽에 출력되게 하기
+                        String[] args = msg.split(" "); //단어 분리 ////방 유저 list도 이런 방식으로 분리하면 되려나,,
+
+                        //if((cm.data.equals()) //맞춘 유저의 점수를 올려준다
+                    }
+
+
 
                     //로그아웃!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     else if (cm.code.matches("400")) { // logout message 처리
