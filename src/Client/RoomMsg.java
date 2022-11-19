@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.Vector;
 
 public class RoomMsg implements Serializable {
+
     private static final long serialVersionUID = 2L;
     public String code;
     public String roomId;

@@ -10,5 +10,6 @@ public class JoinMsg implements Serializable {
         this.code = code;
         this.roomId = roomId;
         this.userList = userList;
+
     }
 }

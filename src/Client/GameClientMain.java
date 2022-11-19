@@ -722,11 +722,11 @@ public class GameClientMain extends JFrame {
                     coin --;
                     wordCountBtn.setIcon(mouseOverWordCntItem);
                 }
+
                 else{
                     coin ++;
                     wordCountBtn.setIcon(wordCountItemImg);
                 }
-
             }
 
             if(e.getSource() == twiceScoreItemBtn){

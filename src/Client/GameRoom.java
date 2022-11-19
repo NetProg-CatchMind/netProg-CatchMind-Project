@@ -15,7 +15,6 @@ public class GameRoom implements Serializable {
     public boolean isSel() {
         return isSel;
     }
-
     public void setSel(boolean sel) {
         isSel = sel;
     }

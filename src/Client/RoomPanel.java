@@ -157,7 +157,5 @@ public class RoomPanel extends JPanel {
 //        }
 //        len = textArea.getDocument().getLength();
 //        textArea.setCaretPosition(len);
-
-
     }
 }

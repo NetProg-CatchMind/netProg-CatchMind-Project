@@ -19,6 +19,7 @@ class ChatMsg implements Serializable {
     public Color co;
     public int shape;
 
+
     public ChatMsg(String UserName, String code, String msg) {
         this.code = code;
         this.UserName = UserName;

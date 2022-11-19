@@ -5,6 +5,7 @@ import java.util.Vector;
 
 public class Room {//대화방의 정보표현 객체
 
+
     public String getTitle() {
         return title;
     }

@@ -132,6 +132,7 @@ public class GameClientView extends JFrame {
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
+
         contentPane.setBorder(new EmptyBorder(10, 5, 5, 5));
         setContentPane(contentPane);
         contentPane.setLayout(null);

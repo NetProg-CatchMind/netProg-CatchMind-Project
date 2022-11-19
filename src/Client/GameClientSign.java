@@ -65,7 +65,6 @@ public class GameClientSign extends JFrame {
         });
     }
 
-
     //GameClientSign 프레임 기본 설정 ==================================================================================
     public GameClientSign() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

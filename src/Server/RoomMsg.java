@@ -11,7 +11,6 @@ public class RoomMsg implements Serializable {
     public String roomList;
     public int userCnt;
     private Vector userList = new Vector(); // 연결된 사용자를 저장할 벡터
-
     public String roomIdList;
     public String roomTitleList;
     public String roomSubjectList;

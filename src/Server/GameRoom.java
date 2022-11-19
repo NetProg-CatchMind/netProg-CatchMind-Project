@@ -22,6 +22,7 @@ public class GameRoom extends Thread{ //game room 입장 후 서버에서 방에
     private ServerSocket socket; // 서버소켓
     private Socket client_socket; // accept() 에서 생성된 client 소켓
 
+
     private InputStream is;
     private OutputStream os;
     private DataInputStream dis;

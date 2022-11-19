@@ -159,6 +159,7 @@ public class GameServer extends JFrame {
                 oos.flush();
                 ois = new ObjectInputStream(client_socket.getInputStream()); //input Stream 세팅 (초기화)
 
+
                 // line1 = dis.readUTF();
                 // /login user1 ==> msg[0] msg[1]
 //				byte[] b = new byte[BUF_LEN];

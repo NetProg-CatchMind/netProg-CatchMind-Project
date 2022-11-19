@@ -124,12 +124,6 @@ class RoomMake extends JFrame {
             roomId = "room@" + username+ "/" + title+ "/" + subject;
             Client.RoomMsg obmr = new Client.RoomMsg("1200", roomId, title, subject, cnt); //방만들기 프로토콜 번호 1200
             SendObject(obmr);
-//                        try {
-//                            oos.writeObject(obmr);
-//
-//                        } catch (IOException ex) {
-//                            throw new RuntimeException(ex);
-//                        }
 
             setVisible(false);
         }
