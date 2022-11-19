@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Vector;
+import Server.RoomMsg;
 
 class RoomMake extends JFrame {
+
+    private String username;
     private Socket socket;
     private ObjectOutputStream oos;
-
-    private String roomTitle, roomSubject;
-    private int roomMemberCnt;
 
     private JLabel title, subject, num;
 
@@ -24,13 +24,23 @@ class RoomMake extends JFrame {
     public JButton makeRoomBtn, cancleBtn;
     public JComboBox<String> subjectCombo, memberCntCombo; //주제, 최대 인원수
     private Vector<GameRoom> gameRooms;
+    String[] subjects = { "food", "music", "movie", "animal", "thing" };
 
-    public RoomMake(Vector<GameRoom> gameRooms, Socket socket, ObjectOutputStream oos) {
+    private ImageIcon subFoodImg = new ImageIcon("res/subFood.png");
+    private ImageIcon subMusicImg = new ImageIcon("res/subMusic.png");
+    private ImageIcon subMovieImg = new ImageIcon("res/subMovie.png");
+    private ImageIcon subAnimalImg = new ImageIcon("res/subAnimal.png");
+    private ImageIcon subThingImg = new ImageIcon("res/subThing.png");
+
+    private ImageIcon roomImg;
+
+
+    public RoomMake(String username, Socket socket, ObjectOutputStream oos) {
         setResizable(false);
         setBounds(400, 200, 300, 300);
         setVisible(true);
 
-        this.gameRooms = gameRooms;
+        this.username = username;
         this.socket = socket;
         this.oos = oos;
 
@@ -40,8 +50,10 @@ class RoomMake extends JFrame {
 
         titleField = new JTextField(15);
 
-        String[] subjects = { "음식", "음악", "영화", "동물", "사물" };
+//        String[] subjects = { "음식", "음악", "영화", "동물", "사물" };
         subjectCombo = new JComboBox<String>(subjects);
+        SubjectAction subAction = new SubjectAction();
+        subjectCombo.addActionListener(subAction);
 
         String[] memberCnt = { "2", "3", "4",};
         memberCntCombo = new JComboBox<String>(memberCnt);
@@ -75,6 +87,8 @@ class RoomMake extends JFrame {
         Container c = this.getContentPane();
         c.add("Center", totpanel);
         c.add("South", btpanel);
+
+
     }
 
 //                public String getTitle(){
@@ -92,17 +106,36 @@ class RoomMake extends JFrame {
     class RoomMakeAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            RoomMsg obmr = new RoomMsg(title.getText(), subject.getText(), roomMemberCnt);
-//            SendObject(obmr);
-                        try {
-                            oos.writeObject(obmr);
+            String roomId, title, subject;
+            int cnt;
 
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        }
+            title = titleField.getText();
+            System.out.println(subjectCombo.getSelectedItem());
+            subject = subjects[subjectCombo.getSelectedIndex()];
+            cnt = Integer.parseInt(memberCntCombo.getSelectedItem().toString());
+            roomId = "room@" + username+ "/" + title+ "/" + subject;
+            RoomMsg obmr = new RoomMsg("1200", roomId, title, subject, cnt); //방만들기 프로토콜 번호 1200
+            SendObject(obmr);
+//                        try {
+//                            oos.writeObject(obmr);
+//
+//                        } catch (IOException ex) {
+//                            throw new RuntimeException(ex);
+//                        }
 
             setVisible(false);
+        }
+    }
 
+    class SubjectAction implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e){
+//            if(e.getSource() == "food") roomImg = subFoodImg;
+//            if(e.getSource() == "music") roomImg = subMusicImg;
+//            if(e.getSource() == "movie") roomImg = subMovieImg;
+//            if(e.getSource() == "animal") roomImg = subAnimalImg;
+//            if(e.getSource() == "thing") roomImg = subThingImg;
+            
         }
     }
 

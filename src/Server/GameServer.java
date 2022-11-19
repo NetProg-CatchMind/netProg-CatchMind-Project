@@ -1,5 +1,7 @@
 package Server;
 
+import Client.GameClientView;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -191,38 +193,56 @@ public class GameServer extends JFrame {
 
                 if(obcm instanceof RoomMsg){
                     rm = (RoomMsg) obcm;
-                    makeRoom(rm.roomTitle, rm.roomSubject, rm.userCnt);
+                    System.out.println(rm.code);
+
+                    //방만들기!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    if(rm.code.matches("1200")){
+                        makeRoom(rm.roomId, rm.roomTitle, rm.roomSubject, rm.userCnt);
+                    }
+                    //방 입장!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    else if(rm.code.matches("1201")){
+                        joinRoom(rm.roomId, rm.roomTitle, rm.roomSubject, rm.userCnt);// 사용자가 방 입장 버튼 눌렀을때 .. -> 룸 번호에 따라 스레드로 관리, 동작
+                    }
                 }
+
+                else continue;
 
                 if (obcm instanceof ChatMsg) { //obcm(읽어들인 object)이 ChatMsg라면
                     cm = (ChatMsg) obcm; //ChatMsg 형식으로 바꿔서
                     AppendObject(cm);
+
+                    //로그인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    if (cm.code.matches("100")) {
+                        UserName = cm.UserName;
+                        UserStatus = "O"; // Online 상태
+                        Login();
+                    }
+
+                    //로그아웃!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    else if (cm.code.matches("400")) { // logout message 처리
+                        Logout();
+                        break;
+                    } else { // 300, 500, ... 기타 object는 모두 방송한다.
+                        WriteAllObject(cm);
+                    }
+
                 } else
                     continue;
 
-                //로그인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                if (cm.code.matches("100")) {
-                    UserName = cm.UserName;
-                    UserStatus = "O"; // Online 상태
-                    Login();
-                }
 
-                //로그아웃!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                else if (cm.code.matches("400")) { // logout message 처리
-                    Logout();
-                    break;
-                } else { // 300, 500, ... 기타 object는 모두 방송한다.
-                    WriteAllObject(cm);
-                }
             }
         } // run
 
-        public void makeRoom(String title, String subject, int cnt){
-            GameRoom gameRoom = new GameRoom(title, subject, cnt, socket , client_socket, UserVec);
+        public void makeRoom(String roomId, String title, String subject, int cnt){
+            GameRoom gameRoom = new GameRoom(roomId, title, subject, cnt, socket , client_socket, UserVec);
 
             RoomVec.add(gameRoom);
+            RoomMsg roomMsg = new RoomMsg("1200",  gameRoom.roomId, title, subject,cnt);
+            WriteOneObject(roomMsg);
+        }
 
-            RoomMsg roomMsg = new RoomMsg(title,subject,cnt);
+        public void joinRoom(String roomId, String title, String subject, int cnt){
+            RoomMsg roomMsg = new RoomMsg("1201",  roomId, title, subject,cnt);
             WriteOneObject(roomMsg);
         }
 
@@ -572,9 +592,7 @@ public class GameServer extends JFrame {
 
         public void WriteOneObject(Object ob) {
             try {
-                System.out.println(ob);
                 oos.writeObject(ob);
-
             }
             catch (IOException e) {
                 AppendText("oos.writeObject(ob) error");

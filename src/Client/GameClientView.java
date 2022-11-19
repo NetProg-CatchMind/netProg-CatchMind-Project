@@ -107,19 +107,23 @@ public class GameClientView extends JFrame {
     public boolean linee = true;
     private JTextField textField;
 
+    private Vector userVec = new Vector();
+
     /**
      * Create the frame.
      *
      * @throws BadLocationException
      */
 
-    public GameClientView(String username, String ip_addr, String port_no, String char_no) {
+    public GameClientView(String roomId, String username, Socket socket, String ip_addr, String port_no) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT+38);
 //       setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
 //        setUndecorated(true);
+
+        userVec.add(socket);
 
 
         contentPane = new JPanel(){
@@ -132,12 +136,7 @@ public class GameClientView extends JFrame {
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
-        logo = new JLabel(logoImg){
-            public void paintComponent(Graphics g) {
-                g.drawImage(logoImg.getImage(), 0, 0, 500, 80, null);
-                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
-            }
-        };
+        logo = new JLabel(logoImg);
         logo.setIcon(logoImg);
         logo.setBounds(40,0, 500,80);
         contentPane.add(logo);

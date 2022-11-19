@@ -5,13 +5,7 @@ import Server.RoomMsg;
 import com.sun.tools.javac.Main;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import java.awt.event.*;
 import java.awt.image.ImageObserver;
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -20,14 +14,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
+import javax.swing.border.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import Server.RoomMsg;
+
 public class GameClientMain extends JFrame {
     public static final int SCREEN_WIDTH = 1500;
     public static final int SCREEN_HEIGHT = 800;
@@ -36,6 +30,7 @@ public class GameClientMain extends JFrame {
     public String ip_addr;
     public String port_no;
     public String char_no;
+    private GameClientView view;
 
     //UI 설정 변수들 선언 ==============================================================================================
     private ImageIcon backgroundImg = new ImageIcon("res/basicBackground.png");
@@ -58,6 +53,16 @@ public class GameClientMain extends JFrame {
     private ImageIcon roomTitleImg = new ImageIcon("res/roomTitle.png");
     private ImageIcon coinImg = new ImageIcon("res/coinImg.png");
     private ImageIcon makeRoomBtnImg = new ImageIcon("res/makeRoomBtn.png");
+
+    private ImageIcon subFoodImg = new ImageIcon("res/subFood.png");
+    private ImageIcon subMusicImg = new ImageIcon("res/subMusic.png");
+    private ImageIcon subMovieImg = new ImageIcon("res/subMovie.png");
+    private ImageIcon subAnimalImg = new ImageIcon("res/subAnimal.png");
+    private ImageIcon subThingImg = new ImageIcon("res/subThing.png");
+
+    private ImageIcon roomImg;
+    private String roomId;
+//    new ImageIcon("res/character1.png");
 
     private JTable questionItemTable;
     private JTable answerItemTabel;
@@ -112,12 +117,9 @@ public class GameClientMain extends JFrame {
 //    private GameClientView view;
 
 
-    public static String labelName[] = { "방 번호 :", "      ", "방 주제 :", "      ", "인원 수 : ", "      ", "방 제목 : ",
-            "      ", "      " };
-    public JLabel labelArray[];
-
     Vector<GameRoom> gameRooms = new Vector<GameRoom>();//개설된 대화방 Room-vs(Vector) : 대화방사용자
 
+    private boolean isSelRoom;
 
     //통신을 위한 소켓 변수들 선언 =======================================================================================
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
@@ -393,7 +395,7 @@ public class GameClientMain extends JFrame {
         roomTitlePanel.add(roomTitleLabel);
 
         makeRoomButton = new JButton(makeRoomBtnImg);
-        makeRoomButton.setBounds(500, 0, 80,80);
+        makeRoomButton.setBounds(500, 10, 80,80);
 //        makeRoomButton.setBackground(Color.red);
         makeRoomButton.setBorderPainted(false);
         makeRoomButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -403,38 +405,11 @@ public class GameClientMain extends JFrame {
         makeRoomButton.addActionListener(roomAction);
         roomTitlePanel.add(makeRoomButton);
 
-        roomListScrollPanel = new JScrollPane();
-        roomListScrollPanel.setBounds(85, 170, 600, 470);
-
-        roomListPanel = new JPanel();
-        roomListPanel.setLayout(new GridLayout(100, 2, 10, 10));
-        roomListScrollPanel.add(roomListPanel);
-
-//        roomListPanel.setLayout(new GridLayout(100, 2, 10, 10));
-//        roomListPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        // 100개
-
-        System.out.println(gameRooms.size());
-        for(int i =0; i<gameRooms.size(); i++){
-            RoomPanel roomPanel = new RoomPanel();
-
-            roomListPanel.add(roomPanel);
-        }
-
+        roomListScrollPanel = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        roomListScrollPanel.setBounds(85, 170, 600, 570);
+        roomListScrollPanel.getVerticalScrollBar().setUnitIncrement(16);	//스크롤 속도
         loadingPanel.add(roomListScrollPanel);
 
-
-        roomSelectPanel = new JPanel();
-        roomSelectPanel.setBounds(85,650,600,100);
-        roomSelectPanel.setBackground(Color.green);
-        roomSelectPanel.setLayout(new BorderLayout());
-        loadingPanel.add(roomSelectPanel);
-
-        roomSelectButton = new JButton("game Start");
-        roomSelectButton.setBounds(0,0,600,100);
-        Myaction action = new Myaction();
-        roomSelectButton.addActionListener(action);
-        roomSelectPanel.add(roomSelectButton);
 
 
         // 소켓 연결 ------------------------------------------------------------------------------
@@ -513,8 +488,19 @@ public class GameClientMain extends JFrame {
 
                     if(obcm instanceof RoomMsg) {
                         rm = (RoomMsg) obcm;
-                        makeRoom(rm.roomTitle, rm.roomSubject ,rm.userCnt);
-                    }
+
+                        if(rm.code.matches("1200")){
+                            makeRoom( rm.roomTitle, rm.roomSubject ,rm.userCnt);
+                        }
+                        else if(rm.code.matches("1201")){
+                            view = new GameClientView(rm.roomId, username, socket, ip_addr, port_no);
+                            setVisible(false);
+                        }
+
+                    } else continue;
+
+
+
 
                     if (obcm instanceof ChatMsg) {
                         cm = (ChatMsg) obcm;
@@ -542,8 +528,6 @@ public class GameClientMain extends JFrame {
                 } catch (IOException e) {
                     AppendText("ois.readObject() error");
                     try {
-//						dos.close();
-//						dis.close();
                         ois.close();
                         oos.close();
                         socket.close();
@@ -553,7 +537,6 @@ public class GameClientMain extends JFrame {
                         break;
                     } // catch문 끝
                 } // 바깥 catch문끝
-
             }
         }
     }
@@ -562,14 +545,65 @@ public class GameClientMain extends JFrame {
     class RoomAction implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            RoomMake makeRoom = new RoomMake(gameRooms, socket, oos);
+            RoomMake makeRoom = new RoomMake(username, socket, oos);
             makeRoom.setVisible(true);
         }
     }
 
-    public void makeRoom(String title, String subject, int cnt){
+    public void makeRoom( String title, String subject, int cnt){
         GameRoom gameRoom = new GameRoom(title, subject, cnt);
         gameRooms.add(gameRoom);
+
+        roomListPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.weightx = 1;
+        gbc.weighty = 5;
+        roomListPanel.add(new JPanel(), gbc);
+
+        for(int i =0; i<gameRooms.size(); i++){
+            String roomTitle, roomSubject;
+            int roomCnt;
+
+            roomTitle =  gameRooms.get(i).roomTitle;
+            roomSubject = gameRooms.get(i).roomSubject;
+            roomCnt = gameRooms.get(i).userCnt;
+            roomId = "room@" + username+ "/" + roomTitle+ "/" + roomSubject;
+
+            if( roomSubject.equals("food")) roomImg = subFoodImg;
+            else if( roomSubject.equals("music")) roomImg = subMusicImg;
+            else if(roomSubject.equals("movie")) roomImg = subMovieImg;
+            else if( roomSubject.equals("animal")) roomImg = subAnimalImg;
+            else if( roomSubject.equals("thing")) roomImg = subThingImg;
+
+            RoomPanel roomPanel = new RoomPanel(roomId, roomImg, roomTitle, roomSubject, roomCnt, socket, oos);
+            roomPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
+            gbc = new GridBagConstraints();
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            gbc.weightx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            roomListPanel.add(roomPanel, gbc, 0);
+
+//            roomPanel.addMouseListener(new MouseAdapter() {
+//                public void mousePressed(MouseEvent me) {
+//                    gameRoom.setSel(!gameRoom.isSel()); //boolean toggle
+//                    if(gameRoom.isSel()){
+////                        Border selRoomBorder = BorderFactory.createCompoundBorder();
+////                        roomPanel.setBorder(selRoomBorder);
+//                        roomPanel.setBackground(Color.gray);
+//                    }
+//                    else{
+////                        roomPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
+////                        roomPanel.setBorder(selRoomBorder);
+//                        roomPanel.setBackground(Color.white);
+//                    }
+//                }
+//            });
+
+            validate();
+        }
+        roomListScrollPanel.setViewportView(roomListPanel);
+
     }
 
     class Myaction implements ActionListener // 내부클래스로 액션 이벤트 처리 클래스
@@ -839,15 +873,7 @@ public class GameClientMain extends JFrame {
 
 
 }
-    class ListenNetwork extends Thread {
-        public void run() {
-            while (true) {
 
-
-            }
-        }
-
-    }
 
 
 

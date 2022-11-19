@@ -10,6 +10,7 @@ public class GameRoom extends Thread{
     private JPanel contentPane;
     JTextArea textArea;
     private JTextField txtPortNumber;
+    String roomId;
     String title, subject;
     int memberCnt;
     Vector memberList = new Vector(); //현재 방에 있는 사용자들 리스트
@@ -30,7 +31,8 @@ public class GameRoom extends Thread{
     public String UserName = "";
     public String UserStatus;
 
-    public GameRoom(String title, String subject, int memberCnt, ServerSocket socket, Socket client_socket, Vector UserVec ){
+    public GameRoom(String roomId, String title, String subject, int memberCnt, ServerSocket socket, Socket client_socket, Vector UserVec ){
+        this.roomId = roomId;
         this.title = title;
         this.subject = subject;
         this.memberCnt = memberCnt;
