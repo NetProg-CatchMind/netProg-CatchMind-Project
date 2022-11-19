@@ -533,7 +533,7 @@ public class GameClientView extends JFrame {
         super.paint(g);
 //        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
         // Image 영역이 가려졌다 다시 나타날 때 그려준다.
-        gc.drawImage(panelImage, 0, 0, this);
+//        gc.drawImage(panelImage, 0, 0, this);
     }
 
 
