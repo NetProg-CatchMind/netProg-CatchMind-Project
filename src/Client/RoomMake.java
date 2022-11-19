@@ -31,14 +31,17 @@ class RoomMake extends JFrame {
     private ImageIcon subMovieImg = new ImageIcon("res/subMovie.png");
     private ImageIcon subAnimalImg = new ImageIcon("res/subAnimal.png");
     private ImageIcon subThingImg = new ImageIcon("res/subThing.png");
+    private ImageIcon bgImg = new ImageIcon("res/makeRoomFrameBg.png");
 
     private ImageIcon roomImg;
-
 
     public RoomMake(String username, Socket socket, ObjectOutputStream oos) {
         setResizable(false);
         setBounds(400, 200, 300, 300);
         setVisible(true);
+        RoomMakePanel rmPanel = new RoomMakePanel();
+        rmPanel.setLayout(null);
+        setContentPane(rmPanel);
 
         this.username = username;
         this.socket = socket;
@@ -64,29 +67,37 @@ class RoomMake extends JFrame {
         cancleBtn = new JButton("취 소");
 
         JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panel1.setOpaque(false);
         panel1.add(title);
         panel1.add(titleField);
 
         JPanel panel3 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panel3.setOpaque(false);
         panel3.add(subject);
         panel3.add(subjectCombo);
 
         JPanel panel4 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panel4.setOpaque(false);
         panel4.add(num);
         panel4.add(memberCntCombo);
 
         JPanel totpanel = new JPanel(new GridLayout(4, 1, 0, 0));
+        totpanel.setBounds(50,40,200,180);
+//        totpanel.setBounds(40,50,150,150);
+        totpanel.setOpaque(false);
         totpanel.add(panel1);
         totpanel.add(panel3);
         totpanel.add(panel4);
 
         JPanel btpanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btpanel.setBounds(70,195,150,100);
+        btpanel.setOpaque(false);
         btpanel.add(makeRoomBtn);
         btpanel.add(cancleBtn);
 
         Container c = this.getContentPane();
-        c.add("Center", totpanel);
-        c.add("South", btpanel);
+        rmPanel.add("Center", totpanel);
+        rmPanel.add("South", btpanel);
 
 
     }
@@ -102,6 +113,15 @@ class RoomMake extends JFrame {
 //                public int getMemberCnt(){
 //                    return Integer.parseInt(memberCntCombo.getSelectedItem().toString());
 //                }
+
+    // JPanel을 상속받는 새 패널 구현
+    class RoomMakePanel extends JPanel {
+        public void paintComponent(Graphics g) {
+            super.paintComponents(g);
+            g.drawImage(bgImg.getImage(),-5,-5,300,275, null);
+
+        }
+    }
 
     class RoomMakeAction implements ActionListener {
         @Override

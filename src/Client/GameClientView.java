@@ -127,7 +127,7 @@ public class GameClientView extends JFrame {
 
 
         contentPane = new JPanel(){
-            public void paintComponent(Graphics g) {
+            public void paintComponents(Graphics g) {
                 g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }

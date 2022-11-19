@@ -59,6 +59,7 @@ public class GameClientMain extends JFrame {
     private ImageIcon subMovieImg = new ImageIcon("res/subMovie.png");
     private ImageIcon subAnimalImg = new ImageIcon("res/subAnimal.png");
     private ImageIcon subThingImg = new ImageIcon("res/subThing.png");
+//    private ImageIcon bgImg = new ImageIcon("res/makeRoomFrameBg.png");
 
     private ImageIcon roomImg;
     private String roomId;
