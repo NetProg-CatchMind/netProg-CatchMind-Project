@@ -24,7 +24,10 @@ public class GameRoom extends Thread{ //game room 입장 후 서버에서 방에
     public int backgrounds = 0;
 
     public  Vector user_vc; //???
-    Vector memberList = new Vector(); //현재 방에 있는 사용자들 리스트
+
+    Vector socketList = new Vector();// 현재 방에 있는 사용자들의 소켓 리스트
+    Vector memberList = new Vector(); //현재 방에 있는 사용자들 username 리스트
+    Vector charList = new Vector(); //현재 방에 있는 사용자들의 캐릭터 리스트
 
     Vector UserVec = new Vector(); //방에 상관없이 접속한 모든 사용자들.
 
@@ -61,6 +64,7 @@ public class GameRoom extends Thread{ //game room 입장 후 서버에서 방에
 
                 if (socket == null)
                     break;
+
                 try {
                     obcm = ois.readObject(); //object 읽어들이기.
                 } catch (ClassNotFoundException e) {
@@ -68,6 +72,7 @@ public class GameRoom extends Thread{ //game room 입장 후 서버에서 방에
                     e.printStackTrace();
                     return;
                 }
+
                 if (obcm == null)
                     break;
                 if(obcm instanceof RoomMsg){
@@ -79,6 +84,7 @@ public class GameRoom extends Thread{ //game room 입장 후 서버에서 방에
                     AppendObject(cm);
                 } else
                     continue;
+
 //                //로그인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //                if (cm.code.matches("100")) {
 //                    UserName = cm.UserName;

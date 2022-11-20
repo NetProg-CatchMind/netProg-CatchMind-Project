@@ -22,6 +22,7 @@ public class RoomPanel extends JPanel {
     private String title;
     private String subject;
     private String cnt;
+    private String username, char_no;
 
     private JLabel subjectImg; // 주제에 따른 이미지 (왼쪽 크게)
     private JLabel titleLabel; //방제
@@ -43,7 +44,7 @@ public class RoomPanel extends JPanel {
 //    }
 
 
-    public RoomPanel(String roomId, ImageIcon roomImg, String title, String subject, String cnt, Socket socket, ObjectOutputStream oos){
+    public RoomPanel(String roomId, ImageIcon roomImg, String title, String subject, String cnt, String username, String char_no,  Socket socket, ObjectOutputStream oos){
         this.setBounds(0,0,600,600);
         this.setLayout(new BorderLayout());
         this.setVisible(true);
@@ -111,7 +112,7 @@ public class RoomPanel extends JPanel {
         public void mouseReleased(MouseEvent e) {
             joinButton.setBackground(Color.decode("#43654C"));
 
-            JoinMsg objr = new JoinMsg("1201", roomId, ""); //방만들기 프로토콜 번호 1200
+            JoinMsg objr = new JoinMsg("1201", roomId, "", "","", username, char_no); //방만들기 프로토콜 번호 1200
             SendObject(objr);
         }
 

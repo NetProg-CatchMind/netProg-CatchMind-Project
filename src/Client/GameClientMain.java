@@ -498,12 +498,14 @@ public class GameClientMain extends JFrame {
                         rm = (Server.RoomMsg) obcm;
 
                         if(rm.code.matches("100")){
-                            roomIdList = rm.roomIdList.split(" ");
-                            roomTitleList = rm.roomTitleList.split(" ");
-                            roomSubjectList = rm.roomSubjectList.split(" ");
-                            roomCntList = rm.roomCntList.split(" ");
+                            if(rm.roomIdList.length() != 0) {
+                                roomIdList = rm.roomIdList.split(" ");
+                                roomTitleList = rm.roomTitleList.split(" ");
+                                roomSubjectList = rm.roomSubjectList.split(" ");
+                                roomCntList = rm.roomCntList.split(" ");
 
-                            readRooms(roomIdList, roomTitleList, roomSubjectList ,roomCntList);
+                                readRooms(roomIdList, roomTitleList, roomSubjectList, roomCntList);
+                            }
                         }
 
                         if(rm.code.matches("1200")){
@@ -518,11 +520,10 @@ public class GameClientMain extends JFrame {
                     }
 
                     if(obcm instanceof JoinMsg) {
-                        System.out.println("view?? " + (obcm instanceof JoinMsg));
                         jm = (Server.JoinMsg) obcm;
 
                         if(jm.code.matches("1201")){
-                            view = new GameClientView(jm.roomId, jm.userList, username, socket, ip_addr, port_no);
+                            view = new GameClientView(jm.roomId, jm.socketList, jm.userList, jm.charList, username, socket,ois, oos);
                             view.setVisible(true);
 //                            view = new GameClientView(jm.roomId, jm.userList);
                             setVisible(false);
@@ -589,7 +590,8 @@ public class GameClientMain extends JFrame {
         roomListPanel.add(new JPanel(), gbc);
 
         for(int i =0; i<roomIdList.length; i++){
-            if(roomIdList.length <=1) break;
+
+//            if(roomIdList.length == 1) break;
 
             if( roomSubjectList[i].equals("food")) roomImg = subFoodImg;
             else if( roomSubjectList[i].equals("music")) roomImg = subMusicImg;
@@ -597,7 +599,7 @@ public class GameClientMain extends JFrame {
             else if( roomSubjectList[i].equals("animal")) roomImg = subAnimalImg;
             else if( roomSubjectList[i].equals("thing")) roomImg = subThingImg;
 
-            RoomPanel roomPanel = new RoomPanel(roomIdList[i], roomImg, roomTitleList[i], roomSubjectList[i], roomCntList[i], socket, oos);
+            RoomPanel roomPanel = new RoomPanel(roomIdList[i], roomImg, roomTitleList[i], roomSubjectList[i], roomCntList[i], username, char_no, socket, oos);
             roomPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
             gbc = new GridBagConstraints();
             gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -626,7 +628,7 @@ public class GameClientMain extends JFrame {
             else if( roomSubjectList[i].equals("animal")) roomImg = subAnimalImg;
             else if( roomSubjectList[i].equals("thing")) roomImg = subThingImg;
 
-            RoomPanel roomPanel = new RoomPanel(roomIdList[i], roomImg, roomTitleList[i], roomSubjectList[i], roomCntList[i], socket, oos);
+            RoomPanel roomPanel = new RoomPanel(roomIdList[i], roomImg, roomTitleList[i], roomSubjectList[i], roomCntList[i], username, char_no, socket, oos);
             roomPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
             gbc = new GridBagConstraints();
             gbc.gridwidth = GridBagConstraints.REMAINDER;

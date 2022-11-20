@@ -219,19 +219,30 @@ public class GameServer extends JFrame {
 
                     //방 입장!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
                     if(jm.code.matches("1201")) {
+                        String socketList = "";
                         String userList = "";
+                        String charList = "" ;
                         GameRoom curRoom = null;
                         for (int i = 0; i < RoomVec.size(); i++) {
                             if (RoomVec.get(i).roomId.equals(jm.roomId)) {
                                 curRoom = RoomVec.get(i);
                             }
                         }
-                        curRoom.memberList.add(client_socket);
-                        for (int i = 0; i < curRoom.memberList.size(); i++) {
-                            userList += curRoom.memberList.get(i) + " ";
+
+                        curRoom.socketList.add(client_socket);
+                        curRoom.memberList.add(jm.username);
+                        curRoom.charList.add(jm.char_no);
+                        if(curRoom.memberList.size() != 0){
+                            for (int i = 0; i < curRoom.socketList.size(); i++) {
+                                socketList += curRoom.socketList.get(i) + " ";
+                                userList += curRoom.memberList.get(i) + " ";
+                                charList += curRoom.charList.get(i) + " ";
+                            }
+
                         }
-                        JoinMsg joinMsg = new JoinMsg("1201", jm.roomId, userList);
-                        WriteOneObject(joinMsg);
+
+                        JoinMsg joinMsg = new JoinMsg("1201", jm.roomId, socketList, userList, charList, "", "");
+                        WriteAllObject(joinMsg);
                     }
                 }
 
@@ -279,7 +290,6 @@ public class GameServer extends JFrame {
 
         public void makeRoom(String roomId, String title, String subject, int cnt){
             GameRoom gameRoom = new GameRoom(roomId, title, subject, cnt, socket , client_socket);
-            gameRoom.memberList.add(client_socket);
 
             RoomVec.add(gameRoom);
 

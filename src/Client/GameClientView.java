@@ -1,6 +1,8 @@
 package Client;
 
 import Server.ChatMsg;
+import Server.GameServer;
+import Server.JoinMsg;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -40,6 +42,10 @@ public class GameClientView extends JFrame {
     private ImageIcon mouseOverScoreItem = new ImageIcon("res/mouseOverItemScore.png");
     private ImageIcon categoryItemImg = new ImageIcon("res/item_showCategory.png");
     private ImageIcon mouseOverCategoryItem = new ImageIcon("res/mouseOverItemCategory.png");
+
+    private ImageIcon char1Img = new ImageIcon("res/character1.png");
+    private ImageIcon char2Img = new ImageIcon("res/character2.png");
+    private ImageIcon char3Img = new ImageIcon("res/character3.png");
     private JPanel contentPane;
     private JPanel mainPanel;
 
@@ -107,15 +113,19 @@ public class GameClientView extends JFrame {
     public boolean linee = true;
     private JTextField textField;
 
-    private Vector userVec = new Vector();
-
+//    private Vector userVec = new Vector();
+    private String[] socketList;
+    private String[] userList;
+    private String[] charList;
     /**
      * Create the frame.
      *
      * @throws BadLocationException
      */
 
-    public GameClientView(String roomId, String userList, String username, Socket socket, String ip_addr, String port_no) {
+    public GameClientView(String roomId, String socketList, String userList, String charList, String username, Socket socket, ObjectInputStream ois, ObjectOutputStream oos ) {
+        setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT+38);
 //       setResizable(false);
@@ -123,12 +133,17 @@ public class GameClientView extends JFrame {
         setVisible(true);
 //        setUndecorated(true);
 
-        userVec.add(socket);
-        userVec.add(userList.split(" "));
+
+        this.socketList = socketList.split(" ");
+        this.userList = userList.split(" ");
+        this.charList = charList.split(" ");
+
 
         contentPane = new JPanel(){
-            public void paintComponents(Graphics g) {
-                g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, this);
+                repaint();
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
@@ -140,14 +155,21 @@ public class GameClientView extends JFrame {
         logo = new JLabel(logoImg);
         logo.setIcon(logoImg);
         logo.setBounds(40,0, 500,80);
+        logo.revalidate();
+        logo.repaint();
         contentPane.add(logo);
 
         mainPanel = new JPanel(){
             public void paintComponent(Graphics g) {
-                g.drawImage(viewPanelBg.getImage(), 0, 0, 1490, 800, null);
+                super.paintComponent(g);
+                g.drawImage(viewPanelBg.getImage(), 10, 10, 1480, 790, this);
+                repaint();
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
+        mainPanel.revalidate();
+        mainPanel.repaint();
+        mainPanel.setOpaque(false);
         mainPanel.setBounds(0,20,1500, 800);
         mainPanel.setLayout(null);
         contentPane.add(mainPanel);
@@ -159,6 +181,8 @@ public class GameClientView extends JFrame {
 //                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
 //            }
         };
+        usersPanel.revalidate();
+        usersPanel.repaint();
         usersPanel.setBounds(50,40,200,700);
 //        usersPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         usersPanel.setLayout(null);
@@ -166,24 +190,44 @@ public class GameClientView extends JFrame {
         usersPanel.setOpaque(false);
         mainPanel.add(usersPanel);
 
+        for(int i=0; i<this.userList.length; i++){
+//            JPanel userPanel = new JPanel();
+            JLabel userLabel = new JLabel();
+            if(this.charList[i] == "char1") userLabel.setIcon(char1Img);
+            else if(this.charList[i] == "char2") userLabel.setIcon(char2Img);
+            else userLabel.setIcon(char3Img);
+            userLabel.setBounds(10,10 + (i*130),90,110);
+            usersPanel.add(userLabel);
+        }
+
         JScrollPane scrollPane1 = new JScrollPane();
+        scrollPane1.revalidate();
+        scrollPane1.repaint();
         scrollPane1.setBounds(35, 20, 130, 130); //접속한 유저 정보창
         scrollPane1.setBorder(new TitledBorder(new LineBorder(Color.black),"user1"));
         usersPanel.add(scrollPane1);
         JScrollPane scrollPane2 = new JScrollPane();
+        scrollPane2.revalidate();
+        scrollPane2.repaint();
         scrollPane2.setBounds(35, 180, 130, 130); //접속한 유저 정보창
         scrollPane2.setBorder(new TitledBorder(new LineBorder(Color.black),"user2"));
         usersPanel.add(scrollPane2);
         JScrollPane scrollPane3 = new JScrollPane();
+        scrollPane3.revalidate();
+        scrollPane3.repaint();
         scrollPane3.setBounds(35, 340 , 130, 130); //접속한 유저 정보창
         scrollPane3.setBorder(new TitledBorder(new LineBorder(Color.black),"user3"));
         usersPanel.add(scrollPane3);
         JScrollPane scrollPane4 = new JScrollPane();
+        scrollPane4.revalidate();
+        scrollPane4.repaint();
         scrollPane4.setBounds(35, 500, 130, 130); //접속한 유저 정보창
         scrollPane4.setBorder(new TitledBorder(new LineBorder(Color.black),"user4"));
         usersPanel.add(scrollPane4);
 
         btnExit = new JButton("방 나가기"); //Exit button
+        btnExit.revalidate();
+        btnExit.repaint();
         btnExit.setFont(new Font("굴림", Font.PLAIN, 14));
         btnExit.setBounds(35, 660, 130, 30);
         usersPanel.add(btnExit);
@@ -195,6 +239,8 @@ public class GameClientView extends JFrame {
 //                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
 //            }
         };
+        infoPanel.revalidate();
+        infoPanel.repaint();
         infoPanel.setBounds(250,50,800, 150);
         infoPanel.setLayout(null);
 //        infoPanel.setBackground(Color.white);
@@ -205,14 +251,21 @@ public class GameClientView extends JFrame {
 
         wordPanel = new JPanel(){
             public void paintComponent(Graphics g) {
-                g.drawImage(infoPanelBg.getImage(), 0, 0, 260 , 150, null);
+                super.paintComponent(g);
+                g.drawImage(infoPanelBg.getImage(), 0, 0, 260 , 150, this);
+                repaint();
+
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
+        wordPanel.revalidate();
+        wordPanel.repaint();
         wordPanel.setBounds(10,0,260,150);
         infoPanel.add(wordPanel);
 
         wordLabel = new JLabel("제시어."){}; //안내 공지하는 label
+        wordLabel.revalidate();
+        wordLabel.repaint();
         wordLabel.setForeground(Color.BLACK);
         wordLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
         wordLabel.setBorder(lb);
@@ -221,15 +274,21 @@ public class GameClientView extends JFrame {
 
         scorePanel = new JPanel(){
             public void paintComponent(Graphics g) {
-                g.drawImage(infoPanelBg.getImage(), 0, 0, 260, 150, null);
+                super.paintComponent(g);
+                g.drawImage(infoPanelBg.getImage(), 0, 0, 260, 150, this);
+                repaint();
+
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
-
+        scorePanel.revalidate();
+        scorePanel.repaint();
         scorePanel.setBounds(270,0,260,150);
         infoPanel.add(scorePanel);
 
         scoreLabel = new JLabel("점수."); //안내 공지하는 label
+        scoreLabel.revalidate();
+        scoreLabel.repaint();
         scoreLabel.setForeground(Color.BLACK);
         scoreLabel.setBorder(lb);
         scoreLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
@@ -238,14 +297,21 @@ public class GameClientView extends JFrame {
 
         timePanel = new JPanel(){
             public void paintComponent(Graphics g) {
-                g.drawImage(infoPanelBg.getImage(), 0, 0, 260, 150, null);
+                super.paintComponent(g);
+                g.drawImage(infoPanelBg.getImage(), 0, 0, 260, 150, this);
+                repaint();
+
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
+        timePanel.revalidate();
+        timePanel.repaint();
         timePanel.setBounds(530,0,260,150);
         infoPanel.add(timePanel);
 
         timeLabel = new JLabel("제한시간."); //안내 공지하는 label
+        timeLabel.revalidate();
+        timeLabel.repaint();
         timeLabel.setForeground(Color.BLACK);
         timeLabel.setBorder(lb);
         timeLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
@@ -259,6 +325,8 @@ public class GameClientView extends JFrame {
 //                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
 //            }
         };
+        hintPanel.revalidate();
+        hintPanel.repaint();
         hintPanel.setBounds(1050,50,380,150);
         hintPanel.setLayout(null);
         hintPanel.setOpaque(false);
@@ -266,26 +334,38 @@ public class GameClientView extends JFrame {
         mainPanel.add(hintPanel);
 
         JButton bgItemBtn = new JButton(bgItemImg);
+        bgItemBtn.revalidate();
+        bgItemBtn.repaint();
         bgItemBtn.setBounds(50, 20, 80, 50);
         hintPanel.add(bgItemBtn);
 
         JButton timeItemBtn = new JButton(timeItemImg);
+        timeItemBtn.revalidate();
+        timeItemBtn.repaint();
         timeItemBtn.setBounds(150, 20, 80, 50);
         hintPanel.add(timeItemBtn);
 
         JButton initItemBtn = new JButton(initialItemImg);
+        timeItemBtn.revalidate();
+        timeItemBtn.repaint();
         initItemBtn.setBounds(250, 20, 80, 50);
         hintPanel.add(initItemBtn);
 
         JButton cntItemBtn = new JButton(wordCountItemImg);
+        cntItemBtn.revalidate();
+        cntItemBtn.repaint();
         cntItemBtn.setBounds(50, 80, 80, 50);
         hintPanel.add(cntItemBtn);
 
         JButton twiceItemBtn = new JButton(twiceScoreItemImg);
+        twiceItemBtn.revalidate();
+        twiceItemBtn.repaint();
         twiceItemBtn.setBounds(150, 80, 80, 50);
         hintPanel.add(twiceItemBtn);
 
         JButton ctgItemBtn = new JButton(categoryItemImg);
+        ctgItemBtn.revalidate();
+        ctgItemBtn.repaint();
         ctgItemBtn.setBounds(250, 80, 80, 50);
         hintPanel.add(ctgItemBtn);
 
@@ -296,6 +376,8 @@ public class GameClientView extends JFrame {
 //                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
 //            }
         };
+        canvasPanel.revalidate();
+        canvasPanel.repaint();
         canvasPanel.setBounds(250,200,800,550);
         canvasPanel.setLayout(null);
 //        canvasPanel.setBackground(Color.gray);
@@ -303,6 +385,8 @@ public class GameClientView extends JFrame {
         mainPanel.add(canvasPanel);
 
         panel = new JPanel();
+        panel.revalidate();
+        panel.repaint();
         panel.setBorder(new LineBorder(new Color(0, 0, 0)));
         panel.setBackground(Color.WHITE);
         panel.setBounds(20, 20, 760, 480); //그림판 판넬
@@ -317,6 +401,8 @@ public class GameClientView extends JFrame {
                 startss();
             }
         });
+        btnNewButton1.revalidate();
+        btnNewButton1.repaint();
         btnNewButton1.setForeground(Color.RED);
         btnNewButton1.setBounds(50, 508, 62, 35);
         canvasPanel.add(btnNewButton1);
@@ -331,6 +417,8 @@ public class GameClientView extends JFrame {
                 //startss();
             }
         });
+        btnNewButton2.revalidate();
+        btnNewButton2.repaint();
         btnNewButton2.setForeground(Color.BLUE);
         btnNewButton2.setBounds(122, 508, 62, 35);
         canvasPanel.add((btnNewButton2));
@@ -345,6 +433,8 @@ public class GameClientView extends JFrame {
                 //startss();
             }
         });
+        btnNewButton3.revalidate();
+        btnNewButton3.repaint();
         btnNewButton3.setForeground(Color.YELLOW);
         btnNewButton3.setBounds(194, 508, 62, 35);
         canvasPanel.add((btnNewButton3));
@@ -359,6 +449,8 @@ public class GameClientView extends JFrame {
                 //startss();
             }
         });
+        btnNewButton4.revalidate();
+        btnNewButton4.repaint();
         btnNewButton4.setForeground(Color.GREEN);
         btnNewButton4.setBounds(266, 508, 62, 35);
         canvasPanel.add((btnNewButton4));
@@ -372,6 +464,8 @@ public class GameClientView extends JFrame {
                 //startss();
             }
         });
+        btnNewButton5.revalidate();
+        btnNewButton5.repaint();
         btnNewButton5.setForeground(Color.BLACK);
         btnNewButton5.setBounds(338, 508, 62, 35);
         canvasPanel.add((btnNewButton5));
@@ -388,6 +482,8 @@ public class GameClientView extends JFrame {
                 //startss();
             }
         });
+        btnNewButton6.revalidate();
+        btnNewButton6.repaint();
 
 
         chatingPanel = new JPanel(){
@@ -396,6 +492,8 @@ public class GameClientView extends JFrame {
 //                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
 //            }
         };
+        chatingPanel.revalidate();
+        chatingPanel.repaint();
 //        chatingPanel.setBackground(Color.white);
         chatingPanel.setLayout(null);
         chatingPanel.setOpaque(false);
@@ -404,10 +502,15 @@ public class GameClientView extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(){
             public void paintComponent(Graphics g) {
-                g.drawImage(chatPanelBg.getImage(), 0, 0, 380, 550, null);
+                super.paintComponent(g);
+                g.drawImage(chatPanelBg.getImage(), 0, 0, 380, 550, this);
+                repaint();
+
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
+        scrollPane.revalidate();
+        scrollPane.repaint();
         scrollPane.setBounds(20, 0, 340, 440); //채팅창
         scrollPane.setBackground(new Color(0,0,0,0));
         chatingPanel.add(scrollPane);
@@ -417,16 +520,22 @@ public class GameClientView extends JFrame {
         scrollPane.setViewportView(textArea);
 
         imgBtn = new JButton("+"); //+버튼
+        imgBtn.revalidate();
+        imgBtn.repaint();
         imgBtn.setFont(new Font("굴림", Font.PLAIN, 16));
         imgBtn.setBounds(20, 450, 50, 40);
         chatingPanel.add(imgBtn);
 
         txtInput = new JTextField();
+        txtInput.revalidate();
+        txtInput.repaint();
         txtInput.setBounds(80, 450, 210, 40); //채팅 치는 area
         chatingPanel.add(txtInput);
         txtInput.setColumns(10);
 
         btnSend = new JButton("Send"); //send button
+        btnSend.revalidate();
+        btnSend.repaint();
         btnSend.setFont(new Font("굴림", Font.PLAIN, 14));
         btnSend.setBounds(300, 450, 70, 40);
         chatingPanel.add(btnSend);
@@ -438,6 +547,8 @@ public class GameClientView extends JFrame {
 //        chatingPanel.add(textArea1);
 
         lblUserName = new JLabel("Name"); //이름 라벨
+        lblUserName.revalidate();
+        lblUserName.repaint();
         lblUserName.setBorder(new LineBorder(new Color(0, 0, 0)));
         lblUserName.setBackground(Color.WHITE);
         lblUserName.setFont(new Font("굴림", Font.BOLD, 14));
@@ -450,6 +561,8 @@ public class GameClientView extends JFrame {
         lblUserName.setText(username);
 
         JButton btnNewButton = new JButton("종 료"); //종료버튼
+        btnNewButton.revalidate();
+        btnNewButton.repaint();
         btnNewButton.setFont(new Font("굴림", Font.PLAIN, 14));
         btnNewButton.setFont(new Font("굴림", Font.PLAIN, 14));
         btnNewButton.addActionListener(new ActionListener() {
@@ -486,68 +599,30 @@ public class GameClientView extends JFrame {
 
 
         try {
-            socket = new Socket(ip_addr, Integer.parseInt(port_no));
-//			is = socket.getInputStream();
-//			dis = new DataInputStream(is);
-//			os = socket.getOutputStream();
-//			dos = new DataOutputStream(os);
+            this.oos = oos;
+            this.ois = ois;
+            this.socket = socket;
 
-            oos = new ObjectOutputStream(socket.getOutputStream());
-            oos.flush();
-            ois = new ObjectInputStream(socket.getInputStream());
+            ListenNetwork new_room = new ListenNetwork(); // User 당 하나씩 Thread 생성
+            new_room.start();
 
-            ChatMsg obcm = new ChatMsg(UserName, "100", "Hello");
-            SendObject(obcm);
-
-            // SendMessage("/login " + UserName);
-//                ChatMsg obcm = new ChatMsg(UserName, "100", "Hello");
-//                SendObject(obcm);
-
-            //startss();
-
-
-        } catch (NumberFormatException | IOException e) {
+        } catch (NumberFormatException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            AppendText("connect error");
-
         }
-
     }
-
-    public void startss() {
-        mouse = new MyMouseEvent();
-        panel.addMouseMotionListener(mouse);
-        panel.addMouseListener(mouse);
-        wheel = new MyMouseWheelEvent();
-        panel.addMouseWheelListener(wheel);
-    }
-
-    public void endss() {
-        //panel.removeAll();
-        panel.removeMouseListener(mouse);
-        panel.removeMouseMotionListener(mouse);
-    }
-
-
-    public void paint(Graphics g) {
-        super.paint(g);
-//        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
-        // Image 영역이 가려졌다 다시 나타날 때 그려준다.
-//        gc.drawImage(panelImage, 0, 0, this);
-    }
-
 
     class ListenNetwork extends Thread {
         public void run() {
             while (true) {
                 try {
-
                     Object obcm = null;
                     String msg = null;
+                    Server.JoinMsg jm;
                     ChatMsg cm;
                     try {
                         obcm = ois.readObject();
+                        System.out.println(obcm);
                     } catch (ClassNotFoundException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -555,6 +630,18 @@ public class GameClientView extends JFrame {
                     }
                     if (obcm == null)
                         break;
+
+                    if(obcm instanceof Server.JoinMsg) {
+                        jm = (Server.JoinMsg) obcm;
+
+                        if(jm.code.matches("1201")){
+                            userList = jm.userList.split(" ");
+                            charList = jm.charList.split(" ");
+                            makeUserList(userList, charList);
+                        }
+
+                    }
+
                     if (obcm instanceof ChatMsg) {
                         cm = (ChatMsg) obcm;
                         msg = String.format("[%s]\n%s", cm.UserName, cm.data);
@@ -629,6 +716,58 @@ public class GameClientView extends JFrame {
             }
         }
     }
+
+    public void makeUserList(String[] userList, String[] charList){
+        usersPanel = new JPanel(){
+//            public void paintComponent(Graphics g) {
+//                g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
+//                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
+//            }
+        };
+        usersPanel.revalidate();
+        usersPanel.repaint();
+        usersPanel.setBounds(50,40,200,700);
+//        usersPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        usersPanel.setLayout(null);
+//        usersPanel.setBackground(Color.white);
+        usersPanel.setOpaque(false);
+        mainPanel.add(usersPanel);
+
+        for(int i=0; i<userList.length; i++){
+//            JPanel userPanel = new JPanel();
+            JLabel userLabel = new JLabel();
+            if(charList[i] == "char1") userLabel.setIcon(char1Img);
+            else if(charList[i] == "char2") userLabel.setIcon(char2Img);
+            else userLabel.setIcon(char3Img);
+            userLabel.setBounds(10,10 + (i*130),90,110);
+            usersPanel.add(userLabel);
+        }
+    }
+
+    public void startss() {
+        mouse = new MyMouseEvent();
+        panel.addMouseMotionListener(mouse);
+        panel.addMouseListener(mouse);
+        wheel = new MyMouseWheelEvent();
+        panel.addMouseWheelListener(wheel);
+    }
+
+    public void endss() {
+        //panel.removeAll();
+        panel.removeMouseListener(mouse);
+        panel.removeMouseMotionListener(mouse);
+    }
+
+
+    public void paint(Graphics g) {
+        super.paint(g);
+//        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
+        // Image 영역이 가려졌다 다시 나타날 때 그려준다.
+//        gc.drawImage(panelImage, 0, 0, this);
+    }
+
+
+
 
     // Mouse Event 수신 처리
     public void DoMouseEvent(ChatMsg cm,Color co,int shape) {

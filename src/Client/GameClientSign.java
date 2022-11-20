@@ -149,6 +149,7 @@ public class GameClientSign extends JFrame {
         char2.setSelectedIcon(mouseOverChar2);
 
         char3 = new JRadioButton("char3", char3Img);
+        char3.setName("char3");
         char3.setBounds(860,470,90,110);
         char3.setBorderPainted(false);
         char3.setContentAreaFilled(false);
@@ -210,21 +211,12 @@ public class GameClientSign extends JFrame {
     class CharAction implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e){
-            if(e.getSource() == "char1"){
-//                char1.setCursor(Cursor.getDefaultCursor());
-                selCharNo = "char1";
+            if(e.getSource() instanceof JRadioButton){
+                JRadioButton radioButton = (JRadioButton) e.getSource();
+                if(radioButton.isSelected()){
+                    selCharNo = radioButton.getText();
+                }
             }
-
-            else if(e.getSource() == "char2"){
-//                char2.setCursor(Cursor.getDefaultCursor());
-                selCharNo = "char2";
-            }
-
-            else{
-//                char3.setCursor(Cursor.getDefaultCursor());
-                selCharNo = "char3";
-            }
-
 
         }
     }
