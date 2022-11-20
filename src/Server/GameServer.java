@@ -134,6 +134,7 @@ public class GameServer extends JFrame {
 
     //user 당 하나씩 생성될 user를 다루기 위한 thread ====================================================================
     class UserService extends Thread {
+        public String UserScore;
         private InputStream is;
         private OutputStream os;
         private DataInputStream dis;
@@ -273,8 +274,6 @@ public class GameServer extends JFrame {
                     }
 
                 }
-
-
             }
         } // run
 

@@ -314,7 +314,7 @@ public class GameClientView extends JFrame {
         btnNewButton1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 c = new Color(255, 0, 0);
-                //startss();
+                startss();
             }
         });
         btnNewButton1.setForeground(Color.RED);
