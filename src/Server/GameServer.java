@@ -44,7 +44,7 @@ public class GameServer extends JFrame {
     public int gamestart = 0;// 게임 시작하면 1로
     public int UserScore = 0;
     public String UserName = "";
-    public String UserStatus;
+    //public String UserStatus;
     public int backgrounds = 0;
 
 
@@ -136,6 +136,8 @@ public class GameServer extends JFrame {
 
     public void AppendText(String str) {
         // textArea.append("사용자로부터 들어온 메세지 : " + str+"\n");
+        //msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.
+        int len = textArea.getDocument().getLength();
         textArea.append(str + "\n");
         textArea.setCaretPosition(textArea.getText().length());
     }
@@ -297,19 +299,19 @@ public class GameServer extends JFrame {
                             break;
                         } else {
                             UserStatus = "O"; // Online 상태
-                            Login();
+                            Login(); //~님 환영합니다 msg 출력되도록 하기
                         }
                     }
 
                     else if (cm.code.matches("200")) {
                         msg = String.format("[%s] %s", cm.UserName, cm.data);
-                        AppendText(msg); // server 화면에 출력
+                        AppendText(msg); // server F 출력
                         String[] args = msg.split(" "); // 단어들을 분리한다.
                         //Object[] word;
                         if (args.length == 1) { // Enter key 만 들어온 경우 Wakeup 처리만 한다.
                             UserStatus = "O";
                         } else if (args[1].matches("/exit")) {
-//                      Logout();
+//                          Logout();
                             break;
 
                         }  else if ((cm.data.equals(word[wordturn])) && (gamestart == 1)) {
@@ -326,8 +328,7 @@ public class GameServer extends JFrame {
                                         if (turnUser == user.UserName) {
                                             user.WriteOneObject(obcm6799); // WriteAll로 바꾸기
                                         }
-                                    }
-                                    // 301을 보내서 모두에게 300(이미지)를 보내기
+                                    }                                 // 301을 보내서 모두에게 300(이미지)를 보내기
                                     backgrounds = 0;
                                 }
 
@@ -415,7 +416,7 @@ public class GameServer extends JFrame {
             }
 
             AppendText("새로운 참가자 " + UserName + " 입장.");
-            WriteOne("Welcome to Java chat server\n");
+            WriteOne("Welcome to CatchMind Server\n");
             WriteOne(UserName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
             Server.RoomMsg roomMsg = new Server.RoomMsg("100", totalUserList, roomIdList, roomTitleList, roomSubjectList, roomCntList);
             WriteOneObject(roomMsg);
@@ -490,13 +491,6 @@ public class GameServer extends JFrame {
             textArea.append("data = " + msg.data + "\n");
             textArea.setCaretPosition(textArea.getText().length());
         }
-
-//        public void AppendText(String str) {
-//            // textArea.append("사용자로부터 들어온 메세지 : " + str+"\n");
-//            textArea.append(str + "\n");
-//            textArea.setCaretPosition(textArea.getText().length());
-//        }
-
 
         // UserService Thread가 담당하는 Client 에게 1:1 전송 / 프로토콜 200
         public void WriteOne(String msg) {

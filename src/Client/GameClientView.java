@@ -575,6 +575,26 @@ public class GameClientView extends JFrame {
         btnNewButton.setBounds(300, 490, 70, 30);
         chatingPanel.add(btnNewButton);
 
+        JButton btnNewButtonStart = new JButton("시 작"); //시작버튼
+        btnNewButtonStart.revalidate();
+        btnNewButtonStart.repaint();
+        btnNewButtonStart.setFont(new Font("굴림", Font.PLAIN, 14));
+        btnNewButtonStart.setFont(new Font("굴림", Font.PLAIN, 14));
+        btnNewButtonStart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+//              ChatMsg msg = new ChatMsg(UserName, "400", "Bye");
+//              SendObject(msg);
+//              System.exit(0);
+                ChatMsg obc = new ChatMsg(UserName, "600","null");
+                SendObject(obc);
+                //2명이상이면 start
+            }
+
+        });
+        btnNewButtonStart.setBounds(150, 490, 80, 40);
+        chatingPanel.add(btnNewButtonStart);
+
 //         Image 영역 보관용. paint() 에서 이용한다.
         panelImage = createImage(panel.getWidth(), panel.getHeight());
         gc2 = panelImage.getGraphics();
@@ -820,6 +840,21 @@ public class GameClientView extends JFrame {
         SendObject(cm);
     }
 
+    class MyMouseWheelEvent implements MouseWheelListener {
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            // TODO Auto-generated method stub
+            if (e.getWheelRotation() < 0) { // 위로 올리는 경우 pen_size 증가
+                if (pen_size < 20)
+                    pen_size++;
+            } else {
+                if (pen_size > 2)
+                    pen_size--;
+            }
+            //lblMouseEvent.setText("mouseWheelMoved Rotation=" + e.getWheelRotation() + " pen_size = " + pen_size + " " + e.getX() + "," + e.getY());
+        }
+    }
+
     // Mouse Event Handler
     class MyMouseEvent implements MouseListener, MouseMotionListener {
 
@@ -918,9 +953,8 @@ public class GameClientView extends JFrame {
         }
     }
 
-
     // 화면에 출력
-    public void AppendText(String msg) {
+    public void AppendText(String msg) { //채팅창에 msg를 뿌려주는 메서드
         // textArea.append(msg + "\n");
         // AppendIcon(icon1);
         msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.
@@ -939,7 +973,7 @@ public class GameClientView extends JFrame {
             e.printStackTrace();
         }
         int len = textArea.getDocument().getLength();
-        textArea.setCaretPosition(len);
+        textArea.setCaretPosition(len); //끝으로 이동
         //textArea.replaceSelection("\n");
 
 
@@ -1022,23 +1056,42 @@ public class GameClientView extends JFrame {
         return packet;
     }
 
-
-    class MyMouseWheelEvent implements MouseWheelListener {
-        @Override
-        public void mouseWheelMoved(MouseWheelEvent e) {
-            // TODO Auto-generated method stub
-            if (e.getWheelRotation() < 0) { // 위로 올리는 경우 pen_size 증가
-                if (pen_size < 20)
-                    pen_size++;
-            } else {
-                if (pen_size > 2)
-                    pen_size--;
+    public void SendMessage(String msg) {
+        try {
+            ChatMsg obcm = new ChatMsg("UserName", "200", msg);
+            oos.writeObject(obcm);
+        } catch (IOException e) {
+            AppendText("oos.writeObject error");
+            try {
+                ois.close();
+                oos.close();
+                socket.close();
+            } catch(IOException e1) {
+                e1.printStackTrace();
+                System.exit(0);
             }
-            //lblMouseEvent.setText("mouseWheelMoved Rotation=" + e.getWheelRotation() + " pen_size = " + pen_size + " " + e.getX() + "," + e.getY());
-
         }
-
     }
+
+    public void SendMessage2(String msg) {
+        try {
+            ChatMsg obcm61 = new ChatMsg(UserName, "701", msg);
+            oos.writeObject(obcm61);
+            ChatMsg obcm = new ChatMsg(UserName, "700", msg);
+            oos.writeObject(obcm);
+        } catch (IOException e) {
+            AppendText("oos writeObject() error");
+            try {
+                ois.close();
+                oos.close();
+                socket.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                System.exit(0);
+            }
+        }
+    }
+
 
     public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
         try {

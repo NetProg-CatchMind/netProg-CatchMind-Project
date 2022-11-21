@@ -934,5 +934,3 @@ public class GameClientMain extends JFrame {
 //        super.paint(g);
 ////        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
 //    }
-
-
