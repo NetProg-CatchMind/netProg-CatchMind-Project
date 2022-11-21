@@ -11,14 +11,17 @@ public class RoomMsg implements Serializable {
     public String roomList;
     public int userCnt;
     private Vector userList = new Vector(); // 연결된 사용자를 저장할 벡터
+
+    public String totalUserList;
     public String roomIdList;
     public String roomTitleList;
     public String roomSubjectList;
     public String roomCntList;
 
 //    public RoomMsg(String code, String roomId, String roomTitle, String roomSubject, int userCnt) {
-    public RoomMsg(String code, String roomIdList, String roomTitleList, String roomSubjectList, String roomCntList) {
+    public RoomMsg(String code, String totalUserList, String roomIdList, String roomTitleList, String roomSubjectList, String roomCntList) {
         this.code = code;
+        this.totalUserList = totalUserList;
         this.roomIdList = roomIdList;
         this.roomTitleList = roomTitleList;
         this.roomSubjectList = roomSubjectList;

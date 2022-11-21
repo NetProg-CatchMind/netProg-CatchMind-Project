@@ -12,6 +12,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -123,6 +124,7 @@ public class GameClientMain extends JFrame {
 
     Vector<GameRoom> gameRooms = new Vector<GameRoom>();//개설된 대화방 Room-vs(Vector) : 대화방사용자
 
+    private String[] totalUserList;
     private String[] roomIdList;
     private String[] roomTitleList;
     private String[] roomSubjectList;
@@ -490,7 +492,6 @@ public class GameClientMain extends JFrame {
                         break;
                     }
 
-
                     if (obcm == null)
                         break;
 
@@ -509,17 +510,19 @@ public class GameClientMain extends JFrame {
                         }
 
                         if(rm.code.matches("1200")){
+                            totalUserList = rm.totalUserList.split(" ");
                             roomIdList = rm.roomIdList.split(" ");
                             roomTitleList = rm.roomTitleList.split(" ");
                             roomSubjectList = rm.roomSubjectList.split(" ");
                             roomCntList = rm.roomCntList.split(" ");
 
-                            makeRoom(roomIdList, roomTitleList, roomSubjectList ,roomCntList);
+                            makeRoom(totalUserList, roomIdList, roomTitleList, roomSubjectList ,roomCntList);
                         }
 
                     }
 
                     if(obcm instanceof JoinMsg) {
+                        System.out.println("hihi");
                         jm = (Server.JoinMsg) obcm;
 
                         if(jm.code.matches("1201")){
@@ -591,15 +594,13 @@ public class GameClientMain extends JFrame {
 
         for(int i =0; i<roomIdList.length; i++){
 
-//            if(roomIdList.length == 1) break;
-
             if( roomSubjectList[i].equals("food")) roomImg = subFoodImg;
             else if( roomSubjectList[i].equals("music")) roomImg = subMusicImg;
             else if(roomSubjectList[i].equals("movie")) roomImg = subMovieImg;
             else if( roomSubjectList[i].equals("animal")) roomImg = subAnimalImg;
             else if( roomSubjectList[i].equals("thing")) roomImg = subThingImg;
 
-            RoomPanel roomPanel = new RoomPanel(roomIdList[i], roomImg, roomTitleList[i], roomSubjectList[i], roomCntList[i], username, char_no, socket, oos);
+            RoomPanel roomPanel = new RoomPanel(totalUserList, roomIdList[i], roomImg, roomTitleList[i], roomSubjectList[i], roomCntList[i], username, char_no, socket, oos);
             roomPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
             gbc = new GridBagConstraints();
             gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -612,7 +613,7 @@ public class GameClientMain extends JFrame {
         roomListScrollPanel.setViewportView(roomListPanel);
     }
 
-    public void makeRoom( String[] roomIdList, String[] roomTitleList, String[] roomSubjectList, String[] roomCntList){
+    public void makeRoom( String[] totalUserList, String[] roomIdList, String[] roomTitleList, String[] roomSubjectList, String[] roomCntList){
         JPanel roomListPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -628,8 +629,9 @@ public class GameClientMain extends JFrame {
             else if( roomSubjectList[i].equals("animal")) roomImg = subAnimalImg;
             else if( roomSubjectList[i].equals("thing")) roomImg = subThingImg;
 
-            RoomPanel roomPanel = new RoomPanel(roomIdList[i], roomImg, roomTitleList[i], roomSubjectList[i], roomCntList[i], username, char_no, socket, oos);
+            RoomPanel roomPanel = new RoomPanel(totalUserList, roomIdList[i], roomImg, roomTitleList[i], roomSubjectList[i], roomCntList[i], username, char_no, socket, oos);
             roomPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
+            roomPanel.repaint();
             gbc = new GridBagConstraints();
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             gbc.weightx = 1;

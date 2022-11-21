@@ -6,6 +6,8 @@ import Server.RoomMsg;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import java.awt.*;
@@ -13,6 +15,8 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
+import java.util.Vector;
 
 public class RoomPanel extends JPanel {
 
@@ -30,9 +34,11 @@ public class RoomPanel extends JPanel {
     private JButton joinButton; //방 입장.
 
     private JLabel cntLabel; //인원
-    private JPanel memberList; //현재 참가자 그림 보여주기(캐릭터 아이콘)
-
+    private JList<String> memberList; //현재 참가자 그림 보여주기(캐릭터 아이콘)
+    private String[] totalUserList;
     private final JPanel roomInfo;
+    String userList = "";
+
     private ImageIcon roomImg;
 //    private boolean isSel = false;
 //    public boolean isSel() {
@@ -44,11 +50,12 @@ public class RoomPanel extends JPanel {
 //    }
 
 
-    public RoomPanel(String roomId, ImageIcon roomImg, String title, String subject, String cnt, String username, String char_no,  Socket socket, ObjectOutputStream oos){
+    public RoomPanel(String[] totalUserList, String roomId, ImageIcon roomImg, String title, String subject, String cnt, String username, String char_no,  Socket socket, ObjectOutputStream oos){
         this.setBounds(0,0,600,600);
         this.setLayout(new BorderLayout());
         this.setVisible(true);
 
+        this.totalUserList = totalUserList;
         this.roomId = roomId;
         this.title = title;
         this.subject = subject;
@@ -87,15 +94,33 @@ public class RoomPanel extends JPanel {
 //        subjectLabel.setBackground(Color.white);
         roomInfo.add(subjectLabel);
 
+        memberList = new JList(this.totalUserList);
+        memberList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);	//여러개 선택 될 수 있도록
+        memberList.setBounds(185,15,150,90);
+        memberList.setVisible(true);
+        roomInfo.add(memberList);
+
+
         joinButton = new JButton("입장하기");
         joinButton.setBackground(Color.decode("#88B594"));
         joinButton.setFont(new Font("Serif", Font.PLAIN, 20));
-        joinButton.setMargin(new Insets(50, 50, 50, 50));
-        joinButton.setBounds(0,0,200,200);
+//        joinButton.setMargin(new Insets(50, 50, 50, 50));
+        joinButton.setBounds(0,0,100,100);
         JoinAction joinAction = new JoinAction();
         joinButton.addMouseListener(joinAction);
         add(joinButton, BorderLayout.EAST);
     }
+
+    public void valueChanged(ListSelectionEvent e) {
+        if(!e.getValueIsAdjusting()) {
+            List<String> ml=memberList.getSelectedValuesList();
+//            for(String value:ls) {
+//                System.out.println("selected : "+value);
+//            }
+//            if(ml > )
+        }
+    }
+
 
     class JoinAction implements MouseListener {
         @Override
@@ -112,8 +137,16 @@ public class RoomPanel extends JPanel {
         public void mouseReleased(MouseEvent e) {
             joinButton.setBackground(Color.decode("#43654C"));
 
-            JoinMsg objr = new JoinMsg("1201", roomId, "", "","", username, char_no); //방만들기 프로토콜 번호 1200
+            List<String> ml= memberList.getSelectedValuesList();
+
+            for(String value:ml) {
+                userList += value + " ";
+            }
+
+            JoinMsg objr = new JoinMsg("1201", roomId, "", userList,"", username, char_no); //방만들기 프로토콜 번호 1200
             SendObject(objr);
+
+            joinButton.disable();
         }
 
         @Override

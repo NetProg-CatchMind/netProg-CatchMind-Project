@@ -190,15 +190,15 @@ public class GameClientView extends JFrame {
         usersPanel.setOpaque(false);
         mainPanel.add(usersPanel);
 
-        for(int i=0; i<this.userList.length; i++){
-//            JPanel userPanel = new JPanel();
-            JLabel userLabel = new JLabel();
-            if(this.charList[i] == "char1") userLabel.setIcon(char1Img);
-            else if(this.charList[i] == "char2") userLabel.setIcon(char2Img);
-            else userLabel.setIcon(char3Img);
-            userLabel.setBounds(10,10 + (i*130),90,110);
-            usersPanel.add(userLabel);
-        }
+//        for(int i=0; i<this.userList.length; i++){
+////            JPanel userPanel = new JPanel();
+//            JLabel userLabel = new JLabel();
+//            if(this.charList[i] == "char1") userLabel.setIcon(char1Img);
+//            else if(this.charList[i] == "char2") userLabel.setIcon(char2Img);
+//            else userLabel.setIcon(char3Img);
+//            userLabel.setBounds(10,10 + (i*130),90,110);
+//            usersPanel.add(userLabel);
+//        }
 
         JScrollPane scrollPane1 = new JScrollPane();
         scrollPane1.revalidate();
@@ -632,7 +632,6 @@ public class GameClientView extends JFrame {
                             charList = jm.charList.split(" ");
                             makeUserList(userList, charList);
                         }
-
                     }
 
                     if (obcm instanceof ChatMsg) {
@@ -726,15 +725,15 @@ public class GameClientView extends JFrame {
         usersPanel.setOpaque(false);
         mainPanel.add(usersPanel);
 
-        for(int i=0; i<userList.length; i++){
-//            JPanel userPanel = new JPanel();
-            JLabel userLabel = new JLabel();
-            if(charList[i] == "char1") userLabel.setIcon(char1Img);
-            else if(charList[i] == "char2") userLabel.setIcon(char2Img);
-            else userLabel.setIcon(char3Img);
-            userLabel.setBounds(10,10 + (i*130),90,110);
-            usersPanel.add(userLabel);
-        }
+//        for(int i=0; i<userList.length; i++){
+////            JPanel userPanel = new JPanel();
+//            JLabel userLabel = new JLabel();
+//            if(charList[i] == "char1") userLabel.setIcon(char1Img);
+//            else if(charList[i] == "char2") userLabel.setIcon(char2Img);
+//            else userLabel.setIcon(char3Img);
+//            userLabel.setBounds(10,10 + (i*130),90,110);
+//            usersPanel.add(userLabel);
+//        }
     }
 
     public void startss() {

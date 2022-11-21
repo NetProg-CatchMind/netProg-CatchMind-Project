@@ -23,6 +23,7 @@ class RoomMake extends JFrame {
     public JTextField titleField;
     public JButton makeRoomBtn, cancleBtn;
     public JComboBox<String> subjectCombo, memberCntCombo; //주제, 최대 인원수
+
     private Vector<GameRoom> gameRooms;
     String[] subjects = { "food", "music", "movie", "animal", "thing" };
 

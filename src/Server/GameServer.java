@@ -25,6 +25,7 @@ public class GameServer extends JFrame {
     private Socket client_socket; // accept() 에서 생성된 client 소켓
 
     private Vector UserVec = new Vector(); // 연결된 사용자를 저장할 벡터
+    private Vector userNameVec = new Vector();
     private Vector<GameRoom> RoomVec = new Vector<GameRoom>(); //생성된 방을 저장할 벡터.
     String roomIdList = "";
     String roomTitleList = "";
@@ -235,20 +236,48 @@ public class GameServer extends JFrame {
                             }
                         }
 
-                        curRoom.socketList.add(this);
-                        curRoom.memberList.add(jm.username);
-                        curRoom.charList.add(jm.char_no);
-                        if(curRoom.memberList.size() != 0){
-                            for (int i = 0; i < curRoom.socketList.size(); i++) {
-                                socketList += curRoom.socketList.get(i) + " ";
-                                userList += curRoom.memberList.get(i) + " ";
-                                charList += curRoom.charList.get(i) + " ";
+//                        curRoom.socketList.add(this);
+//                        curRoom.memberList.add(jm.username);
+//                        curRoom.charList.add(jm.char_no);
+
+
+//                        String[] sockets_b = jm.socketList.split(" ");
+                        Vector<UserService> sockets = new Vector<UserService>();
+                        String[] users = jm.userList.split(" ");
+
+//                        String[] chars = jm.charList.split(" ");
+
+                        for(int i=0; i<users.length; i++){
+                            curRoom.UserVec.add(users[i]);
+                        }
+
+                        System.out.println(user_vc);
+
+                        for(int i=0; i<userNameVec.size(); i++){
+                            for(int j=0; j<users.length; j++){
+                                System.out.println("users :: " + userNameVec.get(i) +"/" + users[j]);
+                                if(users[j].equals(userNameVec.get(i))){
+                                    sockets.add((UserService) user_vc.get(i));
+                                }
                             }
                         }
 
-                        JoinMsg joinMsg = new JoinMsg("1201", jm.roomId, socketList, userList, charList, "", "");
-//                        WriteAllObject(joinMsg);
-                        System.out.println(joinMsg);
+                        for(int i=0; i<sockets.size(); i++){
+                            curRoom.socketList.add(sockets.get(i));
+                            curRoom.memberList.add(users[i]);
+//                            curRoom.charList.add(chars[i]);
+                        }
+
+//                        if(curRoom.memberList.size() != 0){
+//                            for (int i = 0; i < curRoom.socketList.size(); i++) {
+//                                socketList += curRoom.socketList.get(i) + " ";
+//                                userList += curRoom.memberList.get(i) + " ";
+////                                charList += curRoom.charList.get(i) + " ";
+//                            }
+//                        }
+
+                        System.out.println(curRoom.UserVec);
+                        JoinMsg joinMsg = new JoinMsg("1201", jm.roomId, jm.socketList, jm.userList, jm.charList, "", "");
                         WriteRoomObject(curRoom, joinMsg);
                     }
                 }
@@ -340,8 +369,6 @@ public class GameServer extends JFrame {
                     }
 
 
-
-
                     //로그아웃!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     else if (cm.code.matches("400")) { // logout message 처리
                         Logout();
@@ -359,31 +386,41 @@ public class GameServer extends JFrame {
 
             RoomVec.add(gameRoom);
 
+            String totalUserList = "";
+            for(int i=0; i<userNameVec.size(); i++){
+                totalUserList += userNameVec.get(i).toString() + " ";
+            }
+
             roomIdList += (gameRoom.roomId + " ");
             roomTitleList += (gameRoom.title + " ");
             roomSubjectList += (gameRoom.subject + " ");
             roomCntList += (gameRoom.memberCnt + " ");
 
 //            RoomMsg roomMsg = new RoomMsg("1200", gameRoom.roomId, title, subject, cnt);
-            Server.RoomMsg roomMsg = new Server.RoomMsg("1200", roomIdList, roomTitleList, roomSubjectList, roomCntList);
+            Server.RoomMsg roomMsg = new Server.RoomMsg("1200", totalUserList, roomIdList, roomTitleList, roomSubjectList, roomCntList);
             WriteAllObject(roomMsg);
 //            WriteAllObject(roomMsg);
         }
 
-        public void joinRoom(String roomId, String title, String subject, int cnt){
-            RoomMsg roomMsg = new RoomMsg("1201", roomIdList, roomTitleList, roomSubjectList, roomCntList);
-            WriteOneObject(roomMsg);
-        }
+//        public void joinRoom(String roomId, String title, String subject, int cnt){
+//            RoomMsg roomMsg = new RoomMsg("1201", roomIdList, roomTitleList, roomSubjectList, roomCntList);
+//            WriteOneObject(roomMsg);
+//        }
 
         //code가 100일때 Login함수 호출
         public void Login() {
+            String totalUserList = "";
+            for(int i=0; i<user_vc.size(); i++){
+                totalUserList += user_vc.get(i).toString() + " ";
+            }
+
             AppendText("새로운 참가자 " + UserName + " 입장.");
             WriteOne("Welcome to Java chat server\n");
             WriteOne(UserName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
-            user_vc.addElement(this);
-            Server.RoomMsg roomMsg = new Server.RoomMsg("100", roomIdList, roomTitleList, roomSubjectList, roomCntList);
+            Server.RoomMsg roomMsg = new Server.RoomMsg("100", totalUserList, roomIdList, roomTitleList, roomSubjectList, roomCntList);
             WriteOneObject(roomMsg);
             String msg = "[" + UserName + "]님이 입장 하였습니다.\n";
+            userNameVec.add(UserName);
             WriteOthers(msg); // 아직 user_vc에 새로 입장한 user는 포함되지 않았다.
 
         }
@@ -409,6 +446,7 @@ public class GameServer extends JFrame {
         }
 
         public void WriteRoomObject(GameRoom room, Object ob) {
+            System.out.println("room socket List :: " + room.socketList);
             for (int i = 0; i < room.socketList.size(); i++) {
                 GameServer.UserService user = (GameServer.UserService) room.socketList.get(i);
                 System.out.println(room.socketList.get(i));
