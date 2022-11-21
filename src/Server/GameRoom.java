@@ -25,7 +25,7 @@ public class GameRoom extends Thread{ //game room 입장 후 서버에서 방에
 
     public  Vector user_vc; //???
 
-    Vector socketList = new Vector();// 현재 방에 있는 사용자들의 소켓 리스트
+    Vector<GameServer.UserService> socketList = new Vector<GameServer.UserService>();// 현재 방에 있는 사용자들의 소켓 리스트
     Vector memberList = new Vector(); //현재 방에 있는 사용자들 username 리스트
     Vector charList = new Vector(); //현재 방에 있는 사용자들의 캐릭터 리스트
 

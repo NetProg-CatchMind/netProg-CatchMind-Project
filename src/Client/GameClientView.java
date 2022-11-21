@@ -575,9 +575,6 @@ public class GameClientView extends JFrame {
         btnNewButton.setBounds(300, 490, 70, 30);
         chatingPanel.add(btnNewButton);
 
-
-
-
 //         Image 영역 보관용. paint() 에서 이용한다.
         panelImage = createImage(panel.getWidth(), panel.getHeight());
         gc2 = panelImage.getGraphics();
@@ -593,10 +590,6 @@ public class GameClientView extends JFrame {
         lblMouseEvent.setBackground(Color.WHITE);
         lblMouseEvent.setBounds(160, 520, 450, 40);
         contentPane.add(lblMouseEvent);*/
-
-
-
-
 
         try {
             this.oos = oos;
@@ -615,6 +608,7 @@ public class GameClientView extends JFrame {
     class ListenNetwork extends Thread {
         public void run() {
             while (true) {
+
                 try {
                     Object obcm = null;
                     String msg = null;
