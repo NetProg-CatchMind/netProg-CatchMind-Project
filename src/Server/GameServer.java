@@ -38,6 +38,14 @@ public class GameServer extends JFrame {
 
 
     public String word[] = {"새", "나무", "사람"}; //단어 서버에서 어떤 방식으로 뿌릴지 정하기,, -> 더미 데이터로 처리
+    public String turnUser;
+    public int wordturn = 0;
+    public int gamestart = 0;// 게임 시작하면 1로
+    public int UserScore = 0;
+    public String UserName = "";
+    public String UserStatus;
+    public int backgrounds = 0;
+
 
     public static void main(String[] args) {
         //실행시키는 코드
@@ -134,7 +142,6 @@ public class GameServer extends JFrame {
 
     //user 당 하나씩 생성될 user를 다루기 위한 thread ====================================================================
     class UserService extends Thread {
-        public String UserScore;
         private InputStream is;
         private OutputStream os;
         private DataInputStream dis;
@@ -244,7 +251,6 @@ public class GameServer extends JFrame {
                         System.out.println(joinMsg);
                         WriteRoomObject(curRoom, joinMsg);
                     }
-
                 }
 
                 //채팅 메세지일 경우 -------------------------------------------------------------- (다른 클래스에서 구현할 가능성 있음)
@@ -266,14 +272,74 @@ public class GameServer extends JFrame {
                         }
                     }
 
-                    else if(cm.code.matches("200")) { //채팅 message 처리
+                    else if (cm.code.matches("200")) {
                         msg = String.format("[%s] %s", cm.UserName, cm.data);
+                        AppendText(msg); // server 화면에 출력
+                        String[] args = msg.split(" "); // 단어들을 분리한다.
+                        //Object[] word;
+                        if (args.length == 1) { // Enter key 만 들어온 경우 Wakeup 처리만 한다.
+                            UserStatus = "O";
+                        } else if (args[1].matches("/exit")) {
+//                      Logout();
+                            break;
 
-                        AppendText(msg); //server 오른쪽에 출력되게 하기
-                        String[] args = msg.split(" "); //단어 분리 ////방 유저 list도 이런 방식으로 분리하면 되려나,,
+                        }  else if ((cm.data.equals(word[wordturn])) && (gamestart == 1)) {
+                            if (UserName != turnUser) {
+                                WriteAllObject(cm);
+                                UserScore++;
 
-                        //if((cm.data.equals()) //맞춘 유저의 점수를 올려준다
+                                if (backgrounds == 1) {
+                                    // 전체에 배경 사진 보내기
+                                    ChatMsg obcm6799 = new ChatMsg("SERVER", "301", word[wordturn]);
+
+                                    for (int j = 0; j < user_vc.size(); j++) {
+                                        GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(j);
+                                        if (turnUser == user.UserName) {
+                                            user.WriteOneObject(obcm6799); // WriteAll로 바꾸기
+                                        }
+                                    }
+                                    // 301을 보내서 모두에게 300(이미지)를 보내기
+                                    backgrounds = 0;
+                                }
+
+                                if (wordturn == 4) {
+                                    wordturn = 0;
+                                } else {
+                                    wordturn++;
+                                }
+                                ChatMsg obcm67 = new ChatMsg("SERVER", "701", msg);
+                                WriteAllObject(obcm67);
+
+                                //WriteAll2("------------------사용자 목록------------------- ");
+                                for (int j = 0; j < user_vc.size(); j++) {
+                                    GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(j);
+                                    WriteAll2(
+                                            "Name:  " + user.UserName + "           Score:  " + UserScore + "\n");
+                                }
+
+                                WriteAll6(UserName + "님이 정답을 맞췄습니다.\n" + "다음판을 시작하려면 시작을 눌러주세요");
+                                gamestart = 0;
+                                WriteAll3("null");
+
+                            }
+                        }
+
+                        else if(cm.code.matches("400")) {
+                            Logout();
+                            break;
+                        }
+
+                        else { // 일반 채팅 메시지
+                            UserStatus = "O";
+                            //WriteAll(msg + "\n"); // Write All
+                            WriteAllObject(cm);
+                        }
+                    } //code 200 끝
+
+                    else if(cm.code.matches("1000")) { //시간이 끝났을때 턴 넘기기(이때 힌트사용시 시간 증가하는거도 구현(?))
+                        //
                     }
+
 
 
 
@@ -349,7 +415,6 @@ public class GameServer extends JFrame {
                 System.out.println(room.socketList.get(i));
                 user.WriteOneObject(ob);
             }
-
         }
 
         public void WriteOneObject(Object ob) {
@@ -423,6 +488,16 @@ public class GameServer extends JFrame {
 //            Logout(); // 에러가난 현재 객체를 벡터에서 지운다
             }
         }
+
+        public void WriteAll6(String str) { //WriteOne6으로 변경하기
+            for (int i = 0; i < user_vc.size(); i++) {
+                GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(i);
+                //GameRoom user = (GameRoom) user_vc.elementAt(i);
+                if (user.UserStatus == "O")
+                    user.WriteOne(str);
+            }
+        }
+
 
         public void WriteOne2(String msg) { //사용자 목록 업데이트 방송 / 프로토콜 603
             try {

@@ -608,7 +608,6 @@ public class GameClientView extends JFrame {
     class ListenNetwork extends Thread {
         public void run() {
             while (true) {
-
                 try {
                     Object obcm = null;
                     String msg = null;
