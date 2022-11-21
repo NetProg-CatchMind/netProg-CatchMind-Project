@@ -320,7 +320,6 @@ public class GameServer extends JFrame {
                                 WriteAll6(UserName + "님이 정답을 맞췄습니다.\n" + "다음판을 시작하려면 시작을 눌러주세요");
                                 gamestart = 0;
                                 WriteAll3("null");
-
                             }
                         }
 
