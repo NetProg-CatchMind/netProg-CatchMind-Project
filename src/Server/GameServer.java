@@ -47,6 +47,8 @@ public class GameServer extends JFrame {
     //public String UserStatus;
     public int backgrounds = 0;
 
+    Map<String, String> userInfo =  new HashMap<String, String>();
+
 
     public static void main(String[] args) {
         //실행시키는 코드
@@ -158,6 +160,8 @@ public class GameServer extends JFrame {
         public String UserName = "";
         public String UserStatus;
 
+        GameRoom curRoom = null;
+
         // userThread 클래스 생성자-----------------------------------------------------------------
         public UserService(Socket client_socket) {
             // TODO Auto-generated constructor stub
@@ -230,8 +234,8 @@ public class GameServer extends JFrame {
                     if(jm.code.matches("1201")) {
                         String socketList = "";
                         String userList = "";
-                        String charList = "" ;
-                        GameRoom curRoom = null;
+                        String charList = "";
+
                         for (int i = 0; i < RoomVec.size(); i++) {
                             if (RoomVec.get(i).roomId.equals(jm.roomId)) {
                                 curRoom = RoomVec.get(i);
@@ -242,10 +246,14 @@ public class GameServer extends JFrame {
 //                        curRoom.memberList.add(jm.username);
 //                        curRoom.charList.add(jm.char_no);
 
-
 //                        String[] sockets_b = jm.socketList.split(" ");
                         Vector<UserService> sockets = new Vector<UserService>();
                         String[] users = jm.userList.split(" ");
+                        Vector<String> chars = new Vector<String>();
+                        for(int i=0; i< users.length; i++){
+                            chars.add(userInfo.get(users[i]));
+                            System.out.println(userInfo.get(users[i]));
+                        }
 
 //                        String[] chars = jm.charList.split(" ");
 
@@ -253,41 +261,44 @@ public class GameServer extends JFrame {
                             curRoom.UserVec.add(users[i]);
                         }
 
+
                         System.out.println(user_vc);
 
                         for(int i=0; i<userNameVec.size(); i++){
                             for(int j=0; j<users.length; j++){
-                                System.out.println("users :: " + userNameVec.get(i) +"/" + users[j]);
                                 if(users[j].equals(userNameVec.get(i))){
                                     sockets.add((UserService) user_vc.get(i));
                                 }
                             }
                         }
 
+                        System.out.println("size :: " + sockets.size() + "/" + users.length + "/" + chars.size());
                         for(int i=0; i<sockets.size(); i++){
                             curRoom.socketList.add(sockets.get(i));
                             curRoom.memberList.add(users[i]);
-//                            curRoom.charList.add(chars[i]);
+
+                            curRoom.charList.add(chars.get(i));
                         }
 
-//                        if(curRoom.memberList.size() != 0){
-//                            for (int i = 0; i < curRoom.socketList.size(); i++) {
-//                                socketList += curRoom.socketList.get(i) + " ";
-//                                userList += curRoom.memberList.get(i) + " ";
-////                                charList += curRoom.charList.get(i) + " ";
-//                            }
-//                        }
 
-                        System.out.println(curRoom.UserVec);
-                        JoinMsg joinMsg = new JoinMsg("1201", jm.roomId, jm.socketList, jm.userList, jm.charList, "", "");
+                        if(curRoom.memberList.size() != 0){
+                            for (int i = 0; i < curRoom.socketList.size(); i++) {
+                                socketList += curRoom.socketList.get(i) + " ";
+                                userList += curRoom.memberList.get(i) + " ";
+                                charList += curRoom.charList.get(i) + " ";
+                            }
+                        }
+
+                        System.out.println(charList);
+                        JoinMsg joinMsg = new JoinMsg("1201", jm.roomId, socketList, userList, charList, "", "");
                         WriteRoomObject(curRoom, joinMsg);
                     }
                 }
 
                 //채팅 메세지일 경우 -------------------------------------------------------------- (다른 클래스에서 구현할 가능성 있음)
-                if (obcm instanceof ChatMsg) { //obcm(읽어들인 object)이 ChatMsg라면
+                if (obcm instanceof Server.ChatMsg) { //obcm(읽어들인 object)이 ChatMsg라면
 
-                    cm = (ChatMsg) obcm; //ChatMsg 형식으로 바꿔서
+                    cm = (Server.ChatMsg) obcm; //ChatMsg 형식으로 바꿔서
 //                    AppendObject(cm);
 
                     //로그인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -299,7 +310,7 @@ public class GameServer extends JFrame {
                             break;
                         } else {
                             UserStatus = "O"; // Online 상태
-                            Login(); //~님 환영합니다 msg 출력되도록 하기
+                            Login(cm.char_no); //~님 환영합니다 msg 출력되도록 하기
                         }
                     }
 
@@ -358,6 +369,10 @@ public class GameServer extends JFrame {
                             break;
                         }
 
+                        else if(cm.code.matches("500")){
+                            WriteRoomObject(curRoom, cm);
+                        }
+
                         else { // 일반 채팅 메시지
                             UserStatus = "O";
                             //WriteAll(msg + "\n"); // Write All
@@ -409,11 +424,13 @@ public class GameServer extends JFrame {
 //        }
 
         //code가 100일때 Login함수 호출
-        public void Login() {
+        public void Login(String char_no) {
             String totalUserList = "";
             for(int i=0; i<user_vc.size(); i++){
                 totalUserList += user_vc.get(i).toString() + " ";
             }
+            userInfo.put(UserName , char_no);
+            System.out.println("userInfo put!!" + char_no);
 
             AppendText("새로운 참가자 " + UserName + " 입장.");
             WriteOne("Welcome to CatchMind Server\n");

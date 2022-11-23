@@ -12,7 +12,9 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -429,6 +431,7 @@ public class GameClientMain extends JFrame {
             ois = new ObjectInputStream(socket.getInputStream());
 
             ChatMsg obcm = new ChatMsg(username, "100", "Login");
+            obcm.char_no = char_no;
             SendObject(obcm);
 
             ListenNetwork net = new ListenNetwork();
@@ -522,10 +525,10 @@ public class GameClientMain extends JFrame {
                     }
 
                     if(obcm instanceof JoinMsg) {
-                        System.out.println("hihi");
                         jm = (Server.JoinMsg) obcm;
 
                         if(jm.code.matches("1201")){
+                            System.out.println(jm.charList);
                             view = new GameClientView(jm.roomId, jm.socketList, jm.userList, jm.charList, username, socket,ois, oos);
                             view.setVisible(true);
 //                            view = new GameClientView(jm.roomId, jm.userList);

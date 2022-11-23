@@ -25,6 +25,7 @@ public class GameClientView extends JFrame {
     //    private ImageIcon backgroundImg = new ImageIcon("res/mainBackground.png");
     private ImageIcon backgroundImg = new ImageIcon("res/basicBackground.png");
     private ImageIcon logoImg = new ImageIcon("res/gameTitle.png");
+    private JLabel userLabel;
     private ImageIcon viewPanelBg = new ImageIcon("res/gameViewPanel.png");
     private ImageIcon infoPanelBg = new ImageIcon("res/infoPanelImg.png");
     private ImageIcon hintPanelBg = new ImageIcon("res/hintPanelImg.png");
@@ -133,7 +134,6 @@ public class GameClientView extends JFrame {
         setVisible(true);
 //        setUndecorated(true);
 
-
         this.socketList = socketList.split(" ");
         this.userList = userList.split(" ");
         this.charList = charList.split(" ");
@@ -190,15 +190,16 @@ public class GameClientView extends JFrame {
         usersPanel.setOpaque(false);
         mainPanel.add(usersPanel);
 
-//        for(int i=0; i<this.userList.length; i++){
-////            JPanel userPanel = new JPanel();
-//            JLabel userLabel = new JLabel();
-//            if(this.charList[i] == "char1") userLabel.setIcon(char1Img);
-//            else if(this.charList[i] == "char2") userLabel.setIcon(char2Img);
-//            else userLabel.setIcon(char3Img);
-//            userLabel.setBounds(10,10 + (i*130),90,110);
-//            usersPanel.add(userLabel);
-//        }
+        for(int i=0; i<this.socketList.length; i++){
+            System.out.println(this.charList[0]);
+//            JPanel userPanel = new JPanel();
+            userLabel = new JLabel();
+            if(this.charList[i].equals("char1")) userLabel.setIcon(char1Img);
+            else if(this.charList[i].equals("char2")) userLabel.setIcon(char2Img);
+            else userLabel.setIcon(char3Img);
+            userLabel.setBounds(50,35 + (i*160),90,110);
+            usersPanel.add(userLabel);
+        }
 
         JScrollPane scrollPane1 = new JScrollPane();
         scrollPane1.revalidate();
@@ -386,7 +387,6 @@ public class GameClientView extends JFrame {
 
         panel = new JPanel();
         panel.revalidate();
-        panel.repaint();
         panel.setBorder(new LineBorder(new Color(0, 0, 0)));
         panel.setBackground(Color.WHITE);
         panel.setBounds(20, 20, 760, 480); //그림판 판넬
@@ -648,9 +648,9 @@ public class GameClientView extends JFrame {
                         jm = (Server.JoinMsg) obcm;
 
                         if(jm.code.matches("1201")){
-                            userList = jm.userList.split(" ");
-                            charList = jm.charList.split(" ");
-                            makeUserList(userList, charList);
+
+                            System.out.println(jm);
+
                         }
                     }
 
@@ -688,7 +688,7 @@ public class GameClientView extends JFrame {
                             break;
                         case "500": // Mouse Event 수신
                             DoMouseEvent(cm, cm.co, cm.shape);
-                            //startss();
+                            startss();
                             break;
 
                         case"600":  //game start
@@ -729,32 +729,6 @@ public class GameClientView extends JFrame {
         }
     }
 
-    public void makeUserList(String[] userList, String[] charList){
-        usersPanel = new JPanel(){
-//            public void paintComponent(Graphics g) {
-//                g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
-//                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
-//            }
-        };
-        usersPanel.revalidate();
-        usersPanel.repaint();
-        usersPanel.setBounds(50,40,200,700);
-//        usersPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        usersPanel.setLayout(null);
-//        usersPanel.setBackground(Color.white);
-        usersPanel.setOpaque(false);
-        mainPanel.add(usersPanel);
-
-//        for(int i=0; i<userList.length; i++){
-////            JPanel userPanel = new JPanel();
-//            JLabel userLabel = new JLabel();
-//            if(charList[i] == "char1") userLabel.setIcon(char1Img);
-//            else if(charList[i] == "char2") userLabel.setIcon(char2Img);
-//            else userLabel.setIcon(char3Img);
-//            userLabel.setBounds(10,10 + (i*130),90,110);
-//            usersPanel.add(userLabel);
-//        }
-    }
 
     public void startss() {
         mouse = new MyMouseEvent();
@@ -829,7 +803,7 @@ public class GameClientView extends JFrame {
 
 
     public void SendMouseEvent(MouseEvent e) {
-        ChatMsg cm = new ChatMsg(UserName, "500", "MOUSE");
+        Server.ChatMsg cm = new Server.ChatMsg(UserName, "500", "MOUSE");
         cm.mouse_e = e;
         cm.pen_size = pen_size;
         cm.co=c;
