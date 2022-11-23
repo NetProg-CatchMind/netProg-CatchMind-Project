@@ -921,10 +921,6 @@ public class GameClientMain extends JFrame {
         return packet;
     }
 
-
-
-
-
 }
 
 

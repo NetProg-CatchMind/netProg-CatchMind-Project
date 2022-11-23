@@ -106,7 +106,7 @@ public class GameClientView extends JFrame {
     public Color c = new Color(0,0,0);
     public int shapes;
     private LineBorder lb;
-    public List<Point> pointss = new ArrayList<Point>();
+    public List<Point> pointss = new ArrayList<Point>();  //pointss arraylist
     public	MyMouseEvent mouse;
     public MyMouseWheelEvent wheel;
 
@@ -371,10 +371,10 @@ public class GameClientView extends JFrame {
 
 
         canvasPanel = new JPanel(){
-//            public void paintComponent(Graphics g) {
-//                g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
-//                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
-//            }
+            /* public void paintComponent(Graphics g) {
+                g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
+//                 Image 영역이 가려졌다 다시 나타날 때 그려준다.
+            } */
         };
         canvasPanel.revalidate();
         canvasPanel.repaint();
@@ -401,8 +401,8 @@ public class GameClientView extends JFrame {
                 startss();
             }
         });
-        btnNewButton1.revalidate();
-        btnNewButton1.repaint();
+        //btnNewButton1.revalidate();
+        //btnNewButton1.repaint();
         btnNewButton1.setForeground(Color.RED);
         btnNewButton1.setBounds(50, 508, 62, 35);
         canvasPanel.add(btnNewButton1);
@@ -773,6 +773,7 @@ public class GameClientView extends JFrame {
 
     public void paint(Graphics g) {
         super.paint(g);
+        g.drawImage(panelImage, 0, 0, this);
 //        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
         // Image 영역이 가려졌다 다시 나타날 때 그려준다.
 //        gc.drawImage(panelImage, 0, 0, this);
@@ -783,8 +784,8 @@ public class GameClientView extends JFrame {
 
     // Mouse Event 수신 처리
     public void DoMouseEvent(ChatMsg cm,Color co,int shape) {
-        if (cm.UserName.matches(UserName)) // 본인 것은 이미 Local 로 그렸다.
-            return;
+        //if (cm.UserName.matches(UserName)) // 본인 것은 이미 Local 로 그렸다.
+          //  return;
         //System.out.println(cm.lines);
 
         gc.setColor(co);
@@ -883,7 +884,7 @@ public class GameClientView extends JFrame {
             else
                 points.add(e.getPoint());
 
-            gc.drawImage(panelImage, 0, 0, panel);
+            gc.drawImage(panelImage, 0, 0, panel); //
 
             SendMouseEvent(e);
             linee=false;
@@ -944,7 +945,7 @@ public class GameClientView extends JFrame {
 
         @Override
         public void mouseReleased(MouseEvent e) { //구현해야함!
-            lblMouseEvent.setText(e.getButton() + " mouseReleased " + e.getX() + "," + e.getY());
+            lblMouseEvent.setText(e.getButton() + " mouseReleased " + e.getX() + "," + e.getY()); //안그려지는 이유???!!!
             // 드래그중 멈출시 보임
             points.add(e.getPoint());
             points.clear();
