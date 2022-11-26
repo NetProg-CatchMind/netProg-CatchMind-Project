@@ -59,6 +59,9 @@ public class GameClientView extends JFrame {
     private JPanel usersPanel;
     private JLabel logo;
 
+    private int score=0;
+    private int time=15;
+
 
     private static final long serialVersionUID = 1L;
 
@@ -79,14 +82,16 @@ public class GameClientView extends JFrame {
     private JLabel lblUserName;
 
     private JPanel wordPanel;
+    private JLabel wordInfoLabel;
     private JLabel wordLabel;
     private JLabel wordTitle;
 
     private JPanel scorePanel;
+    private JLabel scoreInfoLabel;
     private JLabel scoreLabel;
-    private JLabel scoreTitle;
 
     private JPanel timePanel;
+    private JLabel timeInfoLabel;
     private JLabel timeLabel;
     private JLabel timeTitle;
 
@@ -99,6 +104,9 @@ public class GameClientView extends JFrame {
     private FileDialog fd;
     private JButton imgBtn;
     private JPanel resultPanel;
+
+    private String[] wordList;
+    private int indexWordList = 0;
 
     JPanel panel; //뭐였지,,
     private JLabel lblMouseEvent;
@@ -241,6 +249,21 @@ public class GameClientView extends JFrame {
         usersPanel.add(scrollPane4);
 
         btnExit = new JButton("방 나가기"); //Exit button
+        btnExit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+//              ChatMsg msg = new ChatMsg(UserName, "400", "Bye");
+//              SendObject(msg);
+//              System.exit(0);
+                ChatMsg obc = new ChatMsg(UserName, "400","null");
+                obc.roomId = roomId;
+                main.SendObject(obc);
+
+                setVisible(false);
+                //2명이상이면 start
+            }
+
+        });
         btnExit.revalidate();
         btnExit.repaint();
         btnExit.setFont(new Font("굴림", Font.PLAIN, 14));
@@ -278,14 +301,22 @@ public class GameClientView extends JFrame {
         wordPanel.setBounds(10,0,260,150);
         infoPanel.add(wordPanel);
 
-        wordLabel = new JLabel("제시어."){}; //안내 공지하는 label
+        wordInfoLabel = new JLabel("제시어."){}; //안내 공지하는 label
+        wordInfoLabel.revalidate();
+        wordInfoLabel.repaint();
+        wordInfoLabel.setForeground(Color.BLACK);
+        wordInfoLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
+        wordInfoLabel.setBorder(lb);
+        wordInfoLabel.setBounds(10, 0, 260, 50);
+        wordPanel.add(wordInfoLabel);
+
+        wordLabel = new JLabel();
         wordLabel.revalidate();
         wordLabel.repaint();
-        wordLabel.setForeground(Color.BLACK);
-        wordLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
-        wordLabel.setBorder(lb);
-//        wordLabel.setBounds(10, 0, 260, 150);
+        wordLabel.setFont(new Font("나눔고딕", Font.PLAIN, 30));
+        wordLabel.setBounds(10,100,260, 90);
         wordPanel.add(wordLabel);
+
 
         scorePanel = new JPanel(){
             public void paintComponent(Graphics g) {
@@ -301,13 +332,20 @@ public class GameClientView extends JFrame {
         scorePanel.setBounds(270,0,260,150);
         infoPanel.add(scorePanel);
 
-        scoreLabel = new JLabel("점수."); //안내 공지하는 label
+        scoreInfoLabel = new JLabel("점수."); //안내 공지하는 label
+        scoreInfoLabel.revalidate();
+        scoreInfoLabel.repaint();
+        scoreInfoLabel.setForeground(Color.BLACK);
+        scoreInfoLabel.setBorder(lb);
+        scoreInfoLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
+        scoreInfoLabel.setBounds(270, 0, 260, 50);
+        scorePanel.add(scoreInfoLabel);
+
+        scoreLabel = new JLabel();
         scoreLabel.revalidate();
         scoreLabel.repaint();
-        scoreLabel.setForeground(Color.BLACK);
-        scoreLabel.setBorder(lb);
-        scoreLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
-//        scoreLabel.setBounds(270, 0, 260, 150);
+        scoreLabel.setFont(new Font("나눔고딕", Font.PLAIN, 30));
+        scoreLabel.setBounds(10,60,260, 90);
         scorePanel.add(scoreLabel);
 
         timePanel = new JPanel(){
@@ -324,15 +362,21 @@ public class GameClientView extends JFrame {
         timePanel.setBounds(530,0,260,150);
         infoPanel.add(timePanel);
 
-        timeLabel = new JLabel("제한시간."); //안내 공지하는 label
+        timeInfoLabel = new JLabel("제한시간."); //안내 공지하는 label
+        timeInfoLabel.revalidate();
+        timeInfoLabel.repaint();
+        timeInfoLabel.setForeground(Color.BLACK);
+        timeInfoLabel.setBorder(lb);
+        timeInfoLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
+        timeInfoLabel.setBounds(530, 0, 260, 50);
+        timePanel.add(timeInfoLabel);
+
+        timeLabel = new JLabel();
         timeLabel.revalidate();
         timeLabel.repaint();
-        timeLabel.setForeground(Color.BLACK);
-        timeLabel.setBorder(lb);
-        timeLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
-//        timeLabel.setBounds(530, 0, 260, 150);
+        timeLabel.setFont(new Font("나눔고딕", Font.PLAIN, 30));
+        timeLabel.setBounds(10,60,260, 90);
         timePanel.add(timeLabel);
-
 
         hintPanel = new JPanel(){
 //            public void paintComponent(Graphics g) {
@@ -610,7 +654,7 @@ public class GameClientView extends JFrame {
 //              System.exit(0);
                 ChatMsg obc = new ChatMsg(UserName, "600","null");
                 obc.roomId = roomId;
-                SendObject(obc);
+                main.SendObject(obc);
                 //2명이상이면 start
             }
 
@@ -635,110 +679,6 @@ public class GameClientView extends JFrame {
         contentPane.add(lblMouseEvent);
 
     }
-
-//    class ListenNetwork extends Thread {
-//        public void run() {
-//            while (true) {
-//                try {
-//                    Object obcm = null;
-//                    String msg = null;
-//                    Server.JoinMsg jm;
-//                    ChatMsg cm;
-//                    try {
-//                        obcm = ois.readObject();
-//
-//                    } catch (ClassNotFoundException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                        break;
-//                    }
-//                    if (obcm == null)
-//                        break;
-//
-//                    if(obcm instanceof Server.JoinMsg) {
-//                        jm = (Server.JoinMsg) obcm;
-//
-//                        if(jm.code.matches("1201")){
-//
-//                            System.out.println(jm);
-//
-//                        }
-//                    }
-//
-//                    if (obcm instanceof ChatMsg) {
-//                        cm = (ChatMsg) obcm;
-//                        msg = String.format("[%s]\n%s", cm.UserName, cm.data);
-//                    } else
-//                        continue;
-//                    switch (cm.code) {
-//                        case "200": // chat message
-//                            if (cm.UserName.equals(UserName))
-//                                AppendTextR(msg); // 내 메세지는 우측에
-//                            else
-//                                AppendText(msg);
-//                            break;
-//
-//                        case "201": //정답 message
-//                            if(cm.UserName.equals(UserName))
-//                                AppendTextR(msg);
-//                            else
-//                                AppendText(msg);
-//
-//                        case "202": //오답 message
-//                            if(cm.UserName.equals(UserName))
-//                                AppendTextR(msg);
-//                            else
-//                                AppendText(msg);
-//
-//                        case "300": // Image 첨부
-//                            if (cm.UserName.equals(UserName))
-//                                AppendTextR("[" + cm.UserName + "]");
-//                            else
-//                                AppendText("[" + cm.UserName + "]");
-//                            AppendImage(cm.img);
-//                            break;
-//                        case "500": // Mouse Event 수신
-//                            startss();
-//                            DoMouseEvent(cm, cm.co, cm.shape);
-//                            break;
-//
-//                        case"600":  //game start
-//                            String arg2[]=msg.split("]");
-//                            textField.setText(arg2[1]);
-//                            panel.removeAll();
-//                            panel.repaint();
-//                            panel.revalidate();
-//                            if(cm.data.matches("문제를 맞춰보세요")) {
-//                                endss();
-//                            }else {
-//                                startss();
-//                            }
-//                            break;
-//
-//                        case "800": //순서 변경
-//                            String arg1[]=msg.split("]");
-//                            textField.setText(arg1[1]);
-//                            break;
-//                    }
-//
-//                } catch (IOException e) {
-//                    AppendText("ois.readObject() error");
-//                    try {
-////						dos.close();
-////						dis.close();
-//                        ois.close();
-//                        oos.close();
-//                        socket.close();
-//
-//                        break;
-//                    } catch (Exception ee) {
-//                        break;
-//                    } // catch문 끝
-//                } // 바깥 catch문끝
-//
-//            }
-//        }
-//    }
 
 
     class SendAction implements ActionListener{
@@ -956,13 +896,55 @@ public class GameClientView extends JFrame {
         }
     }
 
+//    class GameThread extends Thread {
+//        public void run() {
+//            while (true) {
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (Exception ee) {
+//                    break;
+//                } // catch문 끝
+//                time--;
+//                showTime();
+//            } // 바깥 catch문끝
+//
+//        }
+//    }
+
+
+    public void showWord(String[] wordList){
+        this.wordList = wordList;
+
+        wordLabel.setText(wordList[indexWordList]);
+    }
+
+    public void showScore(int score){
+        this.score += score;
+        scoreLabel.setText(String.valueOf(this.score));
+    }
+
+    public void showTime(){
+//        GameThread gameThread = new GameThread();
+//        gameThread.run();
+
+        while(true){
+            try{
+                Thread.sleep(1000);
+            }catch (Exception ee) {
+            break;
+            }
+            time--;
+            timeLabel.setText(String.valueOf(time));
+        }
+    }
+
     public void showResultPanel(String code){
         resultPanel = new JPanel();
 //        resultPanel.setBackground(Color.decode("#569A49"));
         resultPanel.setOpaque(true);
         resultPanel.setLayout(null);
 //        resultPanel.setLayout(new BorderLayout());
-        resultPanel.setBounds(80,30,600, 380);
+        resultPanel.setBounds(80,60,600, 380);
         panel.add(resultPanel);
         resultPanel.setVisible(true);
 
@@ -974,6 +956,9 @@ public class GameClientView extends JFrame {
             resultLabel.setVisible(true);
             resultLabel.setBounds(0,0,600,380);
             resultPanel.add(resultLabel);
+            showScore(10);
+            indexWordList ++;
+            showWord(wordList);
 //            resultPanel.add(resultLabel, BorderLayout.CENTER);
         }
         else if(code.matches("202")) {

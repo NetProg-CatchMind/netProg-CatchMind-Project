@@ -37,11 +37,12 @@ public class GameServer extends JFrame {
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
     public int gameStart = 0; //시작시 1로 변경하기
-    public String argp[] = { "사과", "오징어", "사람", "나무", "토끼" }; //제시어 뿌리는 배열,,다른 방식 생각해볼것
+    public String[] wordFood = {"사과", "배", "떡볶이", "라면", "떡국", "파스타", "피자", "비빔밥", "소고기"};
+    public String[] wordMusic = {"Love Dive", "ASAP", "자격지심", "콘서트", "AntiFragile", "나의 X에게", "아이브", "잔나비", "Dynamite"};
+    public String[] wordMovie = {"매드맥스", "인사이드 아웃", "인셉션", "아바타", "너의이름은", "극한직업", "겨울왕국", "스파이더맨", "공조"};
+    public String[] wordAnimal = {"고양이", "호랑이", "햄스터", "강아지", "목도리도마뱀", "라쿤", "앵무새", "자라", "장수풍뎅이"};
+    public String[] wordThing = {"옷장", "건조기", "노트북", "어항", "교탁", "자전거", "형광등", "장구", "나침반"};
 
-
-
-    public String word[] = {"새", "나무", "사람"}; //단어 서버에서 어떤 방식으로 뿌릴지 정하기,, -> 더미 데이터로 처리
     public String turnUser;
     public int wordturn = 0;
     public int gamestart = 0;// 게임 시작하면 1로
@@ -311,7 +312,7 @@ public class GameServer extends JFrame {
                     if (cm.code.matches("100")) {
                         UserName = cm.UserName;
                         if (gameStart == 1) { //게임이 진행중일시
-                            WriteOne6("게임중에는 접속할 수 없습니다!");
+//                            WriteOne6("게임중에는 접속할 수 없습니다!");
                             Logout2();
                             break;
                         } else {
@@ -390,6 +391,43 @@ public class GameServer extends JFrame {
 
 
                         else if(cm.code.matches("600")){
+                            //시간 뿌려주고
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                curRoom = RoomVec.get(i);
+                            }
+                        }
+                        wordMsg wm = new wordMsg("600");
+                        if(curRoom.subject.equals("food")){
+                            for(int i=0; i< wordFood.length; i++){
+                                wm.wordList += wordFood[i];
+                            }
+                        }
+                        else  if(curRoom.subject.equals("music")){
+                            for(int i=0; i< wordMusic.length; i++){
+                                wm.wordList += wordMusic[i];
+                            }
+                        }
+                        else  if(curRoom.subject.equals("movie")){
+                            for(int i=0; i< wordMovie.length; i++){
+                                wm.wordList += wordMovie[i];
+                            }
+                        }
+                        else  if(curRoom.subject.equals("animal")){
+                            for(int i=0; i< wordAnimal.length; i++){
+                                wm.wordList += wordAnimal[i];
+                            }
+                        }
+                        else  if(curRoom.subject.equals("thing")){
+                            for(int i=0; i< wordThing.length; i++){
+                                wm.wordList += wordThing[i];
+                            }
+                        }
+
+                        WriteRoomObject(curRoom,wm);
+
+                            //단어 뿌려주고
+                            // 점수 획득하기.
                             // 게임 시작.
                         }
 
@@ -416,7 +454,7 @@ public class GameServer extends JFrame {
                     //1000~1005 힌트&보너스 구현
                     else if(cm.code.matches("1000")) { //첫글자(ex.코끼리/ 코)(일단 첫글자 힌트로,,)
                         if(turnUser != cm.UserName && gameStart == 1) {
-                            String arg = argp[wordturn];
+                            String arg = wordAnimal[wordturn];
                             WriteOne5("첫번째 글자는 ' " + arg.charAt(0) + " ' 입니다.");
                         }
                     }
@@ -969,8 +1007,8 @@ public class GameServer extends JFrame {
         public void WriteOthers2(String str) {
             for (int i = 0; i < user_vc.size(); i++) {
                 UserService user = (UserService) user_vc.elementAt(i);
-                if (user != this && user.UserStatus == "O")
-                    user.WriteOne6(str);
+//                if (user != this && user.UserStatus == "O")
+//                    user.WriteOne6(str);
             }
         }
 

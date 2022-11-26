@@ -1,8 +1,8 @@
 package Client;
 
+import Server.*;
 import Server.ChatMsg;
 import Server.JoinMsg;
-import Server.RoomMsg;
 import com.sun.tools.javac.Main;
 
 import java.awt.*;
@@ -91,6 +91,7 @@ public class GameClientMain extends JFrame {
     private JPanel profilePanel; // userPanel위에 사용자의 프로필을 보여주는 panel
     private JLabel profileImgLabel;
     private JLabel profileInfoLabel;
+    private boolean isStart = false;
     private int coin = 10;
     private JLabel profileCoinImgLabel;
     private JLabel profileCoinCntLabel;
@@ -132,6 +133,7 @@ public class GameClientMain extends JFrame {
     private String[] totalRoomList;
 
     private Vector<Server.GameRoom> RoomVec = new Vector<Server.GameRoom>(); //생성된 방을 저장할 벡터
+    private String wordList[];
 
 
     //통신을 위한 소켓 변수들 선언 =======================================================================================
@@ -493,6 +495,7 @@ public class GameClientMain extends JFrame {
                     String msg = null;
                     Server.ChatMsg cm;
                     Server.JoinMsg jm;
+                    Server.wordMsg wm;
                     RoomMsg rm;
                     try {
                         obcm = ois.readObject();
@@ -542,6 +545,18 @@ public class GameClientMain extends JFrame {
                         }
                     }
 
+                    if(obcm instanceof wordMsg){
+                        wm = (wordMsg)obcm;
+                        if(wm.code.matches("600")){
+                            isStart = true;
+                            wordList = wm.wordList.split(" ");
+                            view.showWord(wordList);
+                            view.showScore(0);
+                            view.showTime();
+                            //시간 뿌리기.
+                            //스코어 초기화
+                        }
+                    }
 
                     if (obcm instanceof ChatMsg) {
                         cm = (ChatMsg) obcm;
