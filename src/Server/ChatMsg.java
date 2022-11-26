@@ -13,6 +13,7 @@ public class ChatMsg implements Serializable {
     public String UserName;
     public String char_no;
     public String data;
+    public String roomId;
     public ImageIcon img;
     public MouseEvent mouse_e;
     public int pen_size; // pen size
@@ -21,6 +22,7 @@ public class ChatMsg implements Serializable {
     public boolean lines;
 
     public ChatMsg(String UserName, String code, String msg) {
+//        this.roomId = roomId;
         this.code = code;
         this.UserName = UserName;
         this.data = msg;

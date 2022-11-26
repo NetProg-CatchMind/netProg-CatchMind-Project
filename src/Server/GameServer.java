@@ -1,5 +1,6 @@
 package Server;
 
+import Client.GameClientMain;
 import Client.GameClientView;
 
 import javax.swing.*;
@@ -11,6 +12,7 @@ import java.net.*;
 import java.util.*;
 
 public class GameServer extends JFrame {
+    public GameClientMain mainView;
 
     //필요한 변수들 선언하기
     private static final long serialVersionUID = 1L;
@@ -31,6 +33,7 @@ public class GameServer extends JFrame {
     String roomTitleList = "";
     String roomSubjectList = "";
     String roomCntList ="";
+    String totalRoomList="";
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
     public int gameStart = 0; //시작시 1로 변경하기
@@ -48,6 +51,8 @@ public class GameServer extends JFrame {
     public int backgrounds = 0;
 
     Map<String, String> userInfo =  new HashMap<String, String>();
+
+
 
 
     public static void main(String[] args) {
@@ -236,6 +241,8 @@ public class GameServer extends JFrame {
                         String userList = "";
                         String charList = "";
 
+                        mainView = jm.main;
+
                         for (int i = 0; i < RoomVec.size(); i++) {
                             if (RoomVec.get(i).roomId.equals(jm.roomId)) {
                                 curRoom = RoomVec.get(i);
@@ -272,7 +279,7 @@ public class GameServer extends JFrame {
                             }
                         }
 
-                        System.out.println("size :: " + sockets.size() + "/" + users.length + "/" + chars.size());
+
                         for(int i=0; i<sockets.size(); i++){
                             curRoom.socketList.add(sockets.get(i));
                             curRoom.memberList.add(users[i]);
@@ -297,7 +304,6 @@ public class GameServer extends JFrame {
 
                 //채팅 메세지일 경우 -------------------------------------------------------------- (다른 클래스에서 구현할 가능성 있음)
                 if (obcm instanceof Server.ChatMsg) { //obcm(읽어들인 object)이 ChatMsg라면
-
                     cm = (Server.ChatMsg) obcm; //ChatMsg 형식으로 바꿔서
 //                    AppendObject(cm);
 
@@ -315,9 +321,11 @@ public class GameServer extends JFrame {
                     }
 
                     else if (cm.code.matches("200")) {
+                        String answer = "answer"; //정답..
+
                         msg = String.format("[%s] %s", cm.UserName, cm.data);
                         AppendText(msg); // server F 출력
-                        String[] args = msg.split(" "); // 단어들을 분리한다.
+                        String[] args = msg.split(" "); // 단어들을 분리한다
                         //Object[] word;
                         if (args.length == 1) { // Enter key 만 들어온 경우 Wakeup 처리만 한다.
                             UserStatus = "O";
@@ -325,65 +333,85 @@ public class GameServer extends JFrame {
 //                          Logout();
                             break;
 
-                        }  else if ((cm.data.equals(word[wordturn])) && (gamestart == 1)) {
-                            if (UserName != turnUser) {
-                                WriteAllObject(cm);
-                                UserScore++;
-
-                                if (backgrounds == 1) {
-                                    // 전체에 배경 사진 보내기
-                                    ChatMsg obcm6799 = new ChatMsg("SERVER", "301", word[wordturn]);
-
-                                    for (int j = 0; j < user_vc.size(); j++) {
-                                        GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(j);
-                                        if (turnUser == user.UserName) {
-                                            user.WriteOneObject(obcm6799); // WriteAll로 바꾸기
-                                        }
-                                    }                                 // 301을 보내서 모두에게 300(이미지)를 보내기
-                                    backgrounds = 0;
-                                }
-
-                                if (wordturn == 4) {
-                                    wordturn = 0;
-                                } else {
-                                    wordturn++;
-                                }
-                                ChatMsg obcm67 = new ChatMsg("SERVER", "701", msg);
-                                WriteAllObject(obcm67);
-
-                                //WriteAll2("------------------사용자 목록------------------- ");
-                                for (int j = 0; j < user_vc.size(); j++) {
-                                    GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(j);
-                                    WriteAll2(
-                                            "Name:  " + user.UserName + "           Score:  " + UserScore + "\n");
-                                }
-
-                                WriteAll6(UserName + "님이 정답을 맞췄습니다.\n" + "다음판을 시작하려면 시작을 눌러주세요");
-                                gamestart = 0;
-                                WriteAll3("null");
+                        } else {
+                            for (int i = 0; i < RoomVec.size(); i++) {
+                                if (RoomVec.get(i).roomId.equals(cm.roomId))
+                                    curRoom = RoomVec.get(i);
                             }
+
+                            if(cm.data.toString().equals(answer)) cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
+                            else cm = new ChatMsg(cm.UserName, "202", cm.data); //오답
+                            WriteRoomObject(curRoom, cm);
                         }
+                    }
+//                        else if ((cm.data.equals(word[wordturn])) && (gamestart == 1)) {
+//                            if (UserName != turnUser) {
+//                                WriteAllObject(cm);
+//                                UserScore++;
+//
+//                                if (backgrounds == 1) {
+//                                    // 전체에 배경 사진 보내기
+////                                    ChatMsg obcm6799 = new ChatMsg("SERVER", "301", word[wordturn]);
+//
+//                                    for (int j = 0; j < user_vc.size(); j++) {
+//                                        GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(j);
+//                                        if (turnUser == user.UserName) {
+////                                            user.WriteOneObject(obcm6799); // WriteAll로 바꾸기
+//                                        }
+//                                    }                                 // 301을 보내서 모두에게 300(이미지)를 보내기
+//                                    backgrounds = 0;
+//                                }
+//
+//                                if (wordturn == 4) {
+//                                    wordturn = 0;
+//                                } else {
+//                                    wordturn++;
+//                                }
+////                                ChatMsg obcm67 = new ChatMsg("SERVER", "701", msg);
+////                                WriteAllObject(obcm67);
+//
+//                                //WriteAll2("------------------사용자 목록------------------- ");
+//                                for (int j = 0; j < user_vc.size(); j++) {
+//                                    GameServer.UserService user = (GameServer.UserService) user_vc.elementAt(j);
+//                                    WriteAll2(
+//                                            "Name:  " + user.UserName + "           Score:  " + UserScore + "\n");
+//                                }
+//
+//                                WriteAll6(UserName + "님이 정답을 맞췄습니다.\n" + "다음판을 시작하려면 시작을 눌러주세요");
+//                                gamestart = 0;
+//                                WriteAll3("null");
+//                            }
+//                        }
 
                         else if(cm.code.matches("400")) {
                             Logout();
                             break;
                         }
 
-                        else if(cm.code.matches("500")){
-                            WriteRoomObject(curRoom, cm);
+
+                        else if(cm.code.matches("600")){
+                            // 게임 시작.
                         }
 
-                        else { // 일반 채팅 메시지
-                            UserStatus = "O";
-                            //WriteAll(msg + "\n"); // Write All
-                            WriteAllObject(cm);
+//                        else { // 일반 채팅 메시지
+//                            UserStatus = "O";
+//                            //WriteAll(msg + "\n"); // Write All
+//                            WriteAllObject(cm);
+//                        }
+
+
+                        else if(cm.code.matches("500")){
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                curRoom = RoomVec.get(i);
+                            }
                         }
-                    } //code 200 끝
+                        WriteRoomObject(curRoom,cm);
+                    }
 
                     else if(cm.code.matches("1000")) { //시간이 끝났을때 턴 넘기기(이때 힌트사용시 시간 증가하는거도 구현(?))
                         //
                     }
-
 
                     //로그아웃!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     else if (cm.code.matches("400")) { // logout message 처리
@@ -412,8 +440,13 @@ public class GameServer extends JFrame {
             roomSubjectList += (gameRoom.subject + " ");
             roomCntList += (gameRoom.memberCnt + " ");
 
+            for(int i=0; i<RoomVec.size(); i++){
+                totalRoomList += RoomVec.get(i).roomId;
+            }
+
 //            RoomMsg roomMsg = new RoomMsg("1200", gameRoom.roomId, title, subject, cnt);
             Server.RoomMsg roomMsg = new Server.RoomMsg("1200", totalUserList, roomIdList, roomTitleList, roomSubjectList, roomCntList);
+            roomMsg.totalRoomList = totalRoomList;
             WriteAllObject(roomMsg);
 //            WriteAllObject(roomMsg);
         }
@@ -439,7 +472,7 @@ public class GameServer extends JFrame {
             WriteOneObject(roomMsg);
             String msg = "[" + UserName + "]님이 입장 하였습니다.\n";
             userNameVec.add(UserName);
-            WriteOthers(msg); // 아직 user_vc에 새로 입장한 user는 포함되지 않았다.
+//            WriteOthers(msg); // 아직 user_vc에 새로 입장한 user는 포함되지 않았다.
 
         }
 
@@ -821,7 +854,7 @@ public class GameServer extends JFrame {
         // 귓속말 전송
         public void WritePrivate(String msg) {
             try {
-                ChatMsg obcm = new ChatMsg("귓속말", "200", msg);
+                ChatMsg obcm = new ChatMsg("귓속말", "200" , msg);
                 oos.writeObject(obcm);
             } catch (IOException e) {
                 AppendText("dos.writeObject() error");

@@ -1,15 +1,13 @@
 package Client;
 
 import Server.ChatMsg;
-import Server.GameServer;
-import Server.JoinMsg;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.awt.event.*;
-import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -21,6 +19,7 @@ import java.util.List;
 public class GameClientView extends JFrame {
     public static final int SCREEN_WIDTH = 1500;
     public static final int SCREEN_HEIGHT = 800;
+    private GameClientMain main;
 
     //    private ImageIcon backgroundImg = new ImageIcon("res/mainBackground.png");
     private ImageIcon backgroundImg = new ImageIcon("res/basicBackground.png");
@@ -47,6 +46,9 @@ public class GameClientView extends JFrame {
     private ImageIcon char1Img = new ImageIcon("res/character1.png");
     private ImageIcon char2Img = new ImageIcon("res/character2.png");
     private ImageIcon char3Img = new ImageIcon("res/character3.png");
+
+    private ImageIcon correctIcon = new ImageIcon("res/correctIcon.png");
+    private ImageIcon wrongIcon = new ImageIcon("res/wrongIcon.png");
     private JPanel contentPane;
     private JPanel mainPanel;
 
@@ -96,6 +98,7 @@ public class GameClientView extends JFrame {
     private Frame frame;
     private FileDialog fd;
     private JButton imgBtn;
+    private JPanel resultPanel;
 
     JPanel panel; //뭐였지,,
     private JLabel lblMouseEvent;
@@ -111,6 +114,8 @@ public class GameClientView extends JFrame {
     public	MyMouseEvent mouse;
     public MyMouseWheelEvent wheel;
 
+    public Graphics2D g2;
+
     public boolean linee = true;
     private JTextField textField;
 
@@ -118,13 +123,19 @@ public class GameClientView extends JFrame {
     private String[] socketList;
     private String[] userList;
     private String[] charList;
+
+    private String roomId, username, char_no;
+    private BufferedImage imageBuffer = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB);
     /**
      * Create the frame.
      *
      * @throws BadLocationException
      */
 
-    public GameClientView(String roomId, String socketList, String userList, String charList, String username, Socket socket, ObjectInputStream ois, ObjectOutputStream oos ) {
+    public String getRoomId() {
+        return roomId;
+    }
+    public GameClientView(GameClientMain main, String roomId, String socketList, String userList, String charList, String username, String char_no, Socket socket, ObjectInputStream ois, ObjectOutputStream oos ) {
         setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -134,10 +145,14 @@ public class GameClientView extends JFrame {
         setVisible(true);
 //        setUndecorated(true);
 
+        this.main = main;
+        this.roomId = roomId;
+        this.username = username;
+        this.char_no = char_no;
+
         this.socketList = socketList.split(" ");
         this.userList = userList.split(" ");
         this.charList = charList.split(" ");
-
 
         contentPane = new JPanel(){
             public void paintComponent(Graphics g) {
@@ -191,7 +206,6 @@ public class GameClientView extends JFrame {
         mainPanel.add(usersPanel);
 
         for(int i=0; i<this.socketList.length; i++){
-            System.out.println(this.charList[0]);
 //            JPanel userPanel = new JPanel();
             userLabel = new JLabel();
             if(this.charList[i].equals("char1")) userLabel.setIcon(char1Img);
@@ -392,6 +406,12 @@ public class GameClientView extends JFrame {
         panel.setBounds(20, 20, 760, 480); //그림판 판넬
         canvasPanel.add(panel);
         gc = panel.getGraphics();
+        MyMouseEvent mouse = new MyMouseEvent();
+        panel.addMouseMotionListener(mouse);
+        panel.addMouseListener(mouse);
+        MyMouseWheelEvent wheel = new MyMouseWheelEvent();
+        panel.addMouseWheelListener(wheel);
+
 
         JButton btnNewButton1 = new JButton(".");
         btnNewButton1.setBackground(Color.RED);
@@ -539,6 +559,8 @@ public class GameClientView extends JFrame {
         btnSend.setFont(new Font("굴림", Font.PLAIN, 14));
         btnSend.setBounds(300, 450, 70, 40);
         chatingPanel.add(btnSend);
+        SendAction sendACtion = new SendAction();
+        btnSend.addActionListener(sendACtion);
 
 //        textArea1 = new JTextPane();
 //        textArea1.setEditable(true);
@@ -587,6 +609,7 @@ public class GameClientView extends JFrame {
 //              SendObject(msg);
 //              System.exit(0);
                 ChatMsg obc = new ChatMsg(UserName, "600","null");
+                obc.roomId = roomId;
                 SendObject(obc);
                 //2명이상이면 start
             }
@@ -603,129 +626,134 @@ public class GameClientView extends JFrame {
         gc2.setColor(Color.BLACK);
         gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
 
-        /*lblMouseEvent = new JLabel("<dynamic>"); //그림판 밑에 / 색깔팬이랑 지우개 추가하기
+        lblMouseEvent = new JLabel("<dynamic>"); //그림판 밑에 / 색깔팬이랑 지우개 추가하기
         lblMouseEvent.setHorizontalAlignment(SwingConstants.CENTER);
         lblMouseEvent.setFont(new Font("굴림", Font.BOLD, 14));
         lblMouseEvent.setBorder(new LineBorder(new Color(0, 0, 0)));
         lblMouseEvent.setBackground(Color.WHITE);
         lblMouseEvent.setBounds(160, 520, 450, 40);
-        contentPane.add(lblMouseEvent);*/
+        contentPane.add(lblMouseEvent);
 
-        try {
-            this.oos = oos;
-            this.ois = ois;
-            this.socket = socket;
-
-            ListenNetwork new_room = new ListenNetwork(); // User 당 하나씩 Thread 생성
-            new_room.start();
-
-        } catch (NumberFormatException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 
-    class ListenNetwork extends Thread {
-        public void run() {
-            while (true) {
-                try {
-                    Object obcm = null;
-                    String msg = null;
-                    Server.JoinMsg jm;
-                    ChatMsg cm;
-                    try {
-                        obcm = ois.readObject();
-                        System.out.println(obcm);
-                    } catch (ClassNotFoundException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                        break;
-                    }
-                    if (obcm == null)
-                        break;
+//    class ListenNetwork extends Thread {
+//        public void run() {
+//            while (true) {
+//                try {
+//                    Object obcm = null;
+//                    String msg = null;
+//                    Server.JoinMsg jm;
+//                    ChatMsg cm;
+//                    try {
+//                        obcm = ois.readObject();
+//
+//                    } catch (ClassNotFoundException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                        break;
+//                    }
+//                    if (obcm == null)
+//                        break;
+//
+//                    if(obcm instanceof Server.JoinMsg) {
+//                        jm = (Server.JoinMsg) obcm;
+//
+//                        if(jm.code.matches("1201")){
+//
+//                            System.out.println(jm);
+//
+//                        }
+//                    }
+//
+//                    if (obcm instanceof ChatMsg) {
+//                        cm = (ChatMsg) obcm;
+//                        msg = String.format("[%s]\n%s", cm.UserName, cm.data);
+//                    } else
+//                        continue;
+//                    switch (cm.code) {
+//                        case "200": // chat message
+//                            if (cm.UserName.equals(UserName))
+//                                AppendTextR(msg); // 내 메세지는 우측에
+//                            else
+//                                AppendText(msg);
+//                            break;
+//
+//                        case "201": //정답 message
+//                            if(cm.UserName.equals(UserName))
+//                                AppendTextR(msg);
+//                            else
+//                                AppendText(msg);
+//
+//                        case "202": //오답 message
+//                            if(cm.UserName.equals(UserName))
+//                                AppendTextR(msg);
+//                            else
+//                                AppendText(msg);
+//
+//                        case "300": // Image 첨부
+//                            if (cm.UserName.equals(UserName))
+//                                AppendTextR("[" + cm.UserName + "]");
+//                            else
+//                                AppendText("[" + cm.UserName + "]");
+//                            AppendImage(cm.img);
+//                            break;
+//                        case "500": // Mouse Event 수신
+//                            startss();
+//                            DoMouseEvent(cm, cm.co, cm.shape);
+//                            break;
+//
+//                        case"600":  //game start
+//                            String arg2[]=msg.split("]");
+//                            textField.setText(arg2[1]);
+//                            panel.removeAll();
+//                            panel.repaint();
+//                            panel.revalidate();
+//                            if(cm.data.matches("문제를 맞춰보세요")) {
+//                                endss();
+//                            }else {
+//                                startss();
+//                            }
+//                            break;
+//
+//                        case "800": //순서 변경
+//                            String arg1[]=msg.split("]");
+//                            textField.setText(arg1[1]);
+//                            break;
+//                    }
+//
+//                } catch (IOException e) {
+//                    AppendText("ois.readObject() error");
+//                    try {
+////						dos.close();
+////						dis.close();
+//                        ois.close();
+//                        oos.close();
+//                        socket.close();
+//
+//                        break;
+//                    } catch (Exception ee) {
+//                        break;
+//                    } // catch문 끝
+//                } // 바깥 catch문끝
+//
+//            }
+//        }
+//    }
 
-                    if(obcm instanceof Server.JoinMsg) {
-                        jm = (Server.JoinMsg) obcm;
 
-                        if(jm.code.matches("1201")){
+    class SendAction implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // 서버로 메세지 보내기
+            ChatMsg cm = new ChatMsg(username, "200", txtInput.getText());
+            cm.roomId = roomId;
+            main.SendObject(cm);
 
-                            System.out.println(jm);
+            txtInput.setText("");
 
-                        }
-                    }
+            String sendTxt = "["+ username + "]" + txtInput.getText();
 
-                    if (obcm instanceof ChatMsg) {
-                        cm = (ChatMsg) obcm;
-                        msg = String.format("[%s]\n%s", cm.UserName, cm.data);
-                    } else
-                        continue;
-                    switch (cm.code) {
-                        case "200": // chat message
-                            if (cm.UserName.equals(UserName))
-                                AppendTextR(msg); // 내 메세지는 우측에
-                            else
-                                AppendText(msg);
-                            break;
-
-                        case "201": //정답 message
-                            if(cm.UserName.equals(UserName))
-                                AppendTextR(msg);
-                            else
-                                AppendText(msg);
-
-                        case "202": //오답 message
-                            if(cm.UserName.equals(UserName))
-                                AppendTextR(msg);
-                            else
-                                AppendText(msg);
-
-                        case "300": // Image 첨부
-                            if (cm.UserName.equals(UserName))
-                                AppendTextR("[" + cm.UserName + "]");
-                            else
-                                AppendText("[" + cm.UserName + "]");
-                            AppendImage(cm.img);
-                            break;
-                        case "500": // Mouse Event 수신
-                            DoMouseEvent(cm, cm.co, cm.shape);
-                            startss();
-                            break;
-
-                        case"600":  //game start
-                            String arg2[]=msg.split("]");
-                            textField.setText(arg2[1]);
-                            panel.removeAll();
-                            panel.repaint();
-                            panel.revalidate();
-                            if(cm.data.matches("문제를 맞춰보세요")) {
-                                endss();
-                            }else {
-                                startss();
-                            }
-                            break;
-
-                        case "800": //순서 변경
-                            String arg1[]=msg.split("]");
-                            textField.setText(arg1[1]);
-                            break;
-                    }
-
-                } catch (IOException e) {
-                    AppendText("ois.readObject() error");
-                    try {
-//						dos.close();
-//						dis.close();
-                        ois.close();
-                        oos.close();
-                        socket.close();
-
-                        break;
-                    } catch (Exception ee) {
-                        break;
-                    } // catch문 끝
-                } // 바깥 catch문끝
-
-            }
+            // 채팅창에 라벨로 append
         }
     }
 
@@ -752,8 +780,6 @@ public class GameClientView extends JFrame {
         // Image 영역이 가려졌다 다시 나타날 때 그려준다.
 //        gc.drawImage(panelImage, 0, 0, this);
     }
-
-
 
 
     // Mouse Event 수신 처리
@@ -803,17 +829,18 @@ public class GameClientView extends JFrame {
     }
 
 
-    public void SendMouseEvent(MouseEvent e) {
-        Server.ChatMsg cm = new Server.ChatMsg(UserName, "500", "MOUSE");
-        cm.mouse_e = e;
-        cm.pen_size = pen_size;
-        cm.co=c;
-        cm.shape=shapes;
-        //System.out.println(linee);
-
-        cm.lines=linee;
-        SendObject(cm);
-    }
+//    public void SendMouseEvent(MouseEvent e) {
+//        Server.ChatMsg cm = new Server.ChatMsg( UserName, "500", "MOUSE");
+//        cm.roomId = roomId;
+//        cm.mouse_e = e;
+//        cm.pen_size = pen_size;
+//        cm.co=c;
+//        cm.shape=shapes;
+//        //System.out.println(linee);
+//
+//        cm.lines=linee;
+//        main.SendObject(cm);
+//    }
 
     class MyMouseWheelEvent implements MouseWheelListener {
         @Override
@@ -834,6 +861,8 @@ public class GameClientView extends JFrame {
     class MyMouseEvent implements MouseListener, MouseMotionListener {
 
         List<Point> points = new ArrayList<Point>();
+        int startX, startY;
+
 
         @Override
         public void mouseDragged(MouseEvent e) {
@@ -845,7 +874,7 @@ public class GameClientView extends JFrame {
             linee=true;
             if (points.size() > 1) {
                 Point p1 = points.get(0);
-                Graphics2D g2=(Graphics2D)gc;
+                g2=(Graphics2D)gc;
 
                 g2.setStroke(new BasicStroke(pen_size));
 
@@ -858,9 +887,7 @@ public class GameClientView extends JFrame {
             else
                 points.add(e.getPoint());
 
-            gc.drawImage(panelImage, 0, 0, panel); //
-
-            SendMouseEvent(e);
+            main.SendMouseEvent(e, c, shapes, linee);
             linee=false;
         }
 
@@ -876,25 +903,25 @@ public class GameClientView extends JFrame {
 
             //points.clear();
             //lblMouseEvent.setText(e.getButton() + " mouseClicked " + e.getX() + "," + e.getY());
-            gc.setColor(c);
-            if(shapes==1) {
-
-                gc.drawOval(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-                gc.drawImage(panelImage, 0, 0, panel);
-
-            }else if(shapes==3) {
-
-                gc.drawRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-                gc.drawImage(panelImage, 0, 0, panel);
-            }
-            else if(shapes==0) {
-
-                gc.fillRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-                gc.drawImage(panelImage, 0, 0, panel);
-            }
-
-            SendMouseEvent(e);
-            shapes=0;
+//            gc.setColor(c);
+//            if(shapes==1) {
+//
+//                gc.drawOval(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
+//                gc.drawImage(panelImage, 0, 0, panel);
+//
+//            }else if(shapes==3) {
+//
+//                gc.drawRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
+//                gc.drawImage(panelImage, 0, 0, panel);
+//            }
+//            else if(shapes==0) {
+//
+//                gc.fillRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
+//                gc.drawImage(panelImage, 0, 0, panel);
+//            }
+//
+//            main.SendMouseEvent(e, c, shapes, linee);
+//            shapes=0;
         }
 
         @Override
@@ -913,19 +940,55 @@ public class GameClientView extends JFrame {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            points.clear();
+//            points.clear();
             //lblMouseEvent.setText(e.getButton() + " mousePressed " + e.getX() + "," + e.getY());
         }
 
         @Override
         public void mouseReleased(MouseEvent e) { //구현해야함!
-            lblMouseEvent.setText(e.getButton() + " mouseReleased " + e.getX() + "," + e.getY()); //안그려지는 이유???!!!
-            // 드래그중 멈출시 보임
-            points.add(e.getPoint());
+//            lblMouseEvent.setText(e.getButton() + " mouseReleased " + e.getX() + "," + e.getY()); //안그려지는 이유???!!!
+//            // 드래그중 멈출시 보임
+//            gc2 = g2;
+//            gc2.drawImage(panelImage, 0, 0, panel); //
             points.clear();
             linee=false;
-            SendMouseEvent(e);
+            main.SendMouseEvent(e, c, shapes, linee);
         }
+    }
+
+    public void showResultPanel(String code){
+        resultPanel = new JPanel();
+//        resultPanel.setBackground(Color.decode("#569A49"));
+        resultPanel.setOpaque(true);
+        resultPanel.setLayout(null);
+//        resultPanel.setLayout(new BorderLayout());
+        resultPanel.setBounds(80,30,600, 380);
+        panel.add(resultPanel);
+        resultPanel.setVisible(true);
+
+        JLabel resultLabel;
+        if(code.matches("201")) { //정답 : answer
+            resultLabel = new JLabel(correctIcon);
+            resultLabel.setIcon(correctIcon);
+            resultLabel.setOpaque(true);
+            resultLabel.setVisible(true);
+            resultLabel.setBounds(0,0,600,380);
+            resultPanel.add(resultLabel);
+//            resultPanel.add(resultLabel, BorderLayout.CENTER);
+        }
+        else if(code.matches("202")) {
+            resultLabel = new JLabel(wrongIcon);
+            resultLabel.setIcon(wrongIcon);
+            resultLabel.setOpaque(true);
+            resultLabel.setVisible(true);
+            resultLabel.setBounds(0,0,600,380);
+            resultPanel.add(resultLabel);
+//            resultPanel.add(resultLabel, BorderLayout.CENTER);
+        }
+    }
+
+    public void removeResultPanel(){
+        resultPanel.setVisible(false);
     }
 
     // 화면에 출력

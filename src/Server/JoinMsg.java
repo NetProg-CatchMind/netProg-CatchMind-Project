@@ -1,5 +1,7 @@
 package Server;
 
+import Client.GameClientMain;
+
 import java.io.Serializable;
 
 public class JoinMsg implements Serializable {
@@ -8,6 +10,8 @@ public class JoinMsg implements Serializable {
 
     public String socketList, userList, charList;
     public String username, char_no;
+
+    public GameClientMain main;
     public JoinMsg(String code, String roomId, String socketList, String userList, String charList, String username, String char_no){
         this.code = code;
         this.roomId = roomId;
