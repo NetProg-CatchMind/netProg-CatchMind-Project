@@ -250,11 +250,6 @@ public class GameServer extends JFrame {
                             }
                         }
 
-//                        curRoom.socketList.add(this);
-//                        curRoom.memberList.add(jm.username);
-//                        curRoom.charList.add(jm.char_no);
-
-//                        String[] sockets_b = jm.socketList.split(" ");
                         Vector<UserService> sockets = new Vector<UserService>();
                         String[] users = jm.userList.split(" ");
                         Vector<String> chars = new Vector<String>();
@@ -297,9 +292,39 @@ public class GameServer extends JFrame {
                             }
                         }
 
-                        System.out.println(charList);
+
                         JoinMsg joinMsg = new JoinMsg("1201", jm.roomId, socketList, userList, charList, "", "");
-                        WriteRoomObject(curRoom, joinMsg);
+                        if(curRoom.subject.equals("food")){
+                            for(int i=0; i< wordFood.length; i++){
+                                if(joinMsg.wordList == null) joinMsg.wordList = wordFood[i] + " ";
+                                else joinMsg.wordList += wordFood[i] + " ";
+                            }
+                        }
+                        else  if(curRoom.subject.equals("music")){
+                            for(int i=0; i< wordMusic.length; i++){
+                                if(joinMsg.wordList == null) joinMsg.wordList = wordMusic[i] + " ";
+                                else joinMsg.wordList += wordMusic[i] + " ";
+                            }
+                        }
+                        else  if(curRoom.subject.equals("movie")){
+                            for(int i=0; i< wordMovie.length; i++){
+                                if(joinMsg.wordList == null) joinMsg.wordList = wordMovie[i] + " ";
+                                else joinMsg.wordList += wordMovie[i] + " ";
+                            }
+                        }
+                        else  if(curRoom.subject.equals("animal")){
+                            for(int i=0; i< wordAnimal.length; i++){
+                                if(joinMsg.wordList == null) joinMsg.wordList = wordAnimal[i] + " ";
+                                else joinMsg.wordList += wordAnimal[i] + " ";
+                            }
+                        }
+                        else  if(curRoom.subject.equals("thing")){
+                            for(int i=0; i< wordThing.length; i++){
+                                if(joinMsg.wordList == null) joinMsg.wordList = wordThing[i] + " ";
+                                else joinMsg.wordList += wordThing[i] + " ";
+                            }
+                        }
+                        WriteRoomObject(curRoom, jm.code, joinMsg);
                     }
                 }
 
@@ -322,8 +347,8 @@ public class GameServer extends JFrame {
                     }
 
                     else if (cm.code.matches("200")) {
-                        String answer = "answer"; //정답..
-
+                        String answer = "answer"; //정답.
+                        
                         msg = String.format("[%s] %s", cm.UserName, cm.data);
                         AppendText(msg); // server F 출력
                         String[] args = msg.split(" "); // 단어들을 분리한다
@@ -339,11 +364,22 @@ public class GameServer extends JFrame {
                                 if (RoomVec.get(i).roomId.equals(cm.roomId))
                                     curRoom = RoomVec.get(i);
                             }
+                            if(cm.isStart ==false){
+                                System.out.println(cm.UserName);
+                                cm = new ChatMsg(cm.UserName, "200", cm.data); //그냥 채팅
+                            }
+                            else{
+                                if(cm.data.toString().equals(answer)) cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
+                                else cm = new ChatMsg(cm.UserName, "202", cm.data); //오답
+                            }
+                            WriteRoomObject(curRoom, cm.code, cm);
 
-                            if(cm.data.toString().equals(answer)) cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
-                            else cm = new ChatMsg(cm.UserName, "202", cm.data); //오답
-                            WriteRoomObject(curRoom, cm);
                         }
+
+
+
+
+
                     }
 //                        else if ((cm.data.equals(word[wordturn])) && (gamestart == 1)) {
 //                            if (UserName != turnUser) {
@@ -397,39 +433,25 @@ public class GameServer extends JFrame {
                                 curRoom = RoomVec.get(i);
                             }
                         }
+
                         wordMsg wm = new wordMsg("600");
-                        if(curRoom.subject.equals("food")){
-                            for(int i=0; i< wordFood.length; i++){
-                                wm.wordList += wordFood[i];
-                            }
-                        }
-                        else  if(curRoom.subject.equals("music")){
-                            for(int i=0; i< wordMusic.length; i++){
-                                wm.wordList += wordMusic[i];
-                            }
-                        }
-                        else  if(curRoom.subject.equals("movie")){
-                            for(int i=0; i< wordMovie.length; i++){
-                                wm.wordList += wordMovie[i];
-                            }
-                        }
-                        else  if(curRoom.subject.equals("animal")){
-                            for(int i=0; i< wordAnimal.length; i++){
-                                wm.wordList += wordAnimal[i];
-                            }
-                        }
-                        else  if(curRoom.subject.equals("thing")){
-                            for(int i=0; i< wordThing.length; i++){
-                                wm.wordList += wordThing[i];
-                            }
+
+                        WriteRoomObject(curRoom, cm.code, wm);
                         }
 
-                        WriteRoomObject(curRoom,wm);
+                        //게임창에서 방나가기 버튼 눌렀을때
+                        else if(cm.code.matches("700")){
+                            for (int i = 0; i < RoomVec.size(); i++) {
+                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                    curRoom = RoomVec.get(i);
+                                }
+                            }
 
-                            //단어 뿌려주고
-                            // 점수 획득하기.
-                            // 게임 시작.
-                        }
+                            curRoom.UserVec.clear();
+                            ChatMsg chatMsg = new ChatMsg(cm.UserName, "700", "null");
+                            chatMsg.roomId = cm.roomId;
+                            WriteRoomObject(curRoom, cm.code, chatMsg);
+                    }
 
 //                        else { // 일반 채팅 메시지
 //                            UserStatus = "O";
@@ -439,12 +461,15 @@ public class GameServer extends JFrame {
 
 
                         else if(cm.code.matches("500")){
+
                         for (int i = 0; i < RoomVec.size(); i++) {
+                            System.out.println("500::"+cm.roomId);
                             if (RoomVec.get(i).roomId.equals(cm.roomId)) {
                                 curRoom = RoomVec.get(i);
                             }
                         }
-                        WriteRoomObject(curRoom,cm);
+                        System.out.println("500"+curRoom.UserVec.size());
+                        WriteRoomObject(curRoom,cm.code,cm);
                     }
 
                     else if(cm.code.matches("1000")) { //시간이 끝났을때 턴 넘기기
@@ -567,12 +592,18 @@ public class GameServer extends JFrame {
             }
         }
 
-        public void WriteRoomObject(GameRoom room, Object ob) {
+        public void WriteRoomObject(GameRoom room, String code, Object ob) {
             System.out.println("room socket List :: " + room.socketList);
             for (int i = 0; i < room.socketList.size(); i++) {
                 GameServer.UserService user = (GameServer.UserService) room.socketList.get(i);
                 System.out.println(room.socketList.get(i));
                 user.WriteOneObject(ob);
+            }
+            if(code.matches("700")) {
+                room.socketList.clear();
+                room.memberList.clear();
+                this.curRoom.socketList = room.socketList;
+                this.curRoom.memberList = room.memberList;
             }
         }
 
@@ -621,7 +652,7 @@ public class GameServer extends JFrame {
 //				byte[] bb;
 //				bb = MakePacket(msg);
 //				dos.write(bb, 0, bb.length);
-                ChatMsg obcm = new ChatMsg("SERVER", "200", msg);
+                ChatMsg obcm = new ChatMsg("SERVER", "100", msg);
                 oos.writeObject(obcm);
             } catch (IOException e) {
                 AppendText(" dos.writeObject() error");
@@ -1039,7 +1070,7 @@ public class GameServer extends JFrame {
         // 귓속말 전송
         public void WritePrivate(String msg) {
             try {
-                ChatMsg obcm = new ChatMsg("귓속말", "200" , msg);
+                ChatMsg obcm = new ChatMsg("귓속말", "100" , msg);
                 oos.writeObject(obcm);
             } catch (IOException e) {
                 AppendText("dos.writeObject() error");

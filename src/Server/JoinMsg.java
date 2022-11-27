@@ -7,6 +7,7 @@ import java.io.Serializable;
 public class JoinMsg implements Serializable {
     public String code;
     public String roomId;
+    public String wordList;
 
     public String socketList, userList, charList;
     public String username, char_no;

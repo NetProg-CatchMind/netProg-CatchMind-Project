@@ -130,6 +130,7 @@ public class RoomPanel extends JPanel {
 
         @Override
         public void mousePressed(MouseEvent e) {
+            userList = "";
             joinButton.setBackground(Color.decode("#43654C"));
         }
 

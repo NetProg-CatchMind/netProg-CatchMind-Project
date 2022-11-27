@@ -15,6 +15,7 @@ import javax.swing.text.StyledDocument;
 import java.net.*;
 import java.util.*;
 import java.util.List;
+import java.util.Timer;
 
 public class GameClientView extends JFrame {
     public static final int SCREEN_WIDTH = 1500;
@@ -60,7 +61,7 @@ public class GameClientView extends JFrame {
     private JLabel logo;
 
     private int score=0;
-    private int time=20;
+//    private static int time=15;
 
 
     private static final long serialVersionUID = 1L;
@@ -92,7 +93,7 @@ public class GameClientView extends JFrame {
 
     private JPanel timePanel;
     private JLabel timeInfoLabel;
-    private JLabel timeLabel;
+    private static JLabel timeLabel;
     private JLabel timeTitle;
 
     private JLabel lblNewLabel; //공지사항 알려주는 label
@@ -105,7 +106,7 @@ public class GameClientView extends JFrame {
     private JButton imgBtn;
     private JPanel resultPanel;
 
-    private String[] wordList;
+    public String[] wordList;
     private int indexWordList = 0;
 
     JPanel panel; //뭐였지,,
@@ -125,14 +126,16 @@ public class GameClientView extends JFrame {
     public Graphics2D g2;
 
     public boolean linee = true;
+    public boolean isStart = false;
     private JTextField textField;
 
 //    private Vector userVec = new Vector();
-    private String[] socketList;
-    private String[] userList;
-    private String[] charList;
+    public String[] socketList;
+    public String[] userList;
+    public String[] charList;
 
-    private String roomId, username, char_no;
+    public String roomId, username, char_no;
+    private int time = 15;
     private BufferedImage imageBuffer = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB);
     /**
      * Create the frame.
@@ -143,7 +146,7 @@ public class GameClientView extends JFrame {
     public String getRoomId() {
         return roomId;
     }
-    public GameClientView(GameClientMain main, String roomId, String socketList, String userList, String charList, String username, String char_no, Socket socket, ObjectInputStream ois, ObjectOutputStream oos ) {
+    public GameClientView(GameClientMain main, String roomId, String socketList, String userList, String charList, String username, String char_no, String wordList, Socket socket, ObjectInputStream ois, ObjectOutputStream oos ) {
         setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -158,6 +161,7 @@ public class GameClientView extends JFrame {
         this.username = username;
         this.char_no = char_no;
 
+        this.wordList = wordList.split(" ");
         this.socketList = socketList.split(" ");
         this.userList = userList.split(" ");
         this.charList = charList.split(" ");
@@ -255,7 +259,7 @@ public class GameClientView extends JFrame {
 //              ChatMsg msg = new ChatMsg(UserName, "400", "Bye");
 //              SendObject(msg);
 //              System.exit(0);
-                ChatMsg obc = new ChatMsg(UserName, "400","null");
+                ChatMsg obc = new ChatMsg(UserName, "700","null");
                 obc.roomId = roomId;
                 main.SendObject(obc);
 
@@ -642,9 +646,9 @@ public class GameClientView extends JFrame {
         btnNewButton.setFont(new Font("굴림", Font.PLAIN, 14));
         btnNewButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-//                    ChatMsg msg = new ChatMsg(UserName, "400", "Bye");
-//                    SendObject(msg);
-//                    System.exit(0);
+                    ChatMsg msg = new ChatMsg(UserName, "400", "Bye");
+                    main.SendObject(msg);
+                    System.exit(0);
             }
         });
         btnNewButton.setBounds(300, 490, 70, 30);
@@ -695,7 +699,9 @@ public class GameClientView extends JFrame {
         public void actionPerformed(ActionEvent e) {
             // 서버로 메세지 보내기
             ChatMsg cm = new ChatMsg(username, "200", txtInput.getText());
+            cm.isStart = isStart;
             cm.roomId = roomId;
+
             main.SendObject(cm);
 
             txtInput.setText("");
@@ -905,49 +911,36 @@ public class GameClientView extends JFrame {
         }
     }
 
-//    class GameThread extends Thread {
-//        public void run() {
-//            while (true) {
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (Exception ee) {
-//                    break;
-//                } // catch문 끝
-//                time--;
-//                showTime();
-//            } // 바깥 catch문끝
-//
-//        }
-//    }
+    public void showTime(int time){
+        if(isStart){
+            java.util.Timer timer = new java.util.Timer();
+            java.util.TimerTask task = new  java.util.TimerTask(){
+                public void run(){
+                    timeLabel.setText(String.valueOf(time));
+                }
+            };
+            timer.scheduleAtFixedRate(task, 0L, 1000);
+//            timer.schedule(task, 1000);
+        }
+        if(time <= 0){
+            //게임 종료 프로토콜 필요. -> 700
+            isStart = false;
+            ChatMsg cm = new ChatMsg(UserName, "400", "exit");
+            main.SendObject(cm);
+        }
 
+    }
 
-    public void showWord(String[] wordList){
-        this.wordList = wordList;
-
-        wordLabel.setText(wordList[indexWordList]);
+    public void showWord(int index){
+        wordLabel.setText(this.wordList[index]);
     }
 
     public void showScore(int score){
-        this.score += score;
-        scoreLabel.setText(String.valueOf(this.score));
+            this.score += score;
+            scoreLabel.setText(String.valueOf(this.score));
     }
 
-    public void showTime(){
-//        GameThread gameThread = new GameThread();
-//        gameThread.run();
 
-        while(true){
-            try{
-                Thread.sleep(1000);
-            }catch (Exception ee) {
-            break;
-            }
-            time--;
-            timeLabel.setText(String.valueOf(time));
-        }
-
-
-    }
 
     public void showResultPanel(String code){
         resultPanel = new JPanel();
@@ -967,9 +960,6 @@ public class GameClientView extends JFrame {
             resultLabel.setVisible(true);
             resultLabel.setBounds(0,0,600,380);
             resultPanel.add(resultLabel);
-            showScore(10);
-            indexWordList ++;
-            showWord(wordList);
 //            resultPanel.add(resultLabel, BorderLayout.CENTER);
         }
         else if(code.matches("202")) {
@@ -985,6 +975,16 @@ public class GameClientView extends JFrame {
 
     public void removeResultPanel(){
         resultPanel.setVisible(false);
+    }
+
+    public void exitView(){
+        main.setVisible(true);
+        System.exit(0);
+    }
+
+    public void leaveRoom(){
+        main.setVisible(true);
+        this.setVisible(false);
     }
 
     // 화면에 출력

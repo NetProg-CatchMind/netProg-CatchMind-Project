@@ -20,6 +20,7 @@ public class ChatMsg implements Serializable {
     public Color co;
     public int shape;
     public boolean lines;
+    public boolean isStart;
 
     public ChatMsg(String UserName, String code, String msg) {
 //        this.roomId = roomId;

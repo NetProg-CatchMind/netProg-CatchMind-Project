@@ -12,17 +12,18 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.border.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import java.util.TimerTask;
 
 import Server.RoomMsg;
 
@@ -115,6 +116,8 @@ public class GameClientMain extends JFrame {
 
     private int score = 0;
     private int panelCount = 0;
+    private int indexWordList = 0;
+    private int time = 15;
     private JPanel scorePanel;
     private JLabel scoreLabel;
     private JLabel userScoreLabel;
@@ -538,21 +541,50 @@ public class GameClientMain extends JFrame {
                     if(obcm instanceof JoinMsg) {
                         jm = (Server.JoinMsg) obcm;
                         if(jm.code.matches("1201")){
-                            view = new GameClientView(main ,jm.roomId, jm.socketList, jm.userList, jm.charList, username,char_no, socket,ois, oos);
+                            view = new GameClientView(main ,jm.roomId, jm.socketList, jm.userList, jm.charList, username,char_no, jm.wordList, socket,ois, oos);
                             view.setVisible(true);
 //                            view = new GameClientView(jm.roomId, jm.userList);
                             setVisible(false);
                         }
                     }
 
+
+//                    class GameThread extends Thread {
+//                        public void run() {
+//                            int time = 15;
+//                            while (true) {
+//                                view.showTime(time--);
+//                                try {
+//                                    Thread.sleep(1000);
+//                                } catch (InterruptedException e) {
+//                                    throw new RuntimeException(e);
+//                                }
+//                            } // 바깥 catch문끝
+//                        }
+//                    }
+
                     if(obcm instanceof wordMsg){
                         wm = (wordMsg)obcm;
                         if(wm.code.matches("600")){
                             isStart = true;
-                            wordList = wm.wordList.split(" ");
-                            view.showWord(wordList);
+                            view.isStart = true;
+
+                            view.showWord(indexWordList);
                             view.showScore(0);
-                            view.showTime();
+                            view.showTime(time);
+
+//                            GameThread gameThread = new GameThread();
+//                            gameThread.run();
+
+//                            wordList = wm.wordList.split(" ");
+
+
+//                            GameClientView.GameThread gameThread = new GameClientView.GameThread();
+//                            gameThread.run();
+
+//
+
+//                            view.showTime(15);
                             //시간 뿌리기.
                             //스코어 초기화
                         }
@@ -565,16 +597,16 @@ public class GameClientMain extends JFrame {
                         continue;
 
                     switch (cm.code) {
-//                        case "200":
-//                            for(int i=0; i<totalRoomList.length; i++){
-//                                if(totalRoomList[i].equals(view.getRoomId())){
-//                                    if (cm.UserName.equals(username))
-//                                        view.AppendTextR(msg); // 내 메세지는 우측에
-//                                    else
-//                                        view.AppendText(msg);
-//                                }
-//                            }
-//                            break;
+                        case "200":
+                            for(int i=0; i<totalRoomList.length; i++){
+                                if(totalRoomList[i].equals(view.getRoomId())){
+                                    if (cm.UserName.equals(username))
+                                        view.AppendTextR(msg); // 내 메세지는 우측에
+                                    else
+                                        view.AppendText(msg);
+                                }
+                            }
+                            break;
 
                         case "201": //정답 메세지 수신
                             for(int i=0; i<totalRoomList.length; i++){
@@ -589,11 +621,14 @@ public class GameClientMain extends JFrame {
                                             e.printStackTrace();
                                         }
                                         view.removeResultPanel();
-                                    }
 
+                                        score += 10;
+                                        view.showScore(score);
+                                    }
                                     else{
                                         view.AppendText(msg);
                                     }
+                                    view.showWord(++indexWordList);
 
                                 }
                             }
@@ -612,11 +647,12 @@ public class GameClientMain extends JFrame {
                                             e.printStackTrace();
                                         }
                                         view.removeResultPanel();
-                                    }
 
+                                        score -= 5;
+                                        view.showScore(score);
+                                    }
                                     else{
                                         view.AppendText(msg);
-
                                     }
 
                                 }
@@ -630,6 +666,10 @@ public class GameClientMain extends JFrame {
 //                                AppendText("[" + cm.UserName + "]");
 //                            AppendImage(cm.img);
 //                            break;
+
+                        case "400":
+                            view.exitView();
+
                         case "500": // Mouse Event 수신
                             for(int i=0; i<totalRoomList.length; i++){
                                 if(totalRoomList[i].equals(view.getRoomId())){
@@ -637,6 +677,11 @@ public class GameClientMain extends JFrame {
                                 }
                             }
                             break;
+
+                        case "700":
+                            view.leaveRoom();
+                            view.setVisible(false);
+                            main.setVisible(true);
                     }
                 } catch (IOException e) {
                     AppendText("ois.readObject() error");
@@ -650,9 +695,11 @@ public class GameClientMain extends JFrame {
                         break;
                     } // catch문 끝
                 } // 바깥 catch문끝
+
             }
         }
     }
+
 
     //사용자가 방을 만들었을때 서버로 RoomMsg형태로 객체 전송하는 frame 객체 만들기 --------------------------------------------------------------
     class RoomAction implements ActionListener{
@@ -724,7 +771,7 @@ public class GameClientMain extends JFrame {
 
     public void SendMouseEvent(MouseEvent e, Color c, int shapes, boolean linee) {
         Server.ChatMsg cm = new Server.ChatMsg( UserName, "500", "MOUSE");
-        cm.roomId = roomId;
+        cm.roomId = view.roomId;
         cm.mouse_e = e;
         cm.pen_size = pen_size;
         cm.co=c;
