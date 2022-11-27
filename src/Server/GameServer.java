@@ -486,7 +486,10 @@ public class GameServer extends JFrame {
                     }
 
                     else if(cm.code.matches("1001")) { //시간 2배 증가(현재시간에서 or 그냥 풀로 시간충전?)
-                        WriteOne5_1(msg);
+                        if(turnUser != cm.UserName && gameStart == 1) {
+                            //
+                            WriteOne5_1("시간이 2배 증가했습니다.");
+                        }
                     }
 
                     else if(cm.code.matches("1002")) { //배경그림 보여주기
@@ -498,14 +501,20 @@ public class GameServer extends JFrame {
                     }
 
                     else if(cm.code.matches("1003")) { //글자수 힌트
-
+                        if(turnUser.equals(UserName)) {
+                            String arg = wordAnimal[wordturn];
+                            WriteOne5_3("글자수는 " + arg.length() + "입니다");
+                        }
                     }
 
                     else if(cm.code.matches("1004")) { //정답시 점수 두배
-
+                        if(turnUser.equals(UserName)) {
+                            //
+                            WriteOne5_4("맞추면 점수 2배!"); //showScore 두배 증가시키기(?)
+                        }
                     }
 
-                    else if(cm.code.matches("1005")) { //단어 테마 보여주기(어케 구현하누??)
+                    else if(cm.code.matches("1005")) { //단어 테마 보여주기(??)
 
                     }
 
@@ -517,8 +526,8 @@ public class GameServer extends JFrame {
                         WriteAllObject(cm);
                     }
 
-                }
-            }
+                } //if
+            } //while
         } // run
 
         public void makeRoom(String roomId, String title, String subject, int cnt){
@@ -796,13 +805,67 @@ public class GameServer extends JFrame {
         }
 
         public void WriteOne5_3(String msg) {
-
             try {
                 // dos.writeUTF(msg);
 //				byte[] bb;
 //				bb = MakePacket(msg);
 //				dos.write(bb, 0, bb.length);
                 ChatMsg obcm = new ChatMsg("SERVER", "1003", msg);
+                oos.writeObject(obcm);
+            } catch (IOException e) {
+                AppendText("dos.writeObject() error");
+                try {
+//					dos.close();
+//					dis.close();
+                    ois.close();
+                    oos.close();
+                    client_socket.close();
+                    client_socket = null;
+                    ois = null;
+                    oos = null;
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+            }
+        }
+
+        public void WriteOne5_4(String msg) {
+            try {
+                // dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+                ChatMsg obcm = new ChatMsg("SERVER", "1004", msg);
+                oos.writeObject(obcm);
+            } catch (IOException e) {
+                AppendText("dos.writeObject() error");
+                try {
+//					dos.close();
+//					dis.close();
+                    ois.close();
+                    oos.close();
+                    client_socket.close();
+                    client_socket = null;
+                    ois = null;
+                    oos = null;
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+            }
+        }
+
+
+        public void WriteOne5_5(String msg) {
+            try {
+                // dos.writeUTF(msg);
+//				byte[] bb;
+//				bb = MakePacket(msg);
+//				dos.write(bb, 0, bb.length);
+                ChatMsg obcm = new ChatMsg("SERVER", "1005", msg);
                 oos.writeObject(obcm);
             } catch (IOException e) {
                 AppendText("dos.writeObject() error");

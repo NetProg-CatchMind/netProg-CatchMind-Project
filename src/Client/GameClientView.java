@@ -135,7 +135,7 @@ public class GameClientView extends JFrame {
     public String[] charList;
 
     public String roomId, username, char_no;
-    private int time = 15;
+    private int time = 25;
     private BufferedImage imageBuffer = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB);
     /**
      * Create the frame.
@@ -412,37 +412,71 @@ public class GameClientView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("time event!\n");
                 ChatMsg obc = new ChatMsg(UserName, "1001","null"); //시간 증가 구현중
-                time += 15; //시간 15초 증가힌트
-                timeLabel.setText(String.valueOf(time));
+                //time += 15; //시간 15초 증가시키기
+                //timeLabel.setText(String.valueOf(time));
+                SendObject(obc);
             }
         });
 
-        JButton initItemBtn = new JButton(initialItemImg);
+
+        JButton initItemBtn = new JButton(initialItemImg); //첫글자 알려주는 힌트(?)
         timeItemBtn.revalidate();
         timeItemBtn.repaint();
         initItemBtn.setBounds(250, 20, 80, 50);
         hintPanel.add(initItemBtn);
+        initItemBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ChatMsg obc = new ChatMsg(UserName, "1000", null);
+                SendObject(obc); //버튼 클릭시 1000으로,,
+            }
+        });
 
-        JButton cntItemBtn = new JButton(wordCountItemImg);
+
+        JButton cntItemBtn = new JButton(wordCountItemImg); //글자 수 알려주는 힌트
         cntItemBtn.revalidate();
         cntItemBtn.repaint();
         cntItemBtn.setBounds(50, 80, 80, 50);
         hintPanel.add(cntItemBtn);
+        cntItemBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ChatMsg obc = new ChatMsg(UserName, "1003", null);
+                SendObject(obc);
+            }
+        });
 
-        JButton twiceItemBtn = new JButton(twiceScoreItemImg);
+
+        JButton twiceItemBtn = new JButton(twiceScoreItemImg); //점수 두배 이벤트
         twiceItemBtn.revalidate();
         twiceItemBtn.repaint();
         twiceItemBtn.setBounds(150, 80, 80, 50);
         hintPanel.add(twiceItemBtn);
+        twiceItemBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //
+                ChatMsg obc = new ChatMsg(UserName, "1004", null);
+                showScore(2*score);
+                SendObject(obc);
+            }
+        });
 
-        JButton ctgItemBtn = new JButton(categoryItemImg);
+
+        JButton ctgItemBtn = new JButton(categoryItemImg); //카테고리 알려주는 힌트(?)
         ctgItemBtn.revalidate();
         ctgItemBtn.repaint();
         ctgItemBtn.setBounds(250, 80, 80, 50);
         hintPanel.add(ctgItemBtn);
+        ctgItemBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //이해못함
+            }
+        });
 
 
-        canvasPanel = new JPanel(){
+        canvasPanel = new JPanel() {
             /* public void paintComponent(Graphics g) {
                 g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
 //                 Image 영역이 가려졌다 다시 나타날 때 그려준다.
@@ -468,7 +502,6 @@ public class GameClientView extends JFrame {
         panel.addMouseListener(mouse);
         MyMouseWheelEvent wheel = new MyMouseWheelEvent();
         panel.addMouseWheelListener(wheel);
-
 
         JButton btnNewButton1 = new JButton(".");
         btnNewButton1.setBackground(Color.RED);
@@ -690,7 +723,6 @@ public class GameClientView extends JFrame {
         lblMouseEvent.setBackground(Color.WHITE);
         lblMouseEvent.setBounds(160, 520, 450, 40);
         contentPane.add(lblMouseEvent);
-
     }
 
 
@@ -772,7 +804,7 @@ public class GameClientView extends JFrame {
 
                 g2.setStroke(new BasicStroke(cm.pen_size));
 
-                for (int i = 1; i < pointss.size(); i++){
+                for (int i = 1; i < pointss.size(); i++) {
                     Point p4 = pointss.get(i);
                     gc.drawLine(p3.x, p3.y, p4.x, p4.y);
                     p3 = p4;
@@ -917,6 +949,7 @@ public class GameClientView extends JFrame {
             java.util.TimerTask task = new  java.util.TimerTask(){
                 public void run(){
                     timeLabel.setText(String.valueOf(time));
+                    //if()
                 }
             };
             timer.scheduleAtFixedRate(task, 0L, 1000);
