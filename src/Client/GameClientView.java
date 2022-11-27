@@ -60,7 +60,7 @@ public class GameClientView extends JFrame {
     private JLabel logo;
 
     private int score=0;
-    private int time=15;
+    private int time=20;
 
 
     private static final long serialVersionUID = 1L;
@@ -398,11 +398,20 @@ public class GameClientView extends JFrame {
         bgItemBtn.setBounds(50, 20, 80, 50);
         hintPanel.add(bgItemBtn);
 
-        JButton timeItemBtn = new JButton(timeItemImg);
+        JButton timeItemBtn = new JButton(timeItemImg); //시간증가 힌트 버튼
         timeItemBtn.revalidate();
         timeItemBtn.repaint();
         timeItemBtn.setBounds(150, 20, 80, 50);
         hintPanel.add(timeItemBtn);
+        timeItemBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("time event!\n");
+                ChatMsg obc = new ChatMsg(UserName, "1001","null"); //시간 증가 구현중
+                time += 15; //시간 15초 증가힌트
+                timeLabel.setText(String.valueOf(time));
+            }
+        });
 
         JButton initItemBtn = new JButton(initialItemImg);
         timeItemBtn.revalidate();
@@ -936,6 +945,8 @@ public class GameClientView extends JFrame {
             time--;
             timeLabel.setText(String.valueOf(time));
         }
+
+
     }
 
     public void showResultPanel(String code){

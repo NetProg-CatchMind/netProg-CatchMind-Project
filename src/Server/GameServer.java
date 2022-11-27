@@ -45,7 +45,7 @@ public class GameServer extends JFrame {
 
     public String turnUser;
     public int wordturn = 0;
-    public int gamestart = 0;// 게임 시작하면 1로
+    //public int gamestart = 0;// 게임 시작하면 1로(gameStart로 대체 일단 냅두기)
     public int UserScore = 0;
     public String UserName = "";
     //public String UserStatus;
@@ -447,24 +447,29 @@ public class GameServer extends JFrame {
                         WriteRoomObject(curRoom,cm);
                     }
 
-                    else if(cm.code.matches("1000")) { //시간이 끝났을때 턴 넘기기(이때 힌트사용시 시간 증가하는거도 구현(?))
+                    else if(cm.code.matches("1000")) { //시간이 끝났을때 턴 넘기기
                         //
                     }
 
                     //1000~1005 힌트&보너스 구현
-                    else if(cm.code.matches("1000")) { //첫글자(ex.코끼리/ 코)(일단 첫글자 힌트로,,)
+                    else if(cm.code.matches("1000")) { //첫글자(ex.코끼리/ 코) //일단 동물만 구현
                         if(turnUser != cm.UserName && gameStart == 1) {
                             String arg = wordAnimal[wordturn];
+                            //String arg1 = wordFood[wordturn];
                             WriteOne5("첫번째 글자는 ' " + arg.charAt(0) + " ' 입니다.");
                         }
                     }
 
-                    else if(cm.code.matches("1001")) { //시간 2배 증가
-
+                    else if(cm.code.matches("1001")) { //시간 2배 증가(현재시간에서 or 그냥 풀로 시간충전?)
+                        WriteOne5_1(msg);
                     }
 
                     else if(cm.code.matches("1002")) { //배경그림 보여주기
-
+                        if(turnUser.equals(UserName)) {
+                            backgrounds = 1;
+                            String arg = wordAnimal[wordturn];
+                            WriteOne5_2(arg);
+                        }
                     }
 
                     else if(cm.code.matches("1003")) { //글자수 힌트
@@ -475,7 +480,7 @@ public class GameServer extends JFrame {
 
                     }
 
-                    else if(cm.code.matches("1005")) { //단어 테마 보여주기
+                    else if(cm.code.matches("1005")) { //단어 테마 보여주기(어케 구현하누??)
 
                     }
 
@@ -732,8 +737,7 @@ public class GameServer extends JFrame {
             }
         }
 
-        public void WriteOne5_2(String msg) {
-
+        public void WriteOne5_2(String msg) {  //1002 배경사진 뿌려주는 메서드(문제 그리는 사람한테만 활성화할것)
             try {
                 // dos.writeUTF(msg);
 //				byte[] bb;
@@ -927,32 +931,32 @@ public class GameServer extends JFrame {
             }
         }
 
-        public void WriteOne11(String msg) { //1100 배경사진 뿌려주는 메서드(문제 그리는 사람한테만 활성화할것)
-            try {
-                // dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
-                ChatMsg obcm = new ChatMsg("SERVER", "1100", msg);
-                oos.writeObject(obcm);
-            } catch (IOException e) {
-                AppendText("dos.writeObject() error");
-                try {
-//					dos.close();
-//					dis.close();
-                    ois.close();
-                    oos.close();
-                    client_socket.close();
-                    client_socket = null;
-                    ois = null;
-                    oos = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
-            }
-        }
+//        public void WriteOne11(String msg) {
+//            try {
+//                // dos.writeUTF(msg);
+////				byte[] bb;
+////				bb = MakePacket(msg);
+////				dos.write(bb, 0, bb.length);
+//                ChatMsg obcm = new ChatMsg("SERVER", "1002", msg);
+//                oos.writeObject(obcm);
+//            } catch (IOException e) {
+//                AppendText("dos.writeObject() error");
+//                try {
+////					dos.close();
+////					dis.close();
+//                    ois.close();
+//                    oos.close();
+//                    client_socket.close();
+//                    client_socket = null;
+//                    ois = null;
+//                    oos = null;
+//                } catch (IOException e1) {
+//                    // TODO Auto-generated catch block
+//                    e1.printStackTrace();
+//                }
+//                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+//            }
+//        }
 
 
         // 모든 User들에게 방송. 각각의 UserService Thread의 WriteONe() 을 호출한다.
