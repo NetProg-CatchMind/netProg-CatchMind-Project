@@ -571,7 +571,7 @@ public class GameClientMain extends JFrame {
 
                             view.showWord(indexWordList);
                             view.showScore(0);
-                            view.showTime(time);
+                            view.showTime();
 
 //                            GameThread gameThread = new GameThread();
 //                            gameThread.run();

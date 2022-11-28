@@ -61,7 +61,6 @@ public class GameClientView extends JFrame {
     private JLabel logo;
 
     private int score=0;
-//    private static int time=15;
 
 
     private static final long serialVersionUID = 1L;
@@ -111,6 +110,7 @@ public class GameClientView extends JFrame {
 
     JPanel panel; //뭐였지,,
     private JLabel lblMouseEvent;
+    JButton btnNewButtonStart;
     private Graphics gc;
     private int pen_size = 2; // minimum 2
     // 그려진 Image를 보관하는 용도, paint() 함수에서 이용한다.
@@ -135,7 +135,7 @@ public class GameClientView extends JFrame {
     public String[] charList;
 
     public String roomId, username, char_no;
-    private int time = 25;
+    private int time = 60;
     private BufferedImage imageBuffer = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB);
     /**
      * Create the frame.
@@ -687,7 +687,7 @@ public class GameClientView extends JFrame {
         btnNewButton.setBounds(300, 490, 70, 30);
         chatingPanel.add(btnNewButton);
 
-        JButton btnNewButtonStart = new JButton("시 작"); //시작버튼
+        btnNewButtonStart = new JButton("시 작"); //시작버튼
         btnNewButtonStart.revalidate();
         btnNewButtonStart.repaint();
         btnNewButtonStart.setFont(new Font("굴림", Font.PLAIN, 14));
@@ -943,25 +943,26 @@ public class GameClientView extends JFrame {
         }
     }
 
-    public void showTime(int time){
+    public void showTime(){
         if(isStart){
+            btnNewButtonStart.setEnabled(false);
             java.util.Timer timer = new java.util.Timer();
             java.util.TimerTask task = new  java.util.TimerTask(){
                 public void run(){
-                    timeLabel.setText(String.valueOf(time));
-                    //if()
+                    timeLabel.setText(String.valueOf(time--));
+
+                    if(time <= 0){
+                        //게임 종료 프로토콜 필요. -> 700
+                        isStart = false;
+                        btnNewButtonStart.setEnabled(true);
+                        ChatMsg cm = new ChatMsg(UserName, "400", "exit");
+                        main.SendObject(cm);
+                    }
                 }
             };
             timer.scheduleAtFixedRate(task, 0L, 1000);
 //            timer.schedule(task, 1000);
         }
-        if(time <= 0){
-            //게임 종료 프로토콜 필요. -> 700
-            isStart = false;
-            ChatMsg cm = new ChatMsg(UserName, "400", "exit");
-            main.SendObject(cm);
-        }
-
     }
 
     public void showWord(int index){
@@ -969,7 +970,13 @@ public class GameClientView extends JFrame {
     }
 
     public void showScore(int score){
+        if((this.score+=score) <= 0 ) {
+            this.score = this.score;
+        }
+        else {
             this.score += score;
+        }
+
             scoreLabel.setText(String.valueOf(this.score));
     }
 

@@ -204,6 +204,7 @@ public class GameServer extends JFrame {
                 Client.RoomMsg rm = null;
                 JoinMsg jm = null;
                 ChatMsg cm = null;
+                HintMsg hm = null;
 
                 if (socket == null)
                     break;
@@ -344,11 +345,9 @@ public class GameServer extends JFrame {
                             UserStatus = "O"; // Online 상태
                             Login(cm.char_no); //~님 환영합니다 msg 출력되도록 하기
                         }
-                    }
-
-                    else if (cm.code.matches("200")) {
+                    } else if (cm.code.matches("200")) {
                         String answer = "answer"; //정답.
-                        
+
                         msg = String.format("[%s] %s", cm.UserName, cm.data);
                         AppendText(msg); // server F 출력
                         String[] args = msg.split(" "); // 단어들을 분리한다
@@ -364,20 +363,17 @@ public class GameServer extends JFrame {
                                 if (RoomVec.get(i).roomId.equals(cm.roomId))
                                     curRoom = RoomVec.get(i);
                             }
-                            if(cm.isStart ==false){
+                            if (cm.isStart == false) {
                                 System.out.println(cm.UserName);
                                 cm = new ChatMsg(cm.UserName, "200", cm.data); //그냥 채팅
-                            }
-                            else{
-                                if(cm.data.toString().equals(answer)) cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
+                            } else {
+                                if (cm.data.toString().equals(answer))
+                                    cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
                                 else cm = new ChatMsg(cm.UserName, "202", cm.data); //오답
                             }
                             WriteRoomObject(curRoom, cm.code, cm);
 
                         }
-
-
-
 
 
                     }
@@ -420,14 +416,11 @@ public class GameServer extends JFrame {
 //                            }
 //                        }
 
-                        else if(cm.code.matches("400")) {
-                            Logout();
-                            break;
-                        }
-
-
-                        else if(cm.code.matches("600")){
-                            //시간 뿌려주고
+                    else if (cm.code.matches("400")) {
+                        Logout();
+                        break;
+                    } else if (cm.code.matches("600")) {
+                        //시간 뿌려주고
                         for (int i = 0; i < RoomVec.size(); i++) {
                             if (RoomVec.get(i).roomId.equals(cm.roomId)) {
                                 curRoom = RoomVec.get(i);
@@ -437,20 +430,20 @@ public class GameServer extends JFrame {
                         wordMsg wm = new wordMsg("600");
 
                         WriteRoomObject(curRoom, cm.code, wm);
+                    }
+
+                    //게임창에서 방나가기 버튼 눌렀을때
+                    else if (cm.code.matches("700")) {
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                curRoom = RoomVec.get(i);
+                            }
                         }
 
-                        //게임창에서 방나가기 버튼 눌렀을때
-                        else if(cm.code.matches("700")){
-                            for (int i = 0; i < RoomVec.size(); i++) {
-                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
-                                    curRoom = RoomVec.get(i);
-                                }
-                            }
-
-                            curRoom.UserVec.clear();
-                            ChatMsg chatMsg = new ChatMsg(cm.UserName, "700", "null");
-                            chatMsg.roomId = cm.roomId;
-                            WriteRoomObject(curRoom, cm.code, chatMsg);
+                        curRoom.UserVec.clear();
+                        ChatMsg chatMsg = new ChatMsg(cm.UserName, "700", "null");
+                        chatMsg.roomId = cm.roomId;
+                        WriteRoomObject(curRoom, cm.code, chatMsg);
                     }
 
 //                        else { // 일반 채팅 메시지
@@ -459,71 +452,113 @@ public class GameServer extends JFrame {
 //                            WriteAllObject(cm);
 //                        }
 
-
-                        else if(cm.code.matches("500")){
-
-                        for (int i = 0; i < RoomVec.size(); i++) {
-                            System.out.println("500::"+cm.roomId);
-                            if (RoomVec.get(i).roomId.equals(cm.roomId)) {
-                                curRoom = RoomVec.get(i);
-                            }
-                        }
-                        System.out.println("500"+curRoom.UserVec.size());
-                        WriteRoomObject(curRoom,cm.code,cm);
-                    }
-
-                    else if(cm.code.matches("1000")) { //시간이 끝났을때 턴 넘기기
-                        //
-                    }
-
-                    //1000~1005 힌트&보너스 구현
-                    else if(cm.code.matches("1000")) { //첫글자(ex.코끼리/ 코) //일단 동물만 구현
-                        if(turnUser != cm.UserName && gameStart == 1) {
-                            String arg = wordAnimal[wordturn];
-                            //String arg1 = wordFood[wordturn];
-                            WriteOne5("첫번째 글자는 ' " + arg.charAt(0) + " ' 입니다.");
-                        }
-                    }
-
-                    else if(cm.code.matches("1001")) { //시간 2배 증가(현재시간에서 or 그냥 풀로 시간충전?)
-                        if(turnUser != cm.UserName && gameStart == 1) {
-                            //
-                            WriteOne5_1("시간이 2배 증가했습니다.");
-                        }
-                    }
-
-                    else if(cm.code.matches("1002")) { //배경그림 보여주기
-                        if(turnUser.equals(UserName)) {
-                            backgrounds = 1;
-                            String arg = wordAnimal[wordturn];
-                            WriteOne5_2(arg);
-                        }
-                    }
-
-                    else if(cm.code.matches("1003")) { //글자수 힌트
-                        if(turnUser.equals(UserName)) {
-                            String arg = wordAnimal[wordturn];
-                            WriteOne5_3("글자수는 " + arg.length() + "입니다");
-                        }
-                    }
-
-                    else if(cm.code.matches("1004")) { //정답시 점수 두배
-                        if(turnUser.equals(UserName)) {
-                            //
-                            WriteOne5_4("맞추면 점수 2배!"); //showScore 두배 증가시키기(?)
-                        }
-                    }
-
-                    else if(cm.code.matches("1005")) { //단어 테마 보여주기(??)
-
-                    }
-
                     //로그아웃!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     else if (cm.code.matches("400")) { // logout message 처리
                         Logout();
                         break;
-                    } else { // 300, 500, ... 기타 object는 모두 방송한다.
-                        WriteAllObject(cm);
+                    }
+
+                    else if (cm.code.matches("500")) {
+
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            System.out.println("500::" + cm.roomId);
+                            if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                curRoom = RoomVec.get(i);
+                            }
+                        }
+                        System.out.println("500" + curRoom.UserVec.size());
+                        WriteRoomObject(curRoom, cm.code, cm);
+                    }
+
+//                    else if(cm.code.matches("1000")) { //시간이 끝났을때 턴 넘기기
+//                        //
+//                    }
+
+                }
+                //힌트 메세지 일때.
+                if (obcm instanceof Server.HintMsg) { //obcm(읽어들인 object)이 ChatMsg라면
+                    hm = (Server.HintMsg) obcm;
+                    //1000~1005 힌트&보너스 구현
+                    if(hm.code.matches("1000")) { //첫글자(ex.코끼리/ 코) //일단 동물만 구현
+                        if(turnUser != cm.UserName && gameStart == 1) {
+                            String arg = wordAnimal[wordturn];
+                            //String arg1 = wordFood[wordturn];
+                            String str = "첫번째 글자는 ' " + arg.charAt(0) + " ' 입니다.";
+                            HintMsg newHintMsg = new HintMsg("SERVER", "1000", str);
+                            for (int i = 0; i < RoomVec.size(); i++) {
+                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                    curRoom = RoomVec.get(i);
+                                }
+                            }
+                            WriteRoomObject(curRoom, hm.code, newHintMsg );
+                            Logout();
+                        }
+                    }
+
+                    else if(hm.code.matches("1001")) { //시간 2배 증가(현재시간에서 or 그냥 풀로 시간충전?)
+                        if(turnUser != cm.UserName && gameStart == 1) {
+                            //
+                            String str = "시간이 2배 증가했습니다.";
+                            HintMsg newHintMsg = new HintMsg("SERVER", "1001", str);
+                            for (int i = 0; i < RoomVec.size(); i++) {
+                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                    curRoom = RoomVec.get(i);
+                                }
+                            }
+                            WriteRoomObject(curRoom, hm.code, newHintMsg);
+                            Logout();
+                        }
+                    }
+
+                    else if(hm.code.matches("1002")) { //배경그림 보여주기
+                        if(turnUser.equals(UserName)) {
+                            backgrounds = 1;
+                            String arg = wordAnimal[wordturn];
+
+                            HintMsg newHintMsg = new HintMsg("SERVER", "1002", arg);
+                            for (int i = 0; i < RoomVec.size(); i++) {
+                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                    curRoom = RoomVec.get(i);
+                                }
+                            }
+                            WriteRoomObject(curRoom, hm.code, newHintMsg);
+                            Logout();
+                        }
+                    }
+
+                    else if(hm.code.matches("1003")) { //글자수 힌트
+                        if(turnUser.equals(UserName)) {
+                            String arg = wordAnimal[wordturn];
+                            String str = "글자수는 " + arg.length() + "입니다";
+                            HintMsg newHintMsg = new HintMsg("SERVER", "1003", str);
+                            for (int i = 0; i < RoomVec.size(); i++) {
+                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                    curRoom = RoomVec.get(i);
+                                }
+                            }
+                            WriteRoomObject(curRoom, hm.code, newHintMsg);
+                            Logout();
+                        }
+                    }
+
+                    else if(hm.code.matches("1004")) { //정답시 점수 두배
+                        if(turnUser.equals(UserName)) {
+                            //
+                            String str = "맞추면 점수 2배!";
+                            HintMsg newHintMsg = new HintMsg("SERVER", "1004", str);
+                            for (int i = 0; i < RoomVec.size(); i++) {
+                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                    curRoom = RoomVec.get(i);
+                                }
+                            }
+                            WriteRoomObject(curRoom, hm.code, newHintMsg);
+                            Logout();
+
+                        }
+                    }
+
+                    else if(hm.code.matches("1005")) { //단어 테마 보여주기(??)
+
                     }
 
                 } //if
@@ -692,37 +727,7 @@ public class GameServer extends JFrame {
         }
 
 
-        public void WriteOne2(String msg) { //사용자 목록 업데이트 방송 / 프로토콜 603
-            try {
-                // dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
-
-                ChatMsg obcm = new ChatMsg("SERVER", "603", msg);
-                oos.writeObject(obcm);
-            } catch (IOException e) {
-                AppendText("dos.writeObject() error");
-                try {
-//					dos.close();
-//					dis.close();
-                    ois.close();
-                    oos.close();
-                    client_socket.close();
-                    client_socket = null;
-                    ois = null;
-                    oos = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
-            }
-        }
-
-
         public void WriteOne5(String msg) {
-
             try {
                 // dos.writeUTF(msg);
 //				byte[] bb;
@@ -730,6 +735,7 @@ public class GameServer extends JFrame {
 //				dos.write(bb, 0, bb.length);
                 ChatMsg obcm = new ChatMsg("SERVER", "1000", msg);
                 oos.writeObject(obcm);
+                Logout();
             } catch (IOException e) {
                 AppendText("dos.writeObject() error");
                 try {
@@ -745,7 +751,7 @@ public class GameServer extends JFrame {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
-                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
+                ; // 에러가난 현재 객체를 벡터에서 지운다
             }
         }
 
@@ -1059,14 +1065,6 @@ public class GameServer extends JFrame {
                 UserService user = (UserService) user_vc.elementAt(i);
                 if (user.UserStatus == "O")
                     user.WriteOne(str);
-            }
-        }
-
-        public void WriteAll2(String str) { //클라이언트에게 사용자 목록과 점수를 보여줌
-            for(int i=0; i< user_vc.size(); i++) {
-                UserService user = (UserService) user_vc.elementAt(i);
-                if(user.UserStatus == "0")
-                    user.WriteOne2(str);
             }
         }
 
