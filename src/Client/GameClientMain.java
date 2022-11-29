@@ -499,6 +499,7 @@ public class GameClientMain extends JFrame {
                     Server.ChatMsg cm;
                     Server.JoinMsg jm;
                     Server.wordMsg wm;
+                    Server.HintMsg hm; //hint message
                     RoomMsg rm;
                     try {
                         obcm = ois.readObject();
@@ -596,7 +597,7 @@ public class GameClientMain extends JFrame {
                     } else
                         continue;
 
-                    switch (cm.code) {
+                    switch (cm.code) {     //힌트(1000~1005구현하기)
                         case "200":
                             for(int i=0; i<totalRoomList.length; i++){
                                 if(totalRoomList[i].equals(view.getRoomId())){
@@ -1051,5 +1052,5 @@ public class GameClientMain extends JFrame {
 
 //    public void paint(Graphics g) {
 //        super.paint(g);
-////        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
+//        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
 //    }

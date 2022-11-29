@@ -346,7 +346,38 @@ public class GameServer extends JFrame {
                             Login(cm.char_no); //~님 환영합니다 msg 출력되도록 하기
                         }
                     } else if (cm.code.matches("200")) {
-                        String answer = "answer"; //정답.
+                        //String answer = "answer"; //정답. 서버에서 수정하기
+                        String wordfood = "";
+                        String wordmusic = "";
+                        String wordmovie = "";
+                        String wordanimal = "";
+                        String wordthing = "";
+
+                        if(curRoom.subject.equals("food")){
+                            for(int i=0; i<wordFood.length; i++) {
+                                 wordfood = wordFood[i];
+                            }
+                        }
+                        else if(curRoom.subject.equals("music")) {
+                            for(int i=0; i<wordMusic.length; i++) {
+                                wordmusic = wordMusic[i];
+                            }
+                        }
+                        else if(curRoom.subject.equals("movie")) {
+                            for(int i=0; i<wordMovie.length; i++) {
+                                wordmovie = wordAnimal[i];
+                            }
+                        }
+                        else if(curRoom.subject.equals("animal")) {
+                            for(int i=0; i<wordAnimal.length; i++) {
+                                wordanimal = wordAnimal[i];
+                            }
+                        }
+                        else if(curRoom.subject.equals("thing")) {
+                            for(int i=0; i<wordThing.length; i++) {
+                                wordthing = wordThing[i];
+                            }
+                        }
 
                         msg = String.format("[%s] %s", cm.UserName, cm.data);
                         AppendText(msg); // server F 출력
@@ -367,15 +398,28 @@ public class GameServer extends JFrame {
                                 System.out.println(cm.UserName);
                                 cm = new ChatMsg(cm.UserName, "200", cm.data); //그냥 채팅
                             } else {
-                                if (cm.data.toString().equals(answer))
+                                /*if(cm.data.toString().equals(answer)) {
+                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
+                                }*/
+                                if (cm.data.toString().equals(wordfood)){
                                     cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
+                                }
+                                else if(cm.data.toString().equals(wordmusic)) {
+                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
+                                }
+                                else if(cm.data.toString().equals(wordmovie)) {
+                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
+                                }
+                                else if(cm.data.toString().equals(wordanimal)) {
+                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
+                                }
+                                else if(cm.data.toString().equals(wordthing)) {
+                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
+                                }
                                 else cm = new ChatMsg(cm.UserName, "202", cm.data); //오답
                             }
                             WriteRoomObject(curRoom, cm.code, cm);
-
                         }
-
-
                     }
 //                        else if ((cm.data.equals(word[wordturn])) && (gamestart == 1)) {
 //                            if (UserName != turnUser) {

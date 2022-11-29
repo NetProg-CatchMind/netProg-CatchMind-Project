@@ -62,7 +62,6 @@ public class GameClientView extends JFrame {
 
     private int score=0;
 
-
     private static final long serialVersionUID = 1L;
 
     private JTextField txtInput;
@@ -108,14 +107,17 @@ public class GameClientView extends JFrame {
     public String[] wordList;
     private int indexWordList = 0;
 
-    JPanel panel; //뭐였지,,
+    public JPanel panel; //뭐였지,,
     private JLabel lblMouseEvent;
     JButton btnNewButtonStart;
-    private Graphics gc;
+
     private int pen_size = 2; // minimum 2
     // 그려진 Image를 보관하는 용도, paint() 함수에서 이용한다.
     private Image panelImage = null;
+
+    private Graphics gc;
     private Graphics gc2 = null;
+
     public Color c = new Color(0,0,0);
     public int shapes;
     private LineBorder lb;
@@ -266,7 +268,6 @@ public class GameClientView extends JFrame {
                 setVisible(false);
                 //2명이상이면 start
             }
-
         });
         btnExit.revalidate();
         btnExit.repaint();
@@ -327,7 +328,6 @@ public class GameClientView extends JFrame {
                 super.paintComponent(g);
                 g.drawImage(infoPanelBg.getImage(), 0, 0, 260, 150, this);
                 repaint();
-
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
@@ -511,8 +511,8 @@ public class GameClientView extends JFrame {
                 startss();
             }
         });
-        //btnNewButton1.revalidate();
-        //btnNewButton1.repaint();
+        btnNewButton1.revalidate();
+        btnNewButton1.repaint();
         btnNewButton1.setForeground(Color.RED);
         btnNewButton1.setBounds(50, 508, 62, 35);
         canvasPanel.add(btnNewButton1);
@@ -565,6 +565,7 @@ public class GameClientView extends JFrame {
         btnNewButton4.setBounds(266, 508, 62, 35);
         canvasPanel.add((btnNewButton4));
 
+
         JButton btnNewButton5 = new JButton(",");
         btnNewButton5.setBackground(Color.BLACK);
         btnNewButton5.addActionListener(new ActionListener() {
@@ -581,9 +582,14 @@ public class GameClientView extends JFrame {
         canvasPanel.add((btnNewButton5));
 
 
+        //JLabel lbe = new JLabel();
+        //lbe.setBounds(600, 503, 10,20);
+        //lbe.setText("지우개"); //지우개 라벨(버튼위에)
+        //lbe.setHorizontalAlignment(JLabel.CENTER);
+        //canvasPanel.add(lbe);
         JButton btnNewButton6 = new JButton("지우개"); //지우개버튼
-        btnNewButton6.setFont(new Font("굴림", Font.PLAIN, 14));
-        btnNewButton6.setBounds(410, 508, 85, 35);
+        btnNewButton6.setFont(new Font("굴림", Font.PLAIN, 12));
+        btnNewButton6.setBounds(630, 505, 70, 40);
         canvasPanel.add(btnNewButton6);
         btnNewButton6.addActionListener(new ActionListener() {
             @Override
@@ -594,6 +600,57 @@ public class GameClientView extends JFrame {
         });
         btnNewButton6.revalidate();
         btnNewButton6.repaint();
+
+        JButton btnNewButton7 = new JButton("clear"); //모두지우기 버튼
+        btnNewButton7.setFont(new Font("굴림", Font.PLAIN, 12));
+        btnNewButton7.setBounds(710, 505, 70, 40);
+        canvasPanel.add(btnNewButton7);
+        btnNewButton7.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                c = new Color(255,255,255);
+                //startss();
+            }
+        });
+        btnNewButton7.revalidate();
+        btnNewButton7.repaint();
+
+
+
+        JButton btnNewButton8 = new JButton("O"); //동그라미 그리기
+        btnNewButton8.setFont(new Font("굴림", Font.PLAIN, 12));
+        btnNewButton8.setBounds(410, 508, 60, 35);
+        canvasPanel.add(btnNewButton8);
+        btnNewButton8.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e1) {
+                shapes=1;
+                //c = new Color(255,255,255);
+                //startss();
+            }
+        });
+        btnNewButton8.revalidate();
+        btnNewButton8.repaint();
+
+
+
+        JButton btnNewButton9 = new JButton("ㅁ"); //사각형 그리기
+        btnNewButton9.setFont(new Font("굴림", Font.PLAIN, 12));
+        btnNewButton9.setBounds(482, 508, 60, 35);
+        canvasPanel.add(btnNewButton9);
+        btnNewButton9.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e2) {
+                shapes=3;
+                //c = new Color(255,255,255);
+                //startss();
+            }
+        });
+        btnNewButton9.revalidate();
+        btnNewButton9.repaint();
+
+
+
 
 
         chatingPanel = new JPanel(){
@@ -809,8 +866,7 @@ public class GameClientView extends JFrame {
                     gc.drawLine(p3.x, p3.y, p4.x, p4.y);
                     p3 = p4;
                 }
-
-            }else if(pointss.size() ==1)
+            } else if(pointss.size() ==1)
                 pointss.add(cm.mouse_e.getPoint());
         }
     }
@@ -887,28 +943,27 @@ public class GameClientView extends JFrame {
         public void mouseClicked(MouseEvent e) {
 
             linee=false;
-
             //points.clear();
             //lblMouseEvent.setText(e.getButton() + " mouseClicked " + e.getX() + "," + e.getY());
-//            gc.setColor(c);
-//            if(shapes==1) {
-//
-//                gc.drawOval(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-//                gc.drawImage(panelImage, 0, 0, panel);
-//
-//            }else if(shapes==3) {
-//
-//                gc.drawRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-//                gc.drawImage(panelImage, 0, 0, panel);
-//            }
-//            else if(shapes==0) {
-//
-//                gc.fillRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-//                gc.drawImage(panelImage, 0, 0, panel);
-//            }
-//
-//            main.SendMouseEvent(e, c, shapes, linee);
-//            shapes=0;
+            gc.setColor(c);
+            if(shapes==1) {
+
+                gc.drawOval(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
+                gc.drawImage(panelImage, 0, 0, panel);
+
+            }else if(shapes==3) {
+
+                gc.drawRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
+                gc.drawImage(panelImage, 0, 0, panel);
+            }
+            else if(shapes==0) {
+
+                gc.fillRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
+                gc.drawImage(panelImage, 0, 0, panel);
+            }
+
+            main.SendMouseEvent(e, c, shapes, linee);
+            shapes=0;
         }
 
         @Override
@@ -980,8 +1035,6 @@ public class GameClientView extends JFrame {
             scoreLabel.setText(String.valueOf(this.score));
     }
 
-
-
     public void showResultPanel(String code){
         resultPanel = new JPanel();
 //        resultPanel.setBackground(Color.decode("#569A49"));
@@ -1017,7 +1070,7 @@ public class GameClientView extends JFrame {
         resultPanel.setVisible(false);
     }
 
-    public void exitView(){
+    public void exitView() {
         main.setVisible(true);
         System.exit(0);
     }
@@ -1103,7 +1156,7 @@ public class GameClientView extends JFrame {
         len = textArea.getDocument().getLength();
         textArea.setCaretPosition(len);
         textArea.replaceSelection("\n");
-        // ImageViewAction viewaction = new ImageViewAction();
+        // ImageViewAction viewaction = new Image ViewAction();
         // new_icon.addActionListener(viewaction); // 내부클래스로 액션 리스너를 상속받은 클래스로
         // panelImage = ori_img.getScaledInstance(panel.getWidth(), panel.getHeight(), Image.SCALE_DEFAULT);
 
