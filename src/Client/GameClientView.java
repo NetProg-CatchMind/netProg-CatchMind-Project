@@ -48,6 +48,12 @@ public class GameClientView extends JFrame {
     private ImageIcon char1Img = new ImageIcon("res/character1.png");
     private ImageIcon char2Img = new ImageIcon("res/character2.png");
     private ImageIcon char3Img = new ImageIcon("res/character3.png");
+    private ImageIcon answerChar1 = new ImageIcon("res/answerChar1.png");
+    private ImageIcon answerChar2 = new ImageIcon("res/answerChar2.png");
+    private ImageIcon answerChar3 = new ImageIcon("res/answerChar3.png");
+    private ImageIcon wrongChar1 = new ImageIcon("res/wrongChar1.png");
+    private ImageIcon wrongChar2 = new ImageIcon("res/wrongChar2.png");
+    private ImageIcon wrongChar3 = new ImageIcon("res/wrongChar3.png");
 
     private ImageIcon correctIcon = new ImageIcon("res/correctIcon.png");
     private ImageIcon wrongIcon = new ImageIcon("res/wrongIcon.png");
@@ -228,7 +234,7 @@ public class GameClientView extends JFrame {
             if(this.charList[i].equals("char1")) userLabel.setIcon(char1Img);
             else if(this.charList[i].equals("char2")) userLabel.setIcon(char2Img);
             else userLabel.setIcon(char3Img);
-            userLabel.setBounds(50,35 + (i*160),90,110);
+            userLabel.setBounds(40,35 + (i*160),110,110);
             usersPanel.add(userLabel);
         }
 
@@ -306,23 +312,25 @@ public class GameClientView extends JFrame {
         };
         wordPanel.revalidate();
         wordPanel.repaint();
-        wordPanel.setBounds(10,0,260,150);
+        wordPanel.setLayout(null);
+        wordPanel.setBounds(00,0,260,150);
+//        wordPanel.setLayout(new BorderLayout());
         infoPanel.add(wordPanel);
 
-        wordInfoLabel = new JLabel("제시어."){}; //안내 공지하는 label
+        wordInfoLabel = new JLabel("제시어"){}; //안내 공지하는 label
         wordInfoLabel.revalidate();
         wordInfoLabel.repaint();
         wordInfoLabel.setForeground(Color.BLACK);
         wordInfoLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
-        wordInfoLabel.setBorder(lb);
-        wordInfoLabel.setBounds(10, 0, 260, 50);
+//        wordInfoLabel.setBorder(lb);
+        wordInfoLabel.setBounds(100, 20, 260, 20);
         wordPanel.add(wordInfoLabel);
 
         wordLabel = new JLabel();
         wordLabel.revalidate();
         wordLabel.repaint();
-        wordLabel.setFont(new Font("나눔고딕", Font.PLAIN, 30));
-        wordLabel.setBounds(10,100,260, 90);
+        wordLabel.setFont(new Font("나눔고딕", Font.PLAIN, 50));
+        wordLabel.setBounds(80,40,260, 90);
         wordPanel.add(wordLabel);
 
 
@@ -336,23 +344,23 @@ public class GameClientView extends JFrame {
         };
         scorePanel.revalidate();
         scorePanel.repaint();
+        scorePanel.setLayout(null);
         scorePanel.setBounds(270,0,260,150);
         infoPanel.add(scorePanel);
 
-        scoreInfoLabel = new JLabel("점수."); //안내 공지하는 label
+        scoreInfoLabel = new JLabel("점수"); //안내 공지하는 label
         scoreInfoLabel.revalidate();
         scoreInfoLabel.repaint();
         scoreInfoLabel.setForeground(Color.BLACK);
-        scoreInfoLabel.setBorder(lb);
         scoreInfoLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
-        scoreInfoLabel.setBounds(270, 0, 260, 50);
+        scoreInfoLabel.setBounds(120, 20, 260, 20);
         scorePanel.add(scoreInfoLabel);
 
         scoreLabel = new JLabel();
         scoreLabel.revalidate();
         scoreLabel.repaint();
-        scoreLabel.setFont(new Font("나눔고딕", Font.PLAIN, 30));
-        scoreLabel.setBounds(10,60,260, 90);
+        scoreLabel.setFont(new Font("나눔고딕", Font.PLAIN, 40));
+        scoreLabel.setBounds(120,40,260, 90);
         scorePanel.add(scoreLabel);
 
         timePanel = new JPanel(){
@@ -365,23 +373,23 @@ public class GameClientView extends JFrame {
         };
         timePanel.revalidate();
         timePanel.repaint();
+        timePanel.setLayout(null);
         timePanel.setBounds(530,0,260,150);
         infoPanel.add(timePanel);
 
-        timeInfoLabel = new JLabel("제한시간."); //안내 공지하는 label
+        timeInfoLabel = new JLabel("제한시간"); //안내 공지하는 label
         timeInfoLabel.revalidate();
         timeInfoLabel.repaint();
         timeInfoLabel.setForeground(Color.BLACK);
-        timeInfoLabel.setBorder(lb);
         timeInfoLabel.setFont(new Font("나눔고딕", Font.PLAIN, 20));
-        timeInfoLabel.setBounds(530, 0, 260, 50);
+        timeInfoLabel.setBounds(78, 20, 260, 20);
         timePanel.add(timeInfoLabel);
 
         timeLabel = new JLabel();
         timeLabel.revalidate();
         timeLabel.repaint();
-        timeLabel.setFont(new Font("나눔고딕", Font.PLAIN, 30));
-        timeLabel.setBounds(10,60,260, 90);
+        timeLabel.setFont(new Font("나눔고딕", Font.PLAIN, 40));
+        timeLabel.setBounds(100,40,260, 90);
         timePanel.add(timeLabel);
 
         hintPanel = new JPanel(){
@@ -1015,6 +1023,7 @@ public class GameClientView extends JFrame {
                         //게임 종료 프로토콜 필요. -> 700
                         isStart = false;
                         btnNewButtonStart.setEnabled(true);
+//                        exitView();
                         ChatMsg cm = new ChatMsg(UserName, "400", "exit");
                         main.SendObject(cm);
                     }
@@ -1040,38 +1049,61 @@ public class GameClientView extends JFrame {
     }
 
     public void showResultPanel(String code){
-        resultPanel = new JPanel();
+//        resultPanel = new JPanel();
 //        resultPanel.setBackground(Color.decode("#569A49"));
-        resultPanel.setOpaque(true);
-        resultPanel.setLayout(null);
-//        resultPanel.setLayout(new BorderLayout());
-        resultPanel.setBounds(80,60,600, 380);
-        panel.add(resultPanel);
-        resultPanel.setVisible(true);
+//        resultPanel.setOpaque(true);
+//        resultPanel.setLayout(null);
+//        resultPanel.update(gc);
+////        resultPanel.setLayout(new BorderLayout());
+//        resultPanel.setBounds(80,60,600, 380);
+//        panel.add(resultPanel);
+//        resultPanel.setVisible(true);
 
         JLabel resultLabel;
         if(code.matches("201")) { //정답 : answer
-            resultLabel = new JLabel(correctIcon);
-            resultLabel.setIcon(correctIcon);
-            resultLabel.setOpaque(true);
-            resultLabel.setVisible(true);
-            resultLabel.setBounds(0,0,600,380);
-            resultPanel.add(resultLabel);
+            if(userLabel!= null){
+                if(userLabel.getIcon() == char1Img)
+                userLabel.setIcon(answerChar1);
+                else if(userLabel.getIcon() == char2Img)
+                    userLabel.setIcon(answerChar2);
+                else userLabel.setIcon(answerChar3);
+            }
+//            resultLabel = new JLabel(correctIcon);
+//            resultLabel.setIcon(correctIcon);
+//            resultLabel.setOpaque(true);
+//            resultLabel.setVisible(true);
+//            resultLabel.setBounds(0,0,600,380);
+//            chatingPanel.add(resultLabel);
+//            repaint();
 //            resultPanel.add(resultLabel, BorderLayout.CENTER);
         }
         else if(code.matches("202")) {
-            resultLabel = new JLabel(wrongIcon);
-            resultLabel.setIcon(wrongIcon);
-            resultLabel.setOpaque(true);
-            resultLabel.setVisible(true);
-            resultLabel.setBounds(0,0,600,380);
-            resultPanel.add(resultLabel);
+            if(userLabel!= null){
+                if(userLabel.getIcon() == char1Img)
+                    userLabel.setIcon(wrongChar1);
+                else if(userLabel.getIcon() == char2Img)
+                    userLabel.setIcon(wrongChar2);
+                else userLabel.setIcon(wrongChar3);
+            }
+//            resultLabel = new JLabel(wrongIcon);
+//            resultLabel.setIcon(wrongIcon);
+//            resultLabel.setOpaque(true);
+//            resultLabel.setVisible(true);
+//            resultLabel.setBounds(0,0,600,380);
+//            chatingPanel.add(resultLabel);
 //            resultPanel.add(resultLabel, BorderLayout.CENTER);
         }
     }
 
     public void removeResultPanel(){
-        resultPanel.setVisible(false);
+//        resultPanel.setVisible(false);
+        if(userLabel!= null){
+            if(userLabel.getIcon() == answerChar1 || userLabel.getIcon() == wrongChar1)
+                userLabel.setIcon(char1Img);
+            else if(userLabel.getIcon() == answerChar2 || userLabel.getIcon() == wrongChar2)
+            userLabel.setIcon(char2Img);
+            else userLabel.setIcon(char3Img);
+        }
     }
 
     public void exitView() {

@@ -684,6 +684,7 @@ public class GameClientMain extends JFrame {
                         case "700":
                             view.leaveRoom();
                             view.setVisible(false);
+                            view.exitView();
                             main.setVisible(true);
                     }
                 } catch (IOException e) {

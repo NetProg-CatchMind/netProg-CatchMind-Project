@@ -378,15 +378,19 @@ public class GameServer extends JFrame {
                                 cm = new ChatMsg(cm.UserName, "200", cm.data); //그냥 채팅
                                 WriteRoomObject(curRoom, cm.code, cm);
                             } else {
+                                boolean isAnswer = false;
                                 String[] subjectWordList = wordMap.get(curRoom.subject);
                                 for(int i=0; i<subjectWordList.length; i++){
                                     if(cm.data.equals(subjectWordList[i])) {
-                                        cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
-                                        WriteRoomObject(curRoom, cm.code, cm);
-                                        return;
+                                        isAnswer = true;
                                     }
                                 }
-                                cm = new ChatMsg(cm.UserName,"202", cm.data);
+
+                                if(isAnswer)
+                                    cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
+                                else
+                                    cm = new ChatMsg(cm.UserName,"202", cm.data);
+
                                 WriteRoomObject(curRoom, cm.code, cm);
                             }
 
