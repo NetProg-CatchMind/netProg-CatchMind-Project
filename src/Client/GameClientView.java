@@ -55,10 +55,13 @@ public class GameClientView extends JFrame {
 
     private JPanel infoPanel;
     private JPanel hintPanel;
-    private JPanel canvasPanel;
+    public JPanel canvasPanel;
     private JPanel chatingPanel;
     private JPanel usersPanel;
     private JLabel logo;
+
+    Image buffImg;
+    Graphics buffG;
 
     private int score=0;
 
@@ -84,7 +87,7 @@ public class GameClientView extends JFrame {
     private JLabel wordInfoLabel;
     private JLabel wordLabel;
     private JLabel wordTitle;
-
+    public static Image panelImage = null;
     private JPanel scorePanel;
     private JLabel scoreInfoLabel;
     private JLabel scoreLabel;
@@ -107,22 +110,20 @@ public class GameClientView extends JFrame {
     public String[] wordList;
     private int indexWordList = 0;
 
-    public JPanel panel; //뭐였지,,
+    static JPanel panel; //뭐였지,,
     private JLabel lblMouseEvent;
     JButton btnNewButtonStart;
-
+    private MyMouseEvent mouse = new MyMouseEvent();
+    public static Graphics gc;
     private int pen_size = 2; // minimum 2
     // 그려진 Image를 보관하는 용도, paint() 함수에서 이용한다.
-    private Image panelImage = null;
-
-    private Graphics gc;
     private Graphics gc2 = null;
 
     public Color c = new Color(0,0,0);
     public int shapes;
     private LineBorder lb;
     public List<Point> pointss = new ArrayList<Point>();  //pointss arraylist
-    public	MyMouseEvent mouse;
+    List<Point> points = new ArrayList<Point>();
     public MyMouseWheelEvent wheel;
 
     public Graphics2D g2;
@@ -357,7 +358,6 @@ public class GameClientView extends JFrame {
                 super.paintComponent(g);
                 g.drawImage(infoPanelBg.getImage(), 0, 0, 260, 150, this);
                 repaint();
-
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
@@ -414,7 +414,7 @@ public class GameClientView extends JFrame {
                 ChatMsg obc = new ChatMsg(UserName, "1001","null"); //시간 증가 구현중
                 //time += 15; //시간 15초 증가시키기
                 //timeLabel.setText(String.valueOf(time));
-                SendObject(obc);
+                main.SendObject(obc);
             }
         });
 
@@ -428,7 +428,7 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ChatMsg obc = new ChatMsg(UserName, "1000", null);
-                SendObject(obc); //버튼 클릭시 1000으로,,
+                main.SendObject(obc); //버튼 클릭시 1000으로,,
             }
         });
 
@@ -458,7 +458,7 @@ public class GameClientView extends JFrame {
                 //
                 ChatMsg obc = new ChatMsg(UserName, "1004", null);
                 showScore(2*score);
-                SendObject(obc);
+                main.SendObject(obc);
             }
         });
 
@@ -477,10 +477,11 @@ public class GameClientView extends JFrame {
 
 
         canvasPanel = new JPanel() {
-            /* public void paintComponent(Graphics g) {
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
                 g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
 //                 Image 영역이 가려졌다 다시 나타날 때 그려준다.
-            } */
+            }
         };
         canvasPanel.revalidate();
         canvasPanel.repaint();
@@ -564,7 +565,6 @@ public class GameClientView extends JFrame {
         btnNewButton4.setForeground(Color.GREEN);
         btnNewButton4.setBounds(266, 508, 62, 35);
         canvasPanel.add((btnNewButton4));
-
 
         JButton btnNewButton5 = new JButton(",");
         btnNewButton5.setBackground(Color.BLACK);
@@ -816,13 +816,16 @@ public class GameClientView extends JFrame {
         panel.removeMouseMotionListener(mouse);
     }
 
-
+    @Override
     public void paint(Graphics g) {
-        super.paint(g);
-        g.drawImage(panelImage, 0, 0, this);
-//        g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
-        // Image 영역이 가려졌다 다시 나타날 때 그려준다.
-//        gc.drawImage(panelImage, 0, 0, this);
+//        super.paint(g);
+        if(gc!= null) update(gc);
+    }
+
+    @Override
+    public void update(Graphics gc) {
+        if(panel != null) gc.drawImage(panelImage, 0,0 , panel.getWidth(), panel.getHeight(), panel);
+        repaint();
     }
 
 
@@ -832,21 +835,21 @@ public class GameClientView extends JFrame {
           //  return;
         //System.out.println(cm.lines);
 
-        gc.setColor(co);
+        gc2.setColor(co);
 
         if(cm.lines==false) {
             pointss.clear();
             if(shape==1) {
-                gc.drawOval(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2,cm.pen_size, cm.pen_size);
+                gc2.drawOval(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2,cm.pen_size, cm.pen_size);
                 shape=0;
 
             }else if(shape==3) {
-                gc.drawRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
+                gc2.drawRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
                 shape=0;
 
             }else if(shape==0) {
 
-                gc.fillRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
+                gc2.fillRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
 
             }
             shape=0;
@@ -857,18 +860,20 @@ public class GameClientView extends JFrame {
             if (pointss.size() >1 ) {
 
                 Point p3 = pointss.get(0);
-                Graphics2D g2=(Graphics2D)gc;
+                Graphics2D g2=(Graphics2D)gc2;
 
                 g2.setStroke(new BasicStroke(cm.pen_size));
 
                 for (int i = 1; i < pointss.size(); i++) {
                     Point p4 = pointss.get(i);
-                    gc.drawLine(p3.x, p3.y, p4.x, p4.y);
+                    gc2.drawLine(p3.x, p3.y, p4.x, p4.y);
                     p3 = p4;
                 }
             } else if(pointss.size() ==1)
                 pointss.add(cm.mouse_e.getPoint());
         }
+        update(gc);
+        revalidate();
     }
 
 
@@ -896,41 +901,40 @@ public class GameClientView extends JFrame {
                 if (pen_size > 2)
                     pen_size--;
             }
-            //lblMouseEvent.setText("mouseWheelMoved Rotation=" + e.getWheelRotation() + " pen_size = " + pen_size + " " + e.getX() + "," + e.getY());
         }
     }
 
     // Mouse Event Handler
+
     class MyMouseEvent implements MouseListener, MouseMotionListener {
 
         List<Point> points = new ArrayList<Point>();
-        int startX, startY;
 
 
         @Override
         public void mouseDragged(MouseEvent e) {
             linee=true;
-            //lblMouseEvent.setText(e.getButton() + " mousedragged " + e.getX() + "," + e.getY()+points);
-            gc.setColor(c);
+            gc2.setColor(c);
             points.add(e.getPoint());
 
             linee=true;
             if (points.size() > 1) {
                 Point p1 = points.get(0);
-                g2=(Graphics2D)gc;
+                g2=(Graphics2D)gc2;
 
                 g2.setStroke(new BasicStroke(pen_size));
 
                 for (int i = 1; i < points.size(); i++){
                     Point p2 = points.get(i);
-                    gc.drawLine(p1.x, p1.y, p2.x, p2.y);
+//                    gc.drawLine(p1.x, p1.y, p2.x, p2.y);
+                    gc2.drawLine(p1.x, p1.y, p2.x, p2.y);
                     p1 = p2;
                 }
             }
             else
                 points.add(e.getPoint());
-
-            main.SendMouseEvent(e, c, shapes, linee);
+            update(gc);
+            main.SendMouseEvent(e, c, pen_size, shapes, linee);
             linee=false;
         }
 
@@ -962,39 +966,30 @@ public class GameClientView extends JFrame {
                 gc.drawImage(panelImage, 0, 0, panel);
             }
 
-            main.SendMouseEvent(e, c, shapes, linee);
+            main.SendMouseEvent(e, c, pen_size, shapes, linee);
             shapes=0;
         }
 
         @Override
         public void mouseEntered(MouseEvent e) {
-            //lblMouseEvent.setText(e.getButton() + " mouseEntered " + e.getX() + "," + e.getY());
-            // panel.setBackground(Color.YELLOW);
-
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
-            //lblMouseEvent.setText(e.getButton() + " mouseExited " + e.getX() + "," + e.getY());
-            // panel.setBackground(Color.CYAN);
 
         }
 
         @Override
         public void mousePressed(MouseEvent e) {
-//            points.clear();
-            //lblMouseEvent.setText(e.getButton() + " mousePressed " + e.getX() + "," + e.getY());
+            points.clear();
         }
 
         @Override
-        public void mouseReleased(MouseEvent e) { //구현해야함!
-//            lblMouseEvent.setText(e.getButton() + " mouseReleased " + e.getX() + "," + e.getY()); //안그려지는 이유???!!!
-//            // 드래그중 멈출시 보임
-//            gc2 = g2;
-//            gc2.drawImage(panelImage, 0, 0, panel); //
+        public void mouseReleased(MouseEvent e) {
+//            points.add(e.getPoint());
             points.clear();
             linee=false;
-            main.SendMouseEvent(e, c, shapes, linee);
+            main.SendMouseEvent(e, c, pen_size, shapes, linee);
         }
     }
 
@@ -1004,6 +999,8 @@ public class GameClientView extends JFrame {
             java.util.Timer timer = new java.util.Timer();
             java.util.TimerTask task = new  java.util.TimerTask(){
                 public void run(){
+                    gc.drawImage(panelImage,0, 0,panel);
+
                     timeLabel.setText(String.valueOf(time--));
 
                     if(time <= 0){
@@ -1016,7 +1013,6 @@ public class GameClientView extends JFrame {
                 }
             };
             timer.scheduleAtFixedRate(task, 0L, 1000);
-//            timer.schedule(task, 1000);
         }
     }
 
@@ -1082,11 +1078,7 @@ public class GameClientView extends JFrame {
 
     // 화면에 출력
     public void AppendText(String msg) { //채팅창에 msg를 뿌려주는 메서드
-        // textArea.append(msg + "\n");
-        // AppendIcon(icon1);
         msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.
-        //textArea.setCaretPosition(len);
-        //textArea.replaceSelection(msg + "\n");
 
         StyledDocument doc = textArea.getStyledDocument();
         SimpleAttributeSet left = new SimpleAttributeSet();
@@ -1160,7 +1152,7 @@ public class GameClientView extends JFrame {
         // new_icon.addActionListener(viewaction); // 내부클래스로 액션 리스너를 상속받은 클래스로
         // panelImage = ori_img.getScaledInstance(panel.getWidth(), panel.getHeight(), Image.SCALE_DEFAULT);
 
-        gc2.drawImage(ori_img,  0,  0, panel.getWidth(), panel.getHeight(), panel);
+//        gc2.drawImage(ori_img,  0,  0, panel.getWidth(), panel.getHeight(), panel);
         gc.drawImage(panelImage, 0, 0, panel.getWidth(), panel.getHeight(), panel);
     }
 
@@ -1229,8 +1221,7 @@ public class GameClientView extends JFrame {
         }
     }
 
-    /*public static void main(String[] args) {
-        GameClientView game = new GameClientView("user", "192", "1111");
-        game.startss();
-    } */
+//    public static void main(String[] args) {
+//    }
+
 }

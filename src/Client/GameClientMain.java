@@ -93,6 +93,7 @@ public class GameClientMain extends JFrame {
     private JLabel profileImgLabel;
     private JLabel profileInfoLabel;
     private boolean isStart = false;
+    private boolean isJoin = false;
     private int coin = 10;
     private JLabel profileCoinImgLabel;
     private JLabel profileCoinCntLabel;
@@ -542,6 +543,7 @@ public class GameClientMain extends JFrame {
                     if(obcm instanceof JoinMsg) {
                         jm = (Server.JoinMsg) obcm;
                         if(jm.code.matches("1201")){
+                            isJoin = true;
                             view = new GameClientView(main ,jm.roomId, jm.socketList, jm.userList, jm.charList, username,char_no, jm.wordList, socket,ois, oos);
                             view.setVisible(true);
 //                            view = new GameClientView(jm.roomId, jm.userList);
@@ -770,7 +772,7 @@ public class GameClientMain extends JFrame {
         roomListScrollPanel.setViewportView(roomListPanel);
     }
 
-    public void SendMouseEvent(MouseEvent e, Color c, int shapes, boolean linee) {
+    public void SendMouseEvent(MouseEvent e, Color c, int pen_size, int shapes, boolean linee) {
         Server.ChatMsg cm = new Server.ChatMsg( UserName, "500", "MOUSE");
         cm.roomId = view.roomId;
         cm.mouse_e = e;

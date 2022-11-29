@@ -511,7 +511,9 @@ public class GameServer extends JFrame {
                             }
                         }
                         System.out.println("500" + curRoom.UserVec.size());
+                        System.out.println(cm.pen_size);
                         WriteRoomObject(curRoom, cm.code, cm);
+
                     }
 
 //                    else if(cm.code.matches("1000")) { //시간이 끝났을때 턴 넘기기
@@ -911,17 +913,11 @@ public class GameServer extends JFrame {
 
         public void WriteOne5_5(String msg) {
             try {
-                // dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
                 ChatMsg obcm = new ChatMsg("SERVER", "1005", msg);
                 oos.writeObject(obcm);
             } catch (IOException e) {
                 AppendText("dos.writeObject() error");
                 try {
-//					dos.close();
-//					dis.close();
                     ois.close();
                     oos.close();
                     client_socket.close();
