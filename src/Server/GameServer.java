@@ -37,12 +37,14 @@ public class GameServer extends JFrame {
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
     public int gameStart = 0; //시작시 1로 변경하기
+
+
     public String[] wordFood = {"사과", "배", "떡볶이", "라면", "떡국", "파스타", "피자", "비빔밥", "소고기"};
     public String[] wordMusic = {"Love Dive", "ASAP", "자격지심", "콘서트", "AntiFragile", "나의 X에게", "아이브", "잔나비", "Dynamite"};
     public String[] wordMovie = {"매드맥스", "인사이드 아웃", "인셉션", "아바타", "너의이름은", "극한직업", "겨울왕국", "스파이더맨", "공조"};
     public String[] wordAnimal = {"고양이", "호랑이", "햄스터", "강아지", "목도리도마뱀", "라쿤", "앵무새", "자라", "장수풍뎅이"};
     public String[] wordThing = {"옷장", "건조기", "노트북", "어항", "교탁", "자전거", "형광등", "장구", "나침반"};
-
+    public HashMap<String, String[]> wordMap = new HashMap<>();
     public String turnUser;
     public int wordturn = 0;
     //public int gamestart = 0;// 게임 시작하면 1로(gameStart로 대체 일단 냅두기)
@@ -72,6 +74,12 @@ public class GameServer extends JFrame {
 
     //server Frame ==================================================================================================
     public GameServer() {
+        wordMap.put("food", wordFood);
+        wordMap.put("music", wordMusic);
+        wordMap.put("movie", wordMovie);
+        wordMap.put("animal", wordAnimal);
+        wordMap.put("thing", wordThing);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 338, 440);
         contentPane = new JPanel();
@@ -167,6 +175,8 @@ public class GameServer extends JFrame {
         public String UserStatus;
 
         GameRoom curRoom = null;
+
+
 
         // userThread 클래스 생성자-----------------------------------------------------------------
         public UserService(Socket client_socket) {
@@ -346,37 +356,10 @@ public class GameServer extends JFrame {
                             Login(cm.char_no); //~님 환영합니다 msg 출력되도록 하기
                         }
                     } else if (cm.code.matches("200")) {
-                        //String answer = "answer"; //정답. 서버에서 수정하기
-                        String wordfood = "";
-                        String wordmusic = "";
-                        String wordmovie = "";
-                        String wordanimal = "";
-                        String wordthing = "";
 
-                        if(curRoom.subject.equals("food")){
-                            for(int i=0; i<wordFood.length; i++) {
-                                 wordfood = wordFood[i];
-                            }
-                        }
-                        else if(curRoom.subject.equals("music")) {
-                            for(int i=0; i<wordMusic.length; i++) {
-                                wordmusic = wordMusic[i];
-                            }
-                        }
-                        else if(curRoom.subject.equals("movie")) {
-                            for(int i=0; i<wordMovie.length; i++) {
-                                wordmovie = wordAnimal[i];
-                            }
-                        }
-                        else if(curRoom.subject.equals("animal")) {
-                            for(int i=0; i<wordAnimal.length; i++) {
-                                wordanimal = wordAnimal[i];
-                            }
-                        }
-                        else if(curRoom.subject.equals("thing")) {
-                            for(int i=0; i<wordThing.length; i++) {
-                                wordthing = wordThing[i];
-                            }
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            if (RoomVec.get(i).roomId.equals(cm.roomId))
+                                curRoom = RoomVec.get(i);
                         }
 
                         msg = String.format("[%s] %s", cm.UserName, cm.data);
@@ -385,10 +368,6 @@ public class GameServer extends JFrame {
                         //Object[] word;
                         if (args.length == 1) { // Enter key 만 들어온 경우 Wakeup 처리만 한다.
                             UserStatus = "O";
-                        } else if (args[1].matches("/exit")) {
-//                          Logout();
-                            break;
-
                         } else {
                             for (int i = 0; i < RoomVec.size(); i++) {
                                 if (RoomVec.get(i).roomId.equals(cm.roomId))
@@ -397,28 +376,20 @@ public class GameServer extends JFrame {
                             if (cm.isStart == false) {
                                 System.out.println(cm.UserName);
                                 cm = new ChatMsg(cm.UserName, "200", cm.data); //그냥 채팅
+                                WriteRoomObject(curRoom, cm.code, cm);
                             } else {
-                                /*if(cm.data.toString().equals(answer)) {
-                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
-                                }*/
-                                if (cm.data.toString().equals(wordfood)){
-                                    cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
+                                String[] subjectWordList = wordMap.get(curRoom.subject);
+                                for(int i=0; i<subjectWordList.length; i++){
+                                    if(cm.data.equals(subjectWordList[i])) {
+                                        cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
+                                        WriteRoomObject(curRoom, cm.code, cm);
+                                        return;
+                                    }
                                 }
-                                else if(cm.data.toString().equals(wordmusic)) {
-                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
-                                }
-                                else if(cm.data.toString().equals(wordmovie)) {
-                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
-                                }
-                                else if(cm.data.toString().equals(wordanimal)) {
-                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
-                                }
-                                else if(cm.data.toString().equals(wordthing)) {
-                                    cm = new ChatMsg(cm.UserName, "201", cm.data);
-                                }
-                                else cm = new ChatMsg(cm.UserName, "202", cm.data); //오답
+                                cm = new ChatMsg(cm.UserName,"202", cm.data);
+                                WriteRoomObject(curRoom, cm.code, cm);
                             }
-                            WriteRoomObject(curRoom, cm.code, cm);
+
                         }
                     }
 //                        else if ((cm.data.equals(word[wordturn])) && (gamestart == 1)) {

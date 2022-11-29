@@ -13,6 +13,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.net.*;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
@@ -112,6 +113,7 @@ public class GameClientView extends JFrame {
 
     static JPanel panel; //뭐였지,,
     private JLabel lblMouseEvent;
+    private boolean isClear = false;
     JButton btnNewButtonStart;
     private MyMouseEvent mouse = new MyMouseEvent();
     public static Graphics gc;
@@ -608,23 +610,30 @@ public class GameClientView extends JFrame {
         btnNewButton7.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                c = new Color(255,255,255);
-                //startss();
+                if(gc2!=null){
+                    gc2.setColor(panel.getBackground());
+                    gc2.fillRect(0, 0, panel.getWidth(), panel.getHeight());
+                    gc2.setColor(Color.BLACK);
+                    gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
+                }
+
+                isClear = true;
             }
         });
         btnNewButton7.revalidate();
         btnNewButton7.repaint();
 
 
-
-        JButton btnNewButton8 = new JButton("O"); //동그라미 그리기
+        JButton btnNewButton8 = new JButton("●"); //동그라미 그리기
         btnNewButton8.setFont(new Font("굴림", Font.PLAIN, 12));
         btnNewButton8.setBounds(410, 508, 60, 35);
+        btnNewButton8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         canvasPanel.add(btnNewButton8);
         btnNewButton8.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e1) {
                 shapes=1;
+                linee = false;
                 //c = new Color(255,255,255);
                 //startss();
             }
@@ -632,13 +641,12 @@ public class GameClientView extends JFrame {
         btnNewButton8.revalidate();
         btnNewButton8.repaint();
 
-
-
-        JButton btnNewButton9 = new JButton("ㅁ"); //사각형 그리기
-        btnNewButton9.setFont(new Font("굴림", Font.PLAIN, 12));
-        btnNewButton9.setBounds(482, 508, 60, 35);
-        canvasPanel.add(btnNewButton9);
-        btnNewButton9.addActionListener(new ActionListener() {
+        JButton btnNewButton10 = new JButton("◼"); //사각형 그리기
+        btnNewButton10.setFont(new Font("굴림", Font.PLAIN, 12));
+        btnNewButton10.setBounds(482, 508, 60, 35);
+        btnNewButton10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        canvasPanel.add(btnNewButton10);
+        btnNewButton10.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e2) {
                 shapes=3;
@@ -646,8 +654,8 @@ public class GameClientView extends JFrame {
                 //startss();
             }
         });
-        btnNewButton9.revalidate();
-        btnNewButton9.repaint();
+        btnNewButton10.revalidate();
+        btnNewButton10.repaint();
 
 
 
@@ -819,7 +827,10 @@ public class GameClientView extends JFrame {
     @Override
     public void paint(Graphics g) {
 //        super.paint(g);
-        if(gc!= null) update(gc);
+
+        if(gc!= null && panel != null) gc.drawImage(panelImage, 0,0 , panel.getWidth(), panel.getHeight(), panel);
+
+
     }
 
     @Override
@@ -935,7 +946,6 @@ public class GameClientView extends JFrame {
                 points.add(e.getPoint());
             update(gc);
             main.SendMouseEvent(e, c, pen_size, shapes, linee);
-            linee=false;
         }
 
         @Override
@@ -945,29 +955,27 @@ public class GameClientView extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
+            System.out.println("hi" + linee);
+            if(linee=false){
+                gc2.setColor(c);
+                gc.setColor(c);
 
-            linee=false;
+                if(shapes==1) {
+                    gc2.drawOval(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size*2, pen_size*2);
+//                    gc2.drawImage(panelImage, 0, 0, panel);
+
+                }else if(shapes==2) {
+                    gc2.fillRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size*2, pen_size*2);
+//                    gc2.drawImage(panelImage, 0, 0, panel);
+                }
+
+                update(gc);
+                main.SendMouseEvent(e, c, pen_size, shapes, linee);
+//                shapes=0;
+            }
             //points.clear();
             //lblMouseEvent.setText(e.getButton() + " mouseClicked " + e.getX() + "," + e.getY());
-            gc.setColor(c);
-            if(shapes==1) {
 
-                gc.drawOval(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-                gc.drawImage(panelImage, 0, 0, panel);
-
-            }else if(shapes==3) {
-
-                gc.drawRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-                gc.drawImage(panelImage, 0, 0, panel);
-            }
-            else if(shapes==0) {
-
-                gc.fillRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size, pen_size);
-                gc.drawImage(panelImage, 0, 0, panel);
-            }
-
-            main.SendMouseEvent(e, c, pen_size, shapes, linee);
-            shapes=0;
         }
 
         @Override

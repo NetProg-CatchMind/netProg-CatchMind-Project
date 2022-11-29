@@ -751,7 +751,6 @@ public class GameClientMain extends JFrame {
         roomListPanel.add(new JPanel(), gbc);
 
         for(int i =0; i<roomIdList.length; i++){
-
             if( roomSubjectList[i].equals("food")) roomImg = subFoodImg;
             else if( roomSubjectList[i].equals("music")) roomImg = subMusicImg;
             else if(roomSubjectList[i].equals("movie")) roomImg = subMovieImg;
