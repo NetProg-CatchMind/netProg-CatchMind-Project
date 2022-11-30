@@ -215,6 +215,7 @@ public class GameServer extends JFrame {
                 JoinMsg jm = null;
                 ChatMsg cm = null;
                 HintMsg hm = null;
+                wordMsg wm = null;
 
                 if (socket == null)
                     break;
@@ -446,9 +447,9 @@ public class GameServer extends JFrame {
                             }
                         }
 
-                        wordMsg wm = new wordMsg("600");
-
-                        WriteRoomObject(curRoom, cm.code, wm);
+                        wordMsg newWordMsg = new wordMsg("600", cm.roomId);
+                        newWordMsg.presenterIndex = 0;
+                        WriteRoomObject(curRoom, cm.code, newWordMsg);
                     }
 
                     //게임창에서 방나가기 버튼 눌렀을때
@@ -480,22 +481,33 @@ public class GameServer extends JFrame {
                     else if (cm.code.matches("500")) {
 
                         for (int i = 0; i < RoomVec.size(); i++) {
-                            System.out.println("500::" + cm.roomId);
                             if (RoomVec.get(i).roomId.equals(cm.roomId)) {
                                 curRoom = RoomVec.get(i);
                             }
                         }
-                        System.out.println("500" + curRoom.UserVec.size());
-                        System.out.println(cm.pen_size);
                         WriteRoomObject(curRoom, cm.code, cm);
 
                     }
-
-//                    else if(cm.code.matches("1000")) { //시간이 끝났을때 턴 넘기기
-//                        //
-//                    }
-
                 }
+
+                if(obcm instanceof  Server.wordMsg){
+                    wm = (Server.wordMsg) obcm;
+
+                    if(wm.code.matches("800")){
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            if (RoomVec.get(i).roomId.equals(wm.roomId)) {
+                                curRoom = RoomVec.get(i);
+                            }
+                        }
+
+                        wordMsg newWordMsg = new wordMsg("800", wm.roomId);
+                        newWordMsg.presenterIndex = wm.presenterIndex+1;
+
+                        WriteRoomObject(curRoom, wm.code, newWordMsg);
+                    }
+                }
+
+
                 //힌트 메세지 일때.
                 if (obcm instanceof Server.HintMsg) { //obcm(읽어들인 object)이 ChatMsg라면
                     hm = (Server.HintMsg) obcm;

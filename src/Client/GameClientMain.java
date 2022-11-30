@@ -569,12 +569,23 @@ public class GameClientMain extends JFrame {
                     if(obcm instanceof wordMsg){
                         wm = (wordMsg)obcm;
                         if(wm.code.matches("600")){
+                            view.showPresenter(wm.presenterIndex);
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            view.removePresenter();
+
                             isStart = true;
                             view.isStart = true;
 
                             view.showWord(indexWordList);
                             view.showScore(0);
                             view.showTime();
+
+
 
 //                            GameThread gameThread = new GameThread();
 //                            gameThread.run();
@@ -591,6 +602,10 @@ public class GameClientMain extends JFrame {
                             //시간 뿌리기.
                             //스코어 초기화
                         }
+
+                        if(wm.code.matches("800")){
+                            view.showPresenter(wm.presenterIndex);
+                        }
                     }
 
                     if (obcm instanceof ChatMsg) {
@@ -599,7 +614,7 @@ public class GameClientMain extends JFrame {
                     } else
                         continue;
 
-                    switch (cm.code) {     //힌트(1000~1005구현하기)
+                    switch (cm.code) {
                         case "200":
                             for(int i=0; i<totalRoomList.length; i++){
                                 if(totalRoomList[i].equals(view.getRoomId())){

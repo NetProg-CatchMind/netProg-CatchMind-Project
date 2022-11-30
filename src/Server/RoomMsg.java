@@ -18,6 +18,7 @@ public class RoomMsg implements Serializable {
     public String roomSubjectList;
     public String roomCntList;
     public String totalRoomList;
+    public String wordList;
 
 //    public RoomMsg(String code, String roomId, String roomTitle, String roomSubject, int userCnt) {
     public RoomMsg(String code, String totalUserList, String roomIdList, String roomTitleList, String roomSubjectList, String roomCntList) {

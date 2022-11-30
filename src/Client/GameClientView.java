@@ -1,6 +1,7 @@
 package Client;
 
 import Server.ChatMsg;
+import Server.wordMsg;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -103,6 +104,7 @@ public class GameClientView extends JFrame {
     private JLabel timeInfoLabel;
     private static JLabel timeLabel;
     private JLabel timeTitle;
+    private int presenterIndex;
 
     private JLabel lblNewLabel; //공지사항 알려주는 label
     //private JTextArea textArea;
@@ -113,6 +115,7 @@ public class GameClientView extends JFrame {
     private FileDialog fd;
     private JButton imgBtn;
     private JPanel resultPanel;
+    private JPanel presenterPanel;
 
     public String[] wordList;
     private int indexWordList = 0;
@@ -1010,27 +1013,62 @@ public class GameClientView extends JFrame {
     }
 
     public void showTime(){
-        if(isStart){
-            btnNewButtonStart.setEnabled(false);
-            java.util.Timer timer = new java.util.Timer();
-            java.util.TimerTask task = new  java.util.TimerTask(){
-                public void run(){
-                    gc.drawImage(panelImage,0, 0,panel);
+        btnNewButtonStart.setEnabled(false);
+        java.util.Timer timer = new java.util.Timer();
+        java.util.TimerTask task = new  java.util.TimerTask(){
+            public void run(){
+                if(isStart) {
+                    gc.drawImage(panelImage, 0, 0, panel);
 
                     timeLabel.setText(String.valueOf(time--));
 
-                    if(time <= 0){
+                    if (time <= 0) {
                         //게임 종료 프로토콜 필요. -> 700
                         isStart = false;
                         btnNewButtonStart.setEnabled(true);
 //                        exitView();
-                        ChatMsg cm = new ChatMsg(UserName, "400", "exit");
-                        main.SendObject(cm);
+                        wordMsg wm = new wordMsg("800", roomId);
+                        wm.presenterIndex = presenterIndex;
+                        main.SendObject(wm);
+
+                        btnNewButtonStart.setEnabled(true);
+//                            ChatMsg cm = new ChatMsg(UserName, "800", presenterIndex); //800번 프로토콜 -> 순서 바꾸기 초기화
+//                            main.SendObject(cm);
                     }
                 }
-            };
+            }
+        };
             timer.scheduleAtFixedRate(task, 0L, 1000);
-        }
+    }
+
+    public void showPresenter(int presenterIndex){
+        this.presenterIndex = presenterIndex;
+        String presenter = userList[presenterIndex];
+
+        presenterPanel = new JPanel();
+        presenterPanel.setBackground(Color.decode("#569A49"));
+        presenterPanel.setOpaque(true);
+        presenterPanel.setLayout(null);
+        presenterPanel.setBounds(80,60,600, 380);
+        canvasPanel.add(presenterPanel);
+        presenterPanel.setVisible(true);
+
+        JLabel presenterLabel;
+        presenterLabel = new JLabel(presenter +"님이 출제할 차례입니다.");
+        presenterLabel.setFont(new Font("굴림", Font.PLAIN, 40));
+//        presenterLabel.setIcon(correctIcon);
+        presenterLabel.setOpaque(true);
+        presenterLabel.setVisible(true);
+        presenterLabel.setBackground(Color.white);
+        presenterLabel.setBounds(0,0,600,380);
+        panel.setVisible(false);
+        presenterPanel.add(presenterLabel);
+    }
+
+    public void removePresenter(){
+        presenterPanel.setVisible(false);
+        panel.setVisible(true);
+        repaint();
     }
 
     public void showWord(int index){
@@ -1045,19 +1083,20 @@ public class GameClientView extends JFrame {
             this.score += score;
         }
 
-            scoreLabel.setText(String.valueOf(this.score));
+        scoreLabel.setText(String.valueOf(this.score));
+        revalidate();
     }
 
     public void showResultPanel(String code){
-//        resultPanel = new JPanel();
-//        resultPanel.setBackground(Color.decode("#569A49"));
-//        resultPanel.setOpaque(true);
-//        resultPanel.setLayout(null);
+        resultPanel = new JPanel();
+        resultPanel.setBackground(Color.decode("#569A49"));
+        resultPanel.setOpaque(true);
+        resultPanel.setLayout(null);
 //        resultPanel.update(gc);
-////        resultPanel.setLayout(new BorderLayout());
-//        resultPanel.setBounds(80,60,600, 380);
-//        panel.add(resultPanel);
-//        resultPanel.setVisible(true);
+//        resultPanel.setLayout(new BorderLayout());
+        resultPanel.setBounds(80,60,600, 380);
+        canvasPanel.add(resultPanel);
+        resultPanel.setVisible(true);
 
         JLabel resultLabel;
         if(code.matches("201")) { //정답 : answer
@@ -1068,14 +1107,16 @@ public class GameClientView extends JFrame {
                     userLabel.setIcon(answerChar2);
                 else userLabel.setIcon(answerChar3);
             }
-//            resultLabel = new JLabel(correctIcon);
-//            resultLabel.setIcon(correctIcon);
-//            resultLabel.setOpaque(true);
-//            resultLabel.setVisible(true);
-//            resultLabel.setBounds(0,0,600,380);
-//            chatingPanel.add(resultLabel);
-//            repaint();
-//            resultPanel.add(resultLabel, BorderLayout.CENTER);
+
+            resultLabel = new JLabel(correctIcon);
+            resultLabel.setIcon(correctIcon);
+            resultLabel.setOpaque(true);
+            resultLabel.setVisible(true);
+            resultLabel.setBackground(Color.white);
+            resultLabel.setBounds(0,0,600,380);
+//            canvasPanel.add(resultLabel);
+//            panel.setVisible(false);
+            resultPanel.add(resultLabel, BorderLayout.CENTER);
         }
         else if(code.matches("202")) {
             if(userLabel!= null){
@@ -1085,23 +1126,27 @@ public class GameClientView extends JFrame {
                     userLabel.setIcon(wrongChar2);
                 else userLabel.setIcon(wrongChar3);
             }
-//            resultLabel = new JLabel(wrongIcon);
-//            resultLabel.setIcon(wrongIcon);
-//            resultLabel.setOpaque(true);
-//            resultLabel.setVisible(true);
-//            resultLabel.setBounds(0,0,600,380);
-//            chatingPanel.add(resultLabel);
-//            resultPanel.add(resultLabel, BorderLayout.CENTER);
+            resultLabel = new JLabel(wrongIcon);
+            resultLabel.setIcon(wrongIcon);
+            resultLabel.setOpaque(true);
+            resultLabel.setVisible(true);
+            resultLabel.setBackground(Color.white);
+            resultLabel.setBounds(0,0,600,380);
+//            canvasPanel.add(resultLabel);
+            panel.setVisible(false);
+            resultPanel.add(resultLabel, BorderLayout.CENTER);
         }
     }
 
     public void removeResultPanel(){
-//        resultPanel.setVisible(false);
+        resultPanel.setVisible(false);
+        panel.setVisible(true);
+        repaint();
         if(userLabel!= null){
-            if(userLabel.getIcon() == answerChar1 || userLabel.getIcon() == wrongChar1)
+            if(userLabel.getIcon().equals("res/answerChar1.png") || userLabel.getIcon().equals("res/wrongChar1.png"))
                 userLabel.setIcon(char1Img);
-            else if(userLabel.getIcon() == answerChar2 || userLabel.getIcon() == wrongChar2)
-            userLabel.setIcon(char2Img);
+            else if(userLabel.getIcon().equals("res/answerChar2.png") || userLabel.getIcon().equals("res/wrongChar2.png"))
+                userLabel.setIcon(char2Img);
             else userLabel.setIcon(char3Img);
         }
     }

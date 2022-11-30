@@ -24,6 +24,7 @@ public class GameRoom extends Thread{ //game room 입장 후 서버에서 방에
     public int backgrounds = 0;
 
     public  Vector user_vc; //???
+    public String presenter; //문제 출제자(그림 그리는 사람)
 
     Vector<GameServer.UserService> socketList = new Vector<GameServer.UserService>();// 현재 방에 있는 사용자들의 소켓 리스트
     Vector memberList = new Vector(); //현재 방에 있는 사용자들 username 리스트
