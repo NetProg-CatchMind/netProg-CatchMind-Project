@@ -607,6 +607,30 @@ public class GameClientMain extends JFrame {
                             view.showPresenter(wm.presenterIndex);
                         }
                     }
+                    
+                    if(obcm instanceof HintMsg){
+                        hm = (HintMsg) obcm;
+                        
+                        switch(hm.code){
+                            case "1000":
+                                System.out.println("첫번째 글자 힌트");
+                                
+                            case "1001":
+                                System.out.println("시간 두배 증가 힌트");
+                                
+                            case "1002":
+                                System.out.println("배경그림 보여주기");
+                                
+                            case "1003":
+                                System.out.println("글자 수 힌트");
+                                
+                            case "1004":
+                                System.out.println("점수두배");
+                                
+                            case "1005":
+                                System.out.println("단어 테마");
+                        }
+                    }
 
                     if (obcm instanceof ChatMsg) {
                         cm = (ChatMsg) obcm;

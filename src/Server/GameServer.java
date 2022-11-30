@@ -528,7 +528,7 @@ public class GameServer extends JFrame {
                         }
                     }
 
-                    else if(hm.code.matches("1001")) { //시간 2배 증가(현재시간에서 or 그냥 풀로 시간충전?)
+                    else if(hm.code.matches("1001")) { //시간 2배 증가(그냥 풀로 시간충전?)
                         if(turnUser != cm.UserName && gameStart == 1) {
                             //
                             String str = "시간이 2배 증가했습니다.";
@@ -590,7 +590,7 @@ public class GameServer extends JFrame {
                         }
                     }
 
-                    else if(hm.code.matches("1005")) { //단어 테마 보여주기(??)
+                    else if(hm.code.matches("1005")) { // 초성
 
                     }
 
