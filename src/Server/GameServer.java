@@ -39,7 +39,8 @@ public class GameServer extends JFrame {
     public int gameStart = 0; //시작시 1로 변경하기
 
 
-    public String[] wordFood = {"사과", "배", "떡볶이", "라면", "떡국", "파스타", "피자", "비빔밥", "소고기"};
+//    public String[] wordFood = {"사과", "배", "떡볶이", "라면", "떡국", "파스타", "피자", "비빔밥", "소고기"};
+    public String[] wordFood = {"사과", "배", "떡볶이", "라면"};
     public String[] wordMusic = {"Love Dive", "ASAP", "자격지심", "콘서트", "AntiFragile", "나의 X에게", "아이브", "잔나비", "Dynamite"};
     public String[] wordMovie = {"매드맥스", "인사이드 아웃", "인셉션", "아바타", "너의이름은", "극한직업", "겨울왕국", "스파이더맨", "공조"};
     public String[] wordAnimal = {"고양이", "호랑이", "햄스터", "강아지", "목도리도마뱀", "라쿤", "앵무새", "자라", "장수풍뎅이"};
@@ -239,6 +240,59 @@ public class GameServer extends JFrame {
                     if(rm.code.matches("1200")){
                         makeRoom(rm.roomId, rm.roomTitle, rm.roomSubject, rm.userCnt);
                     }
+
+                    if(rm.code.matches("800")){
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            if (RoomVec.get(i).roomId.equals(rm.roomId)) {
+                                curRoom = RoomVec.get(i);
+                            }
+                        }
+//                        ChatMsg chatMsg = new ChatMsg("800", cm.roomId, cm.data);
+//
+//                        String curPresenter = cm.data;
+//                        for(int i=0; i<curRoom.socketList.size(); i++){
+//                            if(curRoom.memberList.get(i).equals(curPresenter)){
+//                                GameServer.UserService user = (GameServer.UserService) curRoom.UserVec.get(Integer.parseInt(cm.data));
+//                                user.WriteOneObject(chatMsg);
+//                                GameServer.UserService nextUser = null;
+//                                if(i >= curRoom.socketList.size()-1) nextUser = (GameServer.UserService) UserVec.elementAt(0);
+//                                else nextUser = (GameServer.UserService) UserVec.elementAt(i+1);
+//                                user.WriteOneObject(chatMsg);
+//                            }
+//                        }
+//                        wordMsg newWordMsg = new wordMsg("800", cm.roomId);
+//                        newWordMsg.presenterIndex = wm.presenterIndex+1;
+
+//                        WriteRoomObject(curRoom, wm.code, newWordMsg);
+
+
+                        String[] data = rm.data.split(" ");
+                        int presenterIndex = Integer.parseInt(data[0]);
+                        int wordIndex = Integer.parseInt(data[1]);
+
+                        int newPresenterIndex = 0;
+                        int newWordIndex = 0;
+
+                        if(presenterIndex+1 >= curRoom.socketList.size()) newPresenterIndex = 0;
+                        else newPresenterIndex = presenterIndex+1;
+
+                        if(newWordIndex+1 >= wordMap.get(curRoom.subject).length) newWordIndex = 0;
+                        else newWordIndex = wordIndex+1;
+
+                        curRoom.presenterIndex = newPresenterIndex;
+                        curRoom.wordIndex = newWordIndex;
+
+                        UserService user = (UserService) curRoom.socketList.get(newPresenterIndex);
+                        System.out.println("server 800 msg:" +  String.valueOf(newPresenterIndex) + " "+ String.valueOf(newWordIndex));
+                        Client.RoomMsg changeMsg = new Client.RoomMsg( "800", String.valueOf(newPresenterIndex) + " "+ String.valueOf(newWordIndex));
+                        WriteRoomObject(curRoom, changeMsg.code ,changeMsg);
+
+//                        curRoom.socketList.get(newPresenterIndex).WriteOneObject(changeMsg);
+//                        user.WriteOneObject(changeMsg);
+//                        WriteRoomObject(curRoom, "800", changeMsg);
+//
+
+                    }
                 }
 
                 //방 입장 메세지일 경우 --------------------------------------------------------------
@@ -264,7 +318,6 @@ public class GameServer extends JFrame {
                         Vector<String> chars = new Vector<String>();
                         for(int i=0; i< users.length; i++){
                             chars.add(userInfo.get(users[i]));
-                            System.out.println(userInfo.get(users[i]));
                         }
 
 //                        String[] chars = jm.charList.split(" ");
@@ -272,9 +325,6 @@ public class GameServer extends JFrame {
                         for(int i=0; i<users.length; i++){
                             curRoom.UserVec.add(users[i]);
                         }
-
-
-                        System.out.println(user_vc);
 
                         for(int i=0; i<userNameVec.size(); i++){
                             for(int j=0; j<users.length; j++){
@@ -292,6 +342,7 @@ public class GameServer extends JFrame {
                             curRoom.charList.add(chars.get(i));
                         }
 
+                        curRoom.presenterIndex = 0;
 
                         if(curRoom.memberList.size() != 0){
                             for (int i = 0; i < curRoom.socketList.size(); i++) {
@@ -303,6 +354,7 @@ public class GameServer extends JFrame {
 
 
                         JoinMsg joinMsg = new JoinMsg("1201", jm.roomId, socketList, userList, charList, "", "");
+                        joinMsg.presenterIndex = 0;
                         if(curRoom.subject.equals("food")){
                             for(int i=0; i< wordFood.length; i++){
                                 if(joinMsg.wordList == null) joinMsg.wordList = wordFood[i] + " ";
@@ -333,6 +385,7 @@ public class GameServer extends JFrame {
                                 else joinMsg.wordList += wordThing[i] + " ";
                             }
                         }
+
                         WriteRoomObject(curRoom, jm.code, joinMsg);
                     }
                 }
@@ -341,6 +394,7 @@ public class GameServer extends JFrame {
                 if (obcm instanceof Server.ChatMsg) { //obcm(읽어들인 object)이 ChatMsg라면
                     cm = (Server.ChatMsg) obcm; //ChatMsg 형식으로 바꿔서
 //                    AppendObject(cm);
+                    System.out.println(cm.code);
 
                     //로그인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     if (cm.code.matches("100")) {
@@ -372,7 +426,6 @@ public class GameServer extends JFrame {
                                     curRoom = RoomVec.get(i);
                             }
                             if (cm.isStart == false) {
-                                System.out.println(cm.UserName);
                                 cm = new ChatMsg(cm.UserName, "200", cm.data); //그냥 채팅
                                 WriteRoomObject(curRoom, cm.code, cm);
                             } else {
@@ -446,7 +499,14 @@ public class GameServer extends JFrame {
 
                         wordMsg newWordMsg = new wordMsg("600", cm.roomId);
                         newWordMsg.presenterIndex = 0;
+
                         WriteRoomObject(curRoom, cm.code, newWordMsg);
+
+                        // 1. 출제자한테 메세지 1:1로 전송
+                        Client.RoomMsg changeMsg = new Client.RoomMsg("800", String.valueOf(curRoom.presenterIndex) + " " + String.valueOf(curRoom.wordIndex));
+                        WriteRoomObject(curRoom, changeMsg.code, changeMsg);
+//                        curRoom.socketList.get(curRoom.presenterIndex).WriteOneObject(changeMsg);
+
                     }
 
                     //게임창에서 방나가기 버튼 눌렀을때
@@ -463,11 +523,63 @@ public class GameServer extends JFrame {
                         WriteRoomObject(curRoom, cm.code, chatMsg);
                     }
 
-//                        else { // 일반 채팅 메시지
-//                            UserStatus = "O";
-//                            //WriteAll(msg + "\n"); // Write All
-//                            WriteAllObject(cm);
+//                    else if(cm.code.matches("800")){ //출제자 바꾸기
+//                        for (int i = 0; i < RoomVec.size(); i++) {
+//                            if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+//                                curRoom = RoomVec.get(i);
+//                            }
 //                        }
+////                        ChatMsg chatMsg = new ChatMsg("800", cm.roomId, cm.data);
+////
+////                        String curPresenter = cm.data;
+////                        for(int i=0; i<curRoom.socketList.size(); i++){
+////                            if(curRoom.memberList.get(i).equals(curPresenter)){
+////                                GameServer.UserService user = (GameServer.UserService) curRoom.UserVec.get(Integer.parseInt(cm.data));
+////                                user.WriteOneObject(chatMsg);
+////                                GameServer.UserService nextUser = null;
+////                                if(i >= curRoom.socketList.size()-1) nextUser = (GameServer.UserService) UserVec.elementAt(0);
+////                                else nextUser = (GameServer.UserService) UserVec.elementAt(i+1);
+////                                user.WriteOneObject(chatMsg);
+////                            }
+////                        }
+////                        wordMsg newWordMsg = new wordMsg("800", cm.roomId);
+////                        newWordMsg.presenterIndex = wm.presenterIndex+1;
+//
+////                        WriteRoomObject(curRoom, wm.code, newWordMsg);
+//
+//
+//                        String[] data = cm.data.split(" ");
+//                        int presenterIndex = Integer.parseInt(data[0]);
+//                        int wordIndex = Integer.parseInt(data[1]);
+//
+//                        int newPresenterIndex = 0;
+//                        int newWordIndex = 0;
+//
+//                        if(presenterIndex+1 >= curRoom.socketList.size()) newPresenterIndex = 0;
+//                        else newPresenterIndex = presenterIndex+1;
+//
+//                        if(newWordIndex+1 >= wordMap.get(curRoom.subject).length) newWordIndex = 0;
+//                        else newWordIndex = wordIndex+1;
+//
+//                        curRoom.presenterIndex = newPresenterIndex;
+//                        curRoom.wordIndex = newWordIndex;
+//
+//                        UserService user = (UserService) curRoom.socketList.get(newPresenterIndex);
+//                        System.out.println("server 800 msg:" +  String.valueOf(newPresenterIndex) + " "+ String.valueOf(newWordIndex));
+//                        ChatMsg changeMsg = new ChatMsg(UserName, "800", String.valueOf(newPresenterIndex) + " "+ String.valueOf(newWordIndex));
+//                        WriteRoomObject(curRoom, changeMsg.code ,changeMsg);
+//
+////                        curRoom.socketList.get(newPresenterIndex).WriteOneObject(changeMsg);
+////                        user.WriteOneObject(changeMsg);
+////                        WriteRoomObject(curRoom, "800", changeMsg);
+////
+//                    }
+//
+////                        else { // 일반 채팅 메시지
+////                            UserStatus = "O";
+////                            //WriteAll(msg + "\n"); // Write All
+////                            WriteAllObject(cm);
+////                        }
 
                     //로그아웃!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     else if (cm.code.matches("400")) { // logout message 처리
@@ -490,18 +602,18 @@ public class GameServer extends JFrame {
                 if(obcm instanceof  Server.wordMsg){
                     wm = (Server.wordMsg) obcm;
 
-                    if(wm.code.matches("800")){
-                        for (int i = 0; i < RoomVec.size(); i++) {
-                            if (RoomVec.get(i).roomId.equals(wm.roomId)) {
-                                curRoom = RoomVec.get(i);
-                            }
-                        }
-
-                        wordMsg newWordMsg = new wordMsg("800", wm.roomId);
-                        newWordMsg.presenterIndex = wm.presenterIndex+1;
-
-                        WriteRoomObject(curRoom, wm.code, newWordMsg);
-                    }
+//                    if(wm.code.matches("800")){ //출제자 바꾸기
+//                        for (int i = 0; i < RoomVec.size(); i++) {
+//                            if (RoomVec.get(i).roomId.equals(wm.roomId)) {
+//                                curRoom = RoomVec.get(i);
+//                            }
+//                        }
+//                        String curPresen
+//                        wordMsg newWordMsg = new wordMsg("800", wm.roomId);
+//                        newWordMsg.presenterIndex = wm.presenterIndex+1;
+//
+//                        WriteRoomObject(curRoom, wm.code, newWordMsg);
+//                    }
                 }
 
 
@@ -529,7 +641,7 @@ public class GameServer extends JFrame {
                             String str = "첫번째 글자는 ' " + arg.charAt(0) + " ' 입니다.";
                             HintMsg newHintMsg = new HintMsg("SERVER", "1000", str);
                             for (int i = 0; i < RoomVec.size(); i++) {
-                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                if (RoomVec.get(i).roomId.equals(hm.roomId)) {
                                     curRoom = RoomVec.get(i);
                                 }
                             }
@@ -645,7 +757,6 @@ public class GameServer extends JFrame {
                 totalUserList += user_vc.get(i).toString() + " ";
             }
             userInfo.put(UserName , char_no);
-            System.out.println("userInfo put!!" + char_no);
 
             AppendText("새로운 참가자 " + UserName + " 입장.");
             WriteOne("Welcome to CatchMind Server\n");
@@ -679,10 +790,8 @@ public class GameServer extends JFrame {
         }
 
         public void WriteRoomObject(GameRoom room, String code, Object ob) {
-            System.out.println("room socket List :: " + room.socketList);
             for (int i = 0; i < room.socketList.size(); i++) {
                 GameServer.UserService user = (GameServer.UserService) room.socketList.get(i);
-                System.out.println(room.socketList.get(i));
                 user.WriteOneObject(ob);
             }
             if(code.matches("700")) {
@@ -928,34 +1037,6 @@ public class GameServer extends JFrame {
             }
         }
 
-
-
-        public void WriteOne6(String msg) { //protocol 600, game start시
-            try {
-                // dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
-                ChatMsg obcm = new ChatMsg("SERVER", "600", msg);
-                oos.writeObject(obcm);
-            } catch (IOException e) {
-                AppendText("dos.writeObject() error");
-                try {
-//					dos.close();
-//					dis.close();
-                    ois.close();
-                    oos.close();
-                    client_socket.close();
-                    client_socket = null;
-                    ois = null;
-                    oos = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
-            }
-        }
 
         public void WriteOne6_1(String msg) { //protocol 601 게임 상황 전달(?)
             try {

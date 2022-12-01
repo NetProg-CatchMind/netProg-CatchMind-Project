@@ -11,6 +11,7 @@ public class JoinMsg implements Serializable {
 
     public String socketList, userList, charList;
     public String username, char_no;
+    public int presenterIndex;
 
     public GameClientMain main;
     public JoinMsg(String code, String roomId, String socketList, String userList, String charList, String username, String char_no){

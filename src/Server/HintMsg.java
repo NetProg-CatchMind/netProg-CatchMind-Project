@@ -12,6 +12,7 @@ public class HintMsg implements Serializable {
     public String UserName;
     public String data;
     public String roomId;
+    public int wordIndex;
 
     public HintMsg(String UserName, String code, String msg) {
 //        this.roomId = roomId;

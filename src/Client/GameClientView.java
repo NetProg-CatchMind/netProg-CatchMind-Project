@@ -24,6 +24,7 @@ public class GameClientView extends JFrame {
     public static final int SCREEN_WIDTH = 1500;
     public static final int SCREEN_HEIGHT = 800;
     private GameClientMain main;
+    private GameClientOver over;
 
     //    private ImageIcon backgroundImg = new ImageIcon("res/mainBackground.png");
     private ImageIcon backgroundImg = new ImageIcon("res/basicBackground.png");
@@ -74,14 +75,14 @@ public class GameClientView extends JFrame {
     private JPanel chatingPanel;
     private JPanel usersPanel;
     private JLabel logo;
-
+    private JPanel hintResultPanel;
     Image buffImg;
     Graphics buffG;
 
-    private int score=0;
+    public int score=0;
 
     private static final long serialVersionUID = 1L;
-
+    private int currentWordIndex;
     private JTextField txtInput;
     private String UserName;
     private JButton btnSend;
@@ -130,6 +131,7 @@ public class GameClientView extends JFrame {
     static JPanel panel; //뭐였지,,
     private JLabel lblMouseEvent;
     private boolean isClear = false;
+    private int preseterIndex;
     JButton btnNewButtonStart;
     private MyMouseEvent mouse = new MyMouseEvent();
     public static Graphics gc;
@@ -153,10 +155,20 @@ public class GameClientView extends JFrame {
 //    private Vector userVec = new Vector();
     public String[] socketList;
     public String[] userList;
+    public HashMap<String, Boolean> isPresenter = new HashMap<>();
     public String[] charList;
 
     public String roomId, username, char_no;
-    private int time = 60;
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    private int time = 20;
     private BufferedImage imageBuffer = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB);
     /**
      * Create the frame.
@@ -419,6 +431,10 @@ public class GameClientView extends JFrame {
         JButton bgItemBtn = new JButton(bgItemImg1);
         bgItemBtn.revalidate();
         bgItemBtn.repaint();
+        bgItemBtn.setBorderPainted(false);
+        bgItemBtn.setContentAreaFilled(false);
+        bgItemBtn.setOpaque(false);
+        bgItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         bgItemBtn.setBounds(50, 20, 80, 50);
         hintPanel.add(bgItemBtn);
         bgItemBtn.addActionListener(new ActionListener() {
@@ -434,6 +450,10 @@ public class GameClientView extends JFrame {
         JButton timeItemBtn = new JButton(timeItemImg1); //시간증가 힌트 버튼
         timeItemBtn.revalidate();
         timeItemBtn.repaint();
+        timeItemBtn.setBorderPainted(false);
+        timeItemBtn.setContentAreaFilled(false);
+        timeItemBtn.setOpaque(false);
+        timeItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         timeItemBtn.setBounds(150, 20, 80, 50);
         hintPanel.add(timeItemBtn);
         timeItemBtn.addActionListener(new ActionListener() {
@@ -451,6 +471,10 @@ public class GameClientView extends JFrame {
         JButton initItemBtn = new JButton(initialItemImg1); //첫글자 알려주는 힌트(?)
         timeItemBtn.revalidate();
         timeItemBtn.repaint();
+        timeItemBtn.setBorderPainted(false);
+        timeItemBtn.setContentAreaFilled(false);
+        timeItemBtn.setOpaque(false);
+        timeItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         initItemBtn.setBounds(250, 20, 80, 50);
         hintPanel.add(initItemBtn);
         initItemBtn.addActionListener(new ActionListener() {
@@ -465,6 +489,10 @@ public class GameClientView extends JFrame {
         JButton cntItemBtn = new JButton(wordCountItemImg1); //글자 수 알려주는 힌트
         cntItemBtn.revalidate();
         cntItemBtn.repaint();
+        cntItemBtn.setBorderPainted(false);
+        cntItemBtn.setContentAreaFilled(false);
+        cntItemBtn.setOpaque(false);
+        cntItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         cntItemBtn.setBounds(50, 80, 80, 50);
         hintPanel.add(cntItemBtn);
         cntItemBtn.addActionListener(new ActionListener() {
@@ -475,10 +503,13 @@ public class GameClientView extends JFrame {
             }
         });
 
-
         JButton twiceItemBtn = new JButton(twiceScoreItemImg1); //점수 두배 이벤트
         twiceItemBtn.revalidate();
         twiceItemBtn.repaint();
+        twiceItemBtn.setBorderPainted(false);
+        twiceItemBtn.setContentAreaFilled(false);
+        twiceItemBtn.setOpaque(false);
+        twiceItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         twiceItemBtn.setBounds(150, 80, 80, 50);
         hintPanel.add(twiceItemBtn);
         twiceItemBtn.addActionListener(new ActionListener() {
@@ -495,6 +526,10 @@ public class GameClientView extends JFrame {
         JButton ctgItemBtn = new JButton(categoryItemImg1); //초성힌트(?)
         ctgItemBtn.revalidate();
         ctgItemBtn.repaint();
+        ctgItemBtn.setBorderPainted(false);
+        ctgItemBtn.setContentAreaFilled(false);
+        ctgItemBtn.setOpaque(false);
+        ctgItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         ctgItemBtn.setBounds(250, 80, 80, 50);
         hintPanel.add(ctgItemBtn);
         ctgItemBtn.addActionListener(new ActionListener() {
@@ -516,8 +551,8 @@ public class GameClientView extends JFrame {
         canvasPanel.repaint();
         canvasPanel.setBounds(250,200,800,550);
         canvasPanel.setLayout(null);
-//        canvasPanel.setBackground(Color.gray);
-        canvasPanel.setBackground(new Color(79, 121, 66));
+        canvasPanel.setBackground(Color.WHITE);
+//        canvasPanel.setBackground(new Color(79, 121, 66));
         mainPanel.add(canvasPanel);
 
         panel = new JPanel();
@@ -787,15 +822,17 @@ public class GameClientView extends JFrame {
         btnNewButtonStart.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//              ChatMsg msg = new ChatMsg(UserName, "400", "Bye");
-//              SendObject(msg);
-//              System.exit(0);
+//                showWord(indexWordList);
+//                showScore(0);
+//                showTime();
+
+                isStart = true;
+
                 ChatMsg obc = new ChatMsg(UserName, "600","null");
                 obc.roomId = roomId;
                 main.SendObject(obc);
                 //2명이상이면 start
             }
-
         });
         btnNewButtonStart.setBounds(150, 490, 80, 40);
         chatingPanel.add(btnNewButtonStart);
@@ -1038,23 +1075,55 @@ public class GameClientView extends JFrame {
 
                     timeLabel.setText(String.valueOf(time--));
 
-                    if (time <= 0) {
+                    if (time < 0) {
                         //게임 종료 프로토콜 필요. -> 700
                         isStart = false;
                         btnNewButtonStart.setEnabled(true);
 //                        exitView();
-                        wordMsg wm = new wordMsg("800", roomId);
-                        wm.presenterIndex = presenterIndex;
-                        main.SendObject(wm);
+//                        showScore(score);
+//                        setTime(20);
+//                        showTime();
+                        System.out.println("in view::" + UserName + "//" + userList[presenterIndex]);
+                        if(username.equals(userList[presenterIndex])){
+                            showWord(indexWordList);
+                        }
+                        else{
+                            removeWord();
+                        }
+
+                        Client.RoomMsg changeMsg = new Client.RoomMsg("800",String.valueOf(presenterIndex) + " "+ String.valueOf(indexWordList));
+                        changeMsg.roomId = roomId;
+                        main.SendObject(changeMsg);
 
                         btnNewButtonStart.setEnabled(true);
-//                            ChatMsg cm = new ChatMsg(UserName, "800", presenterIndex); //800번 프로토콜 -> 순서 바꾸기 초기화
-//                            main.SendObject(cm);
+//                      ChatMsg cm = new ChatMsg(UserName, "800", presenterIndex); //800번 프로토콜 -> 순서 바꾸기 초기화
+//                      main.SendObject(cm);
+
+//                      changeRole();
                     }
                 }
             }
         };
             timer.scheduleAtFixedRate(task, 0L, 1000);
+    }
+
+    public void changeRole(){
+        //캔버스 초기화
+        if(gc2!=null && panel!=null){
+            gc2.setColor(Color.WHITE);
+            panel.setBackground(Color.WHITE);
+
+//            panel = new JPanel();
+//            panel.revalidate();
+//            panel.setBorder(new LineBorder(new Color(0, 0, 0)));
+//            panel.setBackground(Color.WHITE);
+//            panel.setBounds(20, 20, 760, 480); //그림판 판넬
+//            canvasPanel.add(panel);
+//            gc = panel.getGraphics();
+
+            canvasPanel.setBackground(Color.WHITE);
+            gc2.clearRect(0,0, 1000, 500);
+        }
     }
 
     public void showPresenter(int presenterIndex){
@@ -1079,6 +1148,7 @@ public class GameClientView extends JFrame {
         presenterLabel.setBounds(0,0,600,380);
         panel.setVisible(false);
         presenterPanel.add(presenterLabel);
+
     }
 
     public void removePresenter(){
@@ -1088,17 +1158,28 @@ public class GameClientView extends JFrame {
     }
 
     public void showWord(int index){
-        wordLabel.setText(this.wordList[index]);
+        System.out.println("show word index"+ this.wordList[index]);
+        if(this.wordList[index] == null){
+            over = new GameClientOver();
+            over.setVisible(true);
+            this.setVisible(false);
+        }
+        else{
+            wordLabel.setText(this.wordList[index]);
+            wordLabel.setVisible(true);
+        }
+
     }
 
-    public void showScore(int score) {
-        if((this.score+=score) <= 0 ) { //
-            this.score = this.score;
-        }
-        else {
-            this.score += score;
-        }
+    public void removeWord(){
+        wordLabel.setVisible(false);
+    }
 
+    public void showScore(int score){
+        if(score <= 0 ) {
+            this.score = 0 ;
+        }
+        else this.score = score;
         scoreLabel.setText(String.valueOf(this.score));
         revalidate();
     }
@@ -1130,8 +1211,8 @@ public class GameClientView extends JFrame {
             resultLabel.setVisible(true);
             resultLabel.setBackground(Color.white);
             resultLabel.setBounds(0,0,600,380);
-//            canvasPanel.add(resultLabel);
-//            panel.setVisible(false);
+            canvasPanel.add(resultLabel);
+            panel.setVisible(false);
             resultPanel.add(resultLabel, BorderLayout.CENTER);
         }
         else if(code.matches("202")) {
@@ -1166,6 +1247,20 @@ public class GameClientView extends JFrame {
             else userLabel.setIcon(char3Img);
         }
     }
+
+    public void showHintResultPanel(){
+        hintResultPanel = new JPanel();
+        hintResultPanel.setLayout(null);
+        hintResultPanel.setBounds(1150, 0, 500, 80);
+        hintResultPanel.setOpaque(true);
+        hintResultPanel.setVisible(true);
+        contentPane.add(hintResultPanel);
+    }
+
+    public void removeHintPanel(){
+        hintResultPanel.setVisible(false);
+    }
+
 
     public void exitView() {
         main.setVisible(true);

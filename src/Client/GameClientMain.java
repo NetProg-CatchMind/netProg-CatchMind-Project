@@ -36,6 +36,7 @@ public class GameClientMain extends JFrame {
     public String port_no;
     public String char_no;
     private GameClientView view;
+    private int presenterIndex;
 
     //UI 설정 변수들 선언 ==============================================================================================
     private ImageIcon backgroundImg = new ImageIcon("res/basicBackground.png");
@@ -380,7 +381,7 @@ public class GameClientMain extends JFrame {
         twiceScoreItemLabel.setHorizontalAlignment(SwingConstants.CENTER);
         twiceScoreItemLabel.setFont(new Font("Serif", Font.BOLD, 20));
 
-        categoryItemLabel = new JLabel("단어 테마 보여주기");
+        categoryItemLabel = new JLabel("첫 글자 힌트");
         categoryItemLabel.setBounds(450,490, 240, 30);
         categoryItemLabel.setHorizontalAlignment(SwingConstants.CENTER);
         categoryItemLabel.setFont(new Font("Serif", Font.BOLD, 20));
@@ -492,6 +493,7 @@ public class GameClientMain extends JFrame {
 
     //서버와 통신할 스레드 -> user마다 하나씩 만들어서 서버와 통신 --------------------------------------------------
     class ListenNetwork extends Thread {
+
         public void run() {
             while (true) {
                 try {
@@ -501,7 +503,8 @@ public class GameClientMain extends JFrame {
                     Server.JoinMsg jm;
                     Server.wordMsg wm;
                     Server.HintMsg hm; //hint message
-                    RoomMsg rm;
+                    Server.RoomMsg rm;
+                    Client.RoomMsg crm;
                     try {
                         obcm = ois.readObject();
                     } catch (ClassNotFoundException e) {
@@ -540,12 +543,54 @@ public class GameClientMain extends JFrame {
                         }
                     }
 
+                    if(obcm instanceof Client.RoomMsg){
+                        crm = (Client.RoomMsg)obcm;
+
+                        if(crm.code.matches("800")){
+                            System.out.println("change role :: i am " + username);
+                            String[] data = crm.data.split(" ");
+
+                            presenterIndex = Integer.parseInt(data[0]);
+                            indexWordList = Integer.parseInt(data[1]);
+
+                            if(presenterIndex > 0){
+                                view.showPresenter(presenterIndex);
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                                view.removePresenter();
+                            }
+
+//                            try {
+//                                Thread.sleep(1000);
+//                            } catch (InterruptedException e) {
+//                                // TODO Auto-generated catch block
+//                                e.printStackTrace();
+//                            }
+
+                            view.setTime(20);
+
+//                            view.removeWord();
+
+                            if(username.equals(view.userList[presenterIndex])){
+                                System.out.println("presenter");
+                                view.showWord(indexWordList);
+                            }
+                        }
+
+                    }
+
                     if(obcm instanceof JoinMsg) {
                         jm = (Server.JoinMsg) obcm;
                         if(jm.code.matches("1201")){
                             isJoin = true;
                             view = new GameClientView(main ,jm.roomId, jm.socketList, jm.userList, jm.charList, username,char_no, jm.wordList, socket,ois, oos);
+                            presenterIndex = jm.presenterIndex;
                             view.setVisible(true);
+
 //                            view = new GameClientView(jm.roomId, jm.userList);
                             setVisible(false);
                         }
@@ -569,7 +614,13 @@ public class GameClientMain extends JFrame {
                     if(obcm instanceof wordMsg){
                         wm = (wordMsg)obcm;
                         if(wm.code.matches("600")){
-                            view.showPresenter(wm.presenterIndex);
+
+                            isStart = true;
+                            view.isStart = true;
+
+                            view.changeRole();
+
+                            view.showPresenter(presenterIndex);
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {
@@ -578,12 +629,14 @@ public class GameClientMain extends JFrame {
                             }
                             view.removePresenter();
 
-                            isStart = true;
-                            view.isStart = true;
-
-                            view.showWord(indexWordList); //main에서 만들어진 view.showWord();
-                            view.showScore(0);
+                            System.out.println("username ::" + username + "presentIndex" + view.userList[wm.presenterIndex]);
+                            if(username.equals(view.userList[wm.presenterIndex])) view.showWord(0);
+                            view.showScore(score);
+                            view.setTime(20);
                             view.showTime();
+
+                            view.btnNewButtonStart.setEnabled(false);
+//                            view.revalidate();
 
 
 
@@ -596,16 +649,25 @@ public class GameClientMain extends JFrame {
 //                            GameClientView.GameThread gameThread = new GameClientView.GameThread();
 //                            gameThread.run();
 
-//
-
 //                            view.showTime(15);
                             //시간 뿌리기.
                             //스코어 초기화
                         }
 
-                        if(wm.code.matches("800")){
-                            view.showPresenter(wm.presenterIndex);
-                        }
+//                        if(wm.code.matches("800")){
+//                            view.showPresenter(wm.presenterIndex);
+//                            try {
+//                                Thread.sleep(1000);
+//                            } catch (InterruptedException e) {
+//                                // TODO Auto-generated catch block
+//                                e.printStackTrace();
+//                            }
+//                            view.removePresenter();
+//
+//                            view.showWord(++indexWordList);
+//
+//                            System.out.println("change !! ");
+//                        }
                     }
                     
                     if(obcm instanceof HintMsg){
@@ -679,7 +741,6 @@ public class GameClientMain extends JFrame {
 
                     if (obcm instanceof ChatMsg) {
                         cm = (ChatMsg) obcm;
-                        cm = (ChatMsg) obcm;
                         msg = String.format("[%s]\n%s", cm.UserName, cm.data);
                     } else
                         continue;
@@ -698,31 +759,50 @@ public class GameClientMain extends JFrame {
 
                         case "201": //정답 메세지 수신
                             for(int i=0; i<totalRoomList.length; i++){
-                                if(totalRoomList[i].equals(view.getRoomId())) {
-                                    if (cm.UserName.equals(username)){
-                                        view.AppendTextR(msg); // 내 메세지는 우측에
-                                        view.showResultPanel(cm.code); //정답 : answer
-                                        try {
-                                            Thread.sleep(1000);
-                                        } catch (InterruptedException e) {
-                                            // TODO Auto-generated catch block
-                                            e.printStackTrace();
-                                        }
-                                        score += 10;
-                                        view.showScore(score);
-//                                      view.removeResultPanel();
-                                    }
-                                    else {
-                                        view.AppendText(msg);
-                                    }
-                                    view.showWord(++indexWordList);
+                                if (cm.UserName.equals(username)){
+                                    view.AppendTextR(msg); // 내 메세지는 우측에
+
+                                    score += 10;
+                                    view.showScore(score);
+                                    view.setTime(20);
+                                    view.showWord(indexWordList+1);
+
                                 }
+                                else{
+                                    view.AppendText(msg);
+                                    view.setTime(20);
+                                    view.removeWord();
+                                }
+
+                                view.showResultPanel(cm.code); //정답 : answer
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                                view.removeResultPanel();
+//                                        view.setTime(20);
+
+                                Client.RoomMsg changeMsg = new  Client.RoomMsg( "800",String.valueOf(presenterIndex) + " "+ String.valueOf(indexWordList));
+                                changeMsg.roomId = roomId;
+                                view.changeRole();
+                                SendObject(changeMsg);
+
+//                                System.out.println("main 201 :: "+presenterIndex+ " // " + indexWordList);
+//                                view.changeRole(presenterIndex, indexWordList);
+//                                        view.setTime(20);
+//                                        view.showTime();
+
+//                                ChatMsg changeMsg = new ChatMsg(UserName, "800", String.valueOf(presenterIndex) + " " + String.valueOf(indexWordList));
+//                                SendObject(changeMsg);
+
                             }
                             break;
 
                         case "202": //오답 메세지 수신
                             for(int i=0; i<totalRoomList.length; i++){
-                                if(totalRoomList[i].equals(view.getRoomId())){
+                                if(totalRoomList[i].equals(view.getRoomId())) {
                                     if (cm.UserName.equals(username)){
                                         view.AppendTextR(msg); // 내 메세지는 우측에
                                         view.showResultPanel(cm.code);
@@ -767,8 +847,45 @@ public class GameClientMain extends JFrame {
                         case "700":
                             view.leaveRoom();
                             view.setVisible(false);
-                            view.exitView();
+//                            view.exitView();
                             main.setVisible(true);
+
+//                        case "800":
+//                            System.out.println("change role :: i am " + username);
+//                            String[] data = cm.data.split(" ");
+//
+//                            presenterIndex = Integer.parseInt(data[0]);
+//                            indexWordList = Integer.parseInt(data[1]);
+//
+//                            if(presenterIndex > 0){
+//                                view.showPresenter(presenterIndex);
+//                                try {
+//                                    Thread.sleep(1000);
+//                                } catch (InterruptedException e) {
+//                                    // TODO Auto-generated catch block
+//                                    e.printStackTrace();
+//                                }
+//                                view.removePresenter();
+//                            }
+//
+////                            try {
+////                                Thread.sleep(1000);
+////                            } catch (InterruptedException e) {
+////                                // TODO Auto-generated catch block
+////                                e.printStackTrace();
+////                            }
+//
+//                            view.setTime(20);
+//
+////                            view.removeWord();
+//
+//                            if(username.equals(view.userList[presenterIndex])){
+//                                System.out.println("presenter");
+//                                view.showWord(indexWordList);
+//                            }
+//
+//                            view.changeRole();
+//                            break;
                     }
                 } catch (IOException e) {
                     AppendText("ois.readObject() error");

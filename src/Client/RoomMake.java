@@ -123,7 +123,11 @@ class RoomMake extends JFrame {
             subject = subjects[subjectCombo.getSelectedIndex()];
             cnt = Integer.parseInt(memberCntCombo.getSelectedItem().toString());
             roomId = "room@" + username+ "/" + title+ "/" + subject;
-            Client.RoomMsg obmr = new Client.RoomMsg("1200", roomId, title, subject, cnt); //방만들기 프로토콜 번호 1200
+            Client.RoomMsg obmr = new Client.RoomMsg("1200", ""); //방만들기 프로토콜 번호 1200
+            obmr.roomId = roomId;
+            obmr.roomTitle = title;
+            obmr.roomSubject = subject;
+            obmr.userCnt = cnt;
             SendObject(obmr);
 
             setVisible(false);

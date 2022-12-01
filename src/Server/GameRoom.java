@@ -14,17 +14,17 @@ public class GameRoom extends Thread{ //game room 입장 후 서버에서 방에
     public String title, subject;
     int memberCnt;
 
-    public String word[] = {"새", "나무", "사람"};
     public String turnUser;
     public int wordturn = 0;
     public int gamestart = 0;// 게임 시작하면 1로
     public int UserScore = 0;
+    public int wordIndex;
     public String UserName = "";
     public String UserStatus;
     public int backgrounds = 0;
 
     public  Vector user_vc; //???
-    public String presenter; //문제 출제자(그림 그리는 사람)
+    public int presenterIndex; //문제 출제자(그림 그리는 사람)
 
     Vector<GameServer.UserService> socketList = new Vector<GameServer.UserService>();// 현재 방에 있는 사용자들의 소켓 리스트
     Vector memberList = new Vector(); //현재 방에 있는 사용자들 username 리스트
