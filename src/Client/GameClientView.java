@@ -440,9 +440,9 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("time event!\n");
-                HintMsg obc = new HintMsg(UserName, "1001","null"); //시간 증가 구현중
-                //time += 15; //시간 15초 증가시키기
-                //timeLabel.setText(String.valueOf(time));
+                HintMsg obc = new HintMsg(UserName, "1001",null); //시간 증가 구현중
+                time = 60; //시간을 60초로 세팅 시키기 / 시간 변경시 여기 건들기,,
+                timeLabel.setText(String.valueOf(time));
                 main.SendObject(obc);
             }
         });
@@ -486,6 +486,7 @@ public class GameClientView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 HintMsg obc = new HintMsg(UserName, "1004", null);
                 //showScore(2*score);
+                //score*=2;
                 main.SendObject(obc);
             }
         });
@@ -636,7 +637,7 @@ public class GameClientView extends JFrame {
         btnNewButton7.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(gc2!=null){
+                if(gc2!=null) {
                     gc2.setColor(panel.getBackground());
                     gc2.fillRect(0, 0, panel.getWidth(), panel.getHeight());
                     gc2.setColor(Color.BLACK);

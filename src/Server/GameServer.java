@@ -169,12 +169,11 @@ public class GameServer extends JFrame {
         private Vector user_vc;
 
 
+
         public String UserName = "";
         public String UserStatus;
 
         GameRoom curRoom = null;
-
-
 
         // userThread 클래스 생성자-----------------------------------------------------------------
         public UserService(Socket client_socket) {
@@ -511,9 +510,22 @@ public class GameServer extends JFrame {
                     hm = (Server.HintMsg) obcm;
                     //1000~1005 힌트&보너스 구현
                     if(hm.code.matches("1000")) { //첫글자(ex.코끼리/ 코) //일단 동물만 구현
+
+                        HashMap<String, String[]> wordMap = new HashMap<>();
+                        wordMap.put("food", wordFood);
+                        wordMap.put("music", wordMusic);
+                        wordMap.put("movie", wordMovie);
+                        wordMap.put("animal", wordAnimal);
+                        wordMap.put("thing", wordThing);
                         if(turnUser != cm.UserName && gameStart == 1) {
-                            String arg = wordAnimal[wordturn];
-                            //String arg1 = wordFood[wordturn];
+
+                            String arg = wordFood[wordturn];
+                            String arg1 = wordMusic[wordturn];
+                            String arg2 = wordMovie[wordturn];
+                            String arg3 = wordAnimal[wordturn];
+                            String arg4 = wordThing[wordturn];
+                            //  String initial = wordMap.get(curRoom.subject)[hm.wordIndex];
+
                             String str = "첫번째 글자는 ' " + arg.charAt(0) + " ' 입니다.";
                             HintMsg newHintMsg = new HintMsg("SERVER", "1000", str);
                             for (int i = 0; i < RoomVec.size(); i++) {
@@ -521,15 +533,15 @@ public class GameServer extends JFrame {
                                     curRoom = RoomVec.get(i);
                                 }
                             }
-                            WriteRoomObject(curRoom, hm.code, newHintMsg);
-                            Logout();
+//                            WriteRoomObject(curRoom, hm.code, newHintMsg);
+//                            Logout();
                         }
                     }
 
-                    else if(hm.code.matches("1001")) { //시간 2배 증가(그냥 풀로 시간충전?)
+                    else if(hm.code.matches("1001")) { //시간 60초로 초기화
                         if(turnUser != cm.UserName && gameStart == 1) {
                             //
-                            String str = "시간이 2배 증가했습니다.";
+                            String str = "시간이 60초로 증가했습니다.";
                             HintMsg newHintMsg = new HintMsg("SERVER", "1001", str);
                             for (int i = 0; i < RoomVec.size(); i++) {
                                 if (RoomVec.get(i).roomId.equals(cm.roomId)) {
@@ -537,7 +549,7 @@ public class GameServer extends JFrame {
                                 }
                             }
                             WriteRoomObject(curRoom, hm.code, newHintMsg);
-                            Logout();
+                            //Logout();
                         }
                     }
 
@@ -560,7 +572,7 @@ public class GameServer extends JFrame {
                     else if(hm.code.matches("1003")) { //글자수 힌트
                         if(turnUser.equals(UserName)) {
 
-                            String arg = wordAnimal[wordturn];
+                            String arg = wordFood[wordturn];
                             String str = "글자수는 " + arg.length() + "입니다";
                             HintMsg newHintMsg = new HintMsg("SERVER", "1003", str);
                             for (int i = 0; i < RoomVec.size(); i++) {

@@ -633,8 +633,9 @@ public class GameClientMain extends JFrame {
                                                 // TODO Auto-generated catch block
                                                 e.printStackTrace();
                                             }
-                                            time = 60;
-                                            view.showTime(); //수정하기
+                                            view.showTime();
+                                            //time = 60;
+                                            //view.showTime(); //수정하기
                                         }
                                     }
                                 }
@@ -663,7 +664,7 @@ public class GameClientMain extends JFrame {
                                 for(int i=0; i<totalRoomList.length; i++) {
                                     if (totalRoomList[i].equals(view.getRoomId())) {
                                         if (hm.UserName.equals(username)) {
-                                            score *= 2; //score 두배로
+                                            //score *= 2; //그냥 맞출때 점수가 두배가 되버림 10 -> 20
                                             view.showScore(score);
                                             //view.showResultPanel(hm.code); //정답
 
@@ -711,18 +712,17 @@ public class GameClientMain extends JFrame {
                                         view.showScore(score);
 //                                      view.removeResultPanel();
                                     }
-                                    else{
+                                    else {
                                         view.AppendText(msg);
                                     }
                                     view.showWord(++indexWordList);
-
                                 }
                             }
                             break;
 
                         case "202": //오답 메세지 수신
                             for(int i=0; i<totalRoomList.length; i++){
-                                if(totalRoomList[i].equals(view.getRoomId())) {
+                                if(totalRoomList[i].equals(view.getRoomId())){
                                     if (cm.UserName.equals(username)){
                                         view.AppendTextR(msg); // 내 메세지는 우측에
                                         view.showResultPanel(cm.code);
@@ -1034,7 +1034,7 @@ public class GameClientMain extends JFrame {
         //textArea.setCaretPosition(len);
         //textArea.replaceSelection(msg + "\n");
 
-//        StyledDocument doc = textArea.getStyledDocument();
+//      StyledDocument doc = textArea.getStyledDocument();
         SimpleAttributeSet left = new SimpleAttributeSet();
         StyleConstants.setAlignment(left, StyleConstants.ALIGN_LEFT);
         StyleConstants.setForeground(left, Color.BLACK);
