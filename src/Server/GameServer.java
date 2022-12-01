@@ -56,8 +56,6 @@ public class GameServer extends JFrame {
     Map<String, String> userInfo =  new HashMap<String, String>();
 
 
-
-
     public static void main(String[] args) {
         //실행시키는 코드
         EventQueue.invokeLater(new Runnable() {
@@ -509,7 +507,7 @@ public class GameServer extends JFrame {
 
 
                 //힌트 메세지 일때.
-                if (obcm instanceof Server.HintMsg) { //obcm(읽어들인 object)이 ChatMsg라면
+                if (obcm instanceof Server.HintMsg) { //obcm(읽어들인 object)이 HintMsg 라면
                     hm = (Server.HintMsg) obcm;
                     //1000~1005 힌트&보너스 구현
                     if(hm.code.matches("1000")) { //첫글자(ex.코끼리/ 코) //일단 동물만 구현
@@ -523,7 +521,7 @@ public class GameServer extends JFrame {
                                     curRoom = RoomVec.get(i);
                                 }
                             }
-                            WriteRoomObject(curRoom, hm.code, newHintMsg );
+                            WriteRoomObject(curRoom, hm.code, newHintMsg);
                             Logout();
                         }
                     }
@@ -561,6 +559,7 @@ public class GameServer extends JFrame {
 
                     else if(hm.code.matches("1003")) { //글자수 힌트
                         if(turnUser.equals(UserName)) {
+
                             String arg = wordAnimal[wordturn];
                             String str = "글자수는 " + arg.length() + "입니다";
                             HintMsg newHintMsg = new HintMsg("SERVER", "1003", str);
@@ -576,7 +575,6 @@ public class GameServer extends JFrame {
 
                     else if(hm.code.matches("1004")) { //정답시 점수 두배
                         if(turnUser.equals(UserName)) {
-                            //
                             String str = "맞추면 점수 2배!";
                             HintMsg newHintMsg = new HintMsg("SERVER", "1004", str);
                             for (int i = 0; i < RoomVec.size(); i++) {
@@ -586,7 +584,6 @@ public class GameServer extends JFrame {
                             }
                             WriteRoomObject(curRoom, hm.code, newHintMsg);
                             Logout();
-
                         }
                     }
 

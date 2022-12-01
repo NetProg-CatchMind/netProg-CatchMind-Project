@@ -581,7 +581,7 @@ public class GameClientMain extends JFrame {
                             isStart = true;
                             view.isStart = true;
 
-                            view.showWord(indexWordList);
+                            view.showWord(indexWordList); //main에서 만들어진 view.showWord();
                             view.showScore(0);
                             view.showTime();
 
@@ -614,25 +614,70 @@ public class GameClientMain extends JFrame {
                         switch(hm.code){
                             case "1000":
                                 System.out.println("첫번째 글자 힌트");
-                                
+                                for(int i=0; i<totalRoomList.length; i++) {
+                                    if(totalRoomList[i].equals(view.getRoomId())) {
+                                        if(hm.UserName.equals(username)) {
+
+                                        }
+                                    }
+                                }
+
                             case "1001":
-                                System.out.println("시간 두배 증가 힌트");
+                                System.out.println("시간 60초 세팅 아이템");
+                                for(int i=0; i<totalRoomList.length; i++){
+                                    if(totalRoomList[i].equals(view.getRoomId())) {
+                                        if (hm.UserName.equals(username)){
+                                            try {
+                                                Thread.sleep(1000);
+                                            } catch (InterruptedException e) {
+                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
+                                            }
+                                            time = 60;
+                                            view.showTime(); //수정하기
+                                        }
+                                    }
+                                }
                                 
                             case "1002":
-                                System.out.println("배경그림 보여주기");
+                                System.out.println("배경그림 보여주기"); //view에 어딧을까,,
                                 
                             case "1003":
-                                System.out.println("글자 수 힌트");
+                                System.out.println("글자 수 아이템");
+                                for(int i=0; i<totalRoomList.length; i++) {
+                                    if (totalRoomList[i].equals(view.getRoomId())) {
+                                        if (hm.UserName.equals(username)) {
+                                            try {
+                                                Thread.sleep(1000);
+                                            } catch (InterruptedException e) {
+                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
+                                            }
+                                            view.removeResultPanel();
+                                        }
+                                    }
+                                }
                                 
                             case "1004":
-                                System.out.println("점수두배");
-                                
+                                System.out.println("점수 두배 아이템");
+                                for(int i=0; i<totalRoomList.length; i++) {
+                                    if (totalRoomList[i].equals(view.getRoomId())) {
+                                        if (hm.UserName.equals(username)) {
+                                            score *= 2; //score 두배로
+                                            view.showScore(score);
+                                            //view.showResultPanel(hm.code); //정답
+
+                                            //view.removeResultPanel();
+                                        }
+                                    }
+                                }
                             case "1005":
-                                System.out.println("단어 테마");
+                                System.out.println("초성 힌트");
                         }
                     }
 
                     if (obcm instanceof ChatMsg) {
+                        cm = (ChatMsg) obcm;
                         cm = (ChatMsg) obcm;
                         msg = String.format("[%s]\n%s", cm.UserName, cm.data);
                     } else
@@ -662,10 +707,9 @@ public class GameClientMain extends JFrame {
                                             // TODO Auto-generated catch block
                                             e.printStackTrace();
                                         }
-                                        view.removeResultPanel();
-
                                         score += 10;
                                         view.showScore(score);
+//                                      view.removeResultPanel();
                                     }
                                     else{
                                         view.AppendText(msg);
@@ -745,7 +789,7 @@ public class GameClientMain extends JFrame {
 
 
     //사용자가 방을 만들었을때 서버로 RoomMsg형태로 객체 전송하는 frame 객체 만들기 --------------------------------------------------------------
-    class RoomAction implements ActionListener{
+    class RoomAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             RoomMake makeRoom = new RoomMake(username, socket, oos);

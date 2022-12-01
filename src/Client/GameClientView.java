@@ -1,6 +1,7 @@
 package Client;
 
 import Server.ChatMsg;
+import Server.HintMsg;
 import Server.wordMsg;
 
 import javax.swing.*;
@@ -34,16 +35,22 @@ public class GameClientView extends JFrame {
     private ImageIcon chatPanelBg = new ImageIcon("res/chatPanelImg.png");
 
     private ImageIcon bgItemImg = new ImageIcon("res/item_backImage.png");
+    private ImageIcon bgItemImg1 = new ImageIcon("res/item_backImage1.png");
     private ImageIcon mouseOverBgItem = new ImageIcon("res/mouseOverBgItem.png");
     private ImageIcon timeItemImg = new ImageIcon("res/item_time.png");
+    private ImageIcon timeItemImg1 = new ImageIcon("res/item_time1.png");
     private ImageIcon mouseOvertimeItem = new ImageIcon("res/mouseOverItemTime.png");
     private ImageIcon initialItemImg = new ImageIcon("res/item_initialChar.png");
+    private ImageIcon initialItemImg1 = new ImageIcon("res/item_initialChar1.png"); //view에서의 힌트(크기조절)
     private ImageIcon mouseOverInitialItem = new ImageIcon("res/mouseOverItemInitial.png");
     private ImageIcon wordCountItemImg = new ImageIcon("res/item_wordCount.png");
+    private ImageIcon wordCountItemImg1 = new ImageIcon("res/item_wordCount1.png"); //view에서의 힌트(글자수세기)
     private ImageIcon mouseOverWordCntItem = new ImageIcon("res/mouseOverItemWordCnt.png");
     private ImageIcon twiceScoreItemImg = new ImageIcon("res/item_twiceScore.png");
+    private ImageIcon twiceScoreItemImg1 = new ImageIcon("res/item_twiceScore1.png");
     private ImageIcon mouseOverScoreItem = new ImageIcon("res/mouseOverItemScore.png");
     private ImageIcon categoryItemImg = new ImageIcon("res/item_showCategory.png");
+    private ImageIcon categoryItemImg1 = new ImageIcon("res/item_showCategory1.png");
     private ImageIcon mouseOverCategoryItem = new ImageIcon("res/mouseOverItemCategory.png");
 
     private ImageIcon char1Img = new ImageIcon("res/character1.png");
@@ -275,7 +282,7 @@ public class GameClientView extends JFrame {
 //              System.exit(0);
                 ChatMsg obc = new ChatMsg(UserName, "700","null");
                 obc.roomId = roomId;
-                main.SendObject(obc);
+                main.SendObject(obc); //버튼 클릭시 main사용
 
                 setVisible(false);
                 //2명이상이면 start
@@ -288,7 +295,7 @@ public class GameClientView extends JFrame {
         usersPanel.add(btnExit);
 
 
-        infoPanel = new JPanel(){
+        infoPanel = new JPanel() {
 //            public void paintComponent(Graphics g) {
 //                g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
 //                // Image 영역이 가려졌다 다시 나타날 때 그려준다.
@@ -337,7 +344,7 @@ public class GameClientView extends JFrame {
         wordPanel.add(wordLabel);
 
 
-        scorePanel = new JPanel(){
+        scorePanel = new JPanel() {
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 g.drawImage(infoPanelBg.getImage(), 0, 0, 260, 150, this);
@@ -409,13 +416,22 @@ public class GameClientView extends JFrame {
         hintPanel.setBackground(Color.black);
         mainPanel.add(hintPanel);
 
-        JButton bgItemBtn = new JButton(bgItemImg);
+        JButton bgItemBtn = new JButton(bgItemImg1);
         bgItemBtn.revalidate();
         bgItemBtn.repaint();
         bgItemBtn.setBounds(50, 20, 80, 50);
         hintPanel.add(bgItemBtn);
+        bgItemBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("background img!\n");
+                HintMsg obc = new HintMsg(UserName, "1002", null); //배경그림 보여주는 힌트
+                main.SendObject(obc);
 
-        JButton timeItemBtn = new JButton(timeItemImg); //시간증가 힌트 버튼
+            }
+        });
+
+        JButton timeItemBtn = new JButton(timeItemImg1); //시간증가 힌트 버튼
         timeItemBtn.revalidate();
         timeItemBtn.repaint();
         timeItemBtn.setBounds(150, 20, 80, 50);
@@ -424,7 +440,7 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("time event!\n");
-                ChatMsg obc = new ChatMsg(UserName, "1001","null"); //시간 증가 구현중
+                HintMsg obc = new HintMsg(UserName, "1001","null"); //시간 증가 구현중
                 //time += 15; //시간 15초 증가시키기
                 //timeLabel.setText(String.valueOf(time));
                 main.SendObject(obc);
@@ -432,7 +448,7 @@ public class GameClientView extends JFrame {
         });
 
 
-        JButton initItemBtn = new JButton(initialItemImg); //첫글자 알려주는 힌트(?)
+        JButton initItemBtn = new JButton(initialItemImg1); //첫글자 알려주는 힌트(?)
         timeItemBtn.revalidate();
         timeItemBtn.repaint();
         initItemBtn.setBounds(250, 20, 80, 50);
@@ -440,13 +456,13 @@ public class GameClientView extends JFrame {
         initItemBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ChatMsg obc = new ChatMsg(UserName, "1000", null);
+                HintMsg obc = new HintMsg(UserName, "1000", null);
                 main.SendObject(obc); //버튼 클릭시 1000으로,,
             }
         });
 
 
-        JButton cntItemBtn = new JButton(wordCountItemImg); //글자 수 알려주는 힌트
+        JButton cntItemBtn = new JButton(wordCountItemImg1); //글자 수 알려주는 힌트
         cntItemBtn.revalidate();
         cntItemBtn.repaint();
         cntItemBtn.setBounds(50, 80, 80, 50);
@@ -454,13 +470,13 @@ public class GameClientView extends JFrame {
         cntItemBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ChatMsg obc = new ChatMsg(UserName, "1003", null);
+                HintMsg obc = new HintMsg(UserName, "1003", null);
                 SendObject(obc);
             }
         });
 
 
-        JButton twiceItemBtn = new JButton(twiceScoreItemImg); //점수 두배 이벤트
+        JButton twiceItemBtn = new JButton(twiceScoreItemImg1); //점수 두배 이벤트
         twiceItemBtn.revalidate();
         twiceItemBtn.repaint();
         twiceItemBtn.setBounds(150, 80, 80, 50);
@@ -468,26 +484,25 @@ public class GameClientView extends JFrame {
         twiceItemBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //
-                ChatMsg obc = new ChatMsg(UserName, "1004", null);
-                showScore(2*score);
+                HintMsg obc = new HintMsg(UserName, "1004", null);
+                //showScore(2*score);
                 main.SendObject(obc);
             }
         });
 
 
-        JButton ctgItemBtn = new JButton(categoryItemImg); //카테고리 알려주는 힌트(?)
+        JButton ctgItemBtn = new JButton(categoryItemImg1); //초성힌트(?)
         ctgItemBtn.revalidate();
         ctgItemBtn.repaint();
         ctgItemBtn.setBounds(250, 80, 80, 50);
         hintPanel.add(ctgItemBtn);
         ctgItemBtn.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                //이해못함
+            public void actionPerformed(ActionEvent e) { //초성힌트 구현
+                HintMsg obc = new HintMsg(UserName, "1005", null);
+                main.SendObject(obc);
             }
         });
-
 
         canvasPanel = new JPanel() {
             public void paintComponent(Graphics g) {
@@ -532,7 +547,7 @@ public class GameClientView extends JFrame {
         canvasPanel.add(btnNewButton1);
 
 
-        JButton btnNewButton2 = new JButton(",");
+        JButton btnNewButton2 = new JButton(".");
         btnNewButton2.setBackground(Color.BLUE);
         btnNewButton2.addActionListener(new ActionListener() {
             @Override
@@ -1075,8 +1090,8 @@ public class GameClientView extends JFrame {
         wordLabel.setText(this.wordList[index]);
     }
 
-    public void showScore(int score){
-        if((this.score+=score) <= 0 ) {
+    public void showScore(int score) {
+        if((this.score+=score) <= 0 ) { //
             this.score = this.score;
         }
         else {

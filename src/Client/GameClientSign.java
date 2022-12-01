@@ -74,7 +74,7 @@ public class GameClientSign extends JFrame {
 //        setUndecorated(true);
         setVisible(true);
 
-        contentPane = new JPanel(){
+        contentPane = new JPanel() {
             public void paintComponent(Graphics g) {
                 g.drawImage(signBackgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
@@ -208,7 +208,7 @@ public class GameClientSign extends JFrame {
 
     // TODO Not Complete
     // 각 character 눌렀을 때, 캐릭터 설정 액션 처리 =====================================================================
-    class CharAction implements ActionListener{
+    class CharAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e){
             if(e.getSource() instanceof JRadioButton){
@@ -217,7 +217,6 @@ public class GameClientSign extends JFrame {
                     selCharNo = radioButton.getText();
                 }
             }
-
         }
     }
 }
