@@ -160,9 +160,7 @@ public class GameClientMain extends JFrame {
 
     public String UserName = "";
 
-
     private static final long serialVersionUID = 1L;
-
 
     // 미사용 -> 혹시 몰라서 그냥 둠 ======================================================================================
     private Frame frame;
@@ -695,12 +693,21 @@ public class GameClientMain extends JFrame {
                                                 // TODO Auto-generated catch block
                                                 e.printStackTrace();
                                             }
-                                            view.showTime();
+                                            //ChatMsg obcm = new ChatMsg(username, "300", "IMG");
+                                            HintMsg obc = new HintMsg(UserName, "1001", null);
+                                            view.setTime(20);
+                                            view.SendObject(obc);
+                                            //view.setTime(20);
+                                            //view.showTime();
+                                            main.SendObject(obc);
+
                                             //time = 60;
                                             //view.showTime(); //수정하기
                                         }
                                     }
                                 }
+                                //main.SendObject();
+                                //break;
                                 
                             case "1002":
                                 System.out.println("배경그림 보여주기"); //view에 어딧을까,,
@@ -726,11 +733,10 @@ public class GameClientMain extends JFrame {
                                 for(int i=0; i<totalRoomList.length; i++) {
                                     if (totalRoomList[i].equals(view.getRoomId())) {
                                         if (hm.UserName.equals(username)) {
-                                            //score *= 2; //그냥 맞출때 점수가 두배가 되버림 10 -> 20
+                                            score *= 2;  //그냥 맞출때 점수가 두배가 되버림 10 -> 20
                                             view.showScore(score);
-                                            //view.showResultPanel(hm.code); //정답
-
-                                            //view.removeResultPanel();
+                                            view.showResultPanel(hm.code);
+                                            view.removeResultPanel();
                                         }
                                     }
                                 }
@@ -904,8 +910,7 @@ public class GameClientMain extends JFrame {
         }
     }
 
-
-    //사용자가 방을 만들었을때 서버로 RoomMsg형태로 객체 전송하는 frame 객체 만들기 --------------------------------------------------------------
+    //사용자가 방을 만들었을때 서버로 RoomMsg 형태로 객체 전송하는 frame 객체 만들기 --------------------------------------------------------------
     class RoomAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -951,7 +956,7 @@ public class GameClientMain extends JFrame {
         gbc.weighty = 5;
         roomListPanel.add(new JPanel(), gbc);
 
-        for(int i =0; i<roomIdList.length; i++){
+        for(int i =0; i<roomIdList.length; i++) {
             if( roomSubjectList[i].equals("food")) roomImg = subFoodImg;
             else if( roomSubjectList[i].equals("music")) roomImg = subMusicImg;
             else if(roomSubjectList[i].equals("movie")) roomImg = subMovieImg;
@@ -1248,6 +1253,7 @@ public class GameClientMain extends JFrame {
     }
 
 }
+
 
 
 

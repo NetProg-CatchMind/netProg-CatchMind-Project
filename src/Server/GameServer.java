@@ -652,7 +652,6 @@ public class GameServer extends JFrame {
 
                     else if(hm.code.matches("1001")) { //시간 60초로 초기화
                         if(turnUser != cm.UserName && gameStart == 1) {
-                            //
                             String str = "시간이 60초로 증가했습니다.";
                             HintMsg newHintMsg = new HintMsg("SERVER", "1001", str);
                             for (int i = 0; i < RoomVec.size(); i++) {
@@ -704,6 +703,7 @@ public class GameServer extends JFrame {
                             for (int i = 0; i < RoomVec.size(); i++) {
                                 if (RoomVec.get(i).roomId.equals(cm.roomId)) {
                                     curRoom = RoomVec.get(i);
+                                   //WriteRoomObject(curRoom, hm.code, newHintMsg);
                                 }
                             }
                             WriteRoomObject(curRoom, hm.code, newHintMsg);
@@ -903,137 +903,6 @@ public class GameServer extends JFrame {
                     e1.printStackTrace();
                 }
                 ; // 에러가난 현재 객체를 벡터에서 지운다
-            }
-        }
-
-        public void WriteOne5_1(String msg) {
-
-            try {
-                // dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
-                ChatMsg obcm = new ChatMsg("SERVER", "1001", msg);
-                oos.writeObject(obcm);
-            } catch (IOException e) {
-                AppendText("dos.writeObject() error");
-                try {
-//					dos.close();
-//					dis.close();
-                    ois.close();
-                    oos.close();
-                    client_socket.close();
-                    client_socket = null;
-                    ois = null;
-                    oos = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
-            }
-        }
-
-        public void WriteOne5_2(String msg) {  //1002 배경사진 뿌려주는 메서드(문제 그리는 사람한테만 활성화할것)
-            try {
-                // dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
-                ChatMsg obcm = new ChatMsg("SERVER", "1002", msg);
-                oos.writeObject(obcm);
-            } catch (IOException e) {
-                AppendText("dos.writeObject() error");
-                try {
-//					dos.close();
-//					dis.close();
-                    ois.close();
-                    oos.close();
-                    client_socket.close();
-                    client_socket = null;
-                    ois = null;
-                    oos = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
-            }
-        }
-
-        public void WriteOne5_3(String msg) {
-            try {
-                // dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
-                ChatMsg obcm = new ChatMsg("SERVER", "1003", msg);
-                oos.writeObject(obcm);
-            } catch (IOException e) {
-                AppendText("dos.writeObject() error");
-                try {
-//					dos.close();
-//					dis.close();
-                    ois.close();
-                    oos.close();
-                    client_socket.close();
-                    client_socket = null;
-                    ois = null;
-                    oos = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
-            }
-        }
-
-        public void WriteOne5_4(String msg) {
-            try {
-                // dos.writeUTF(msg);
-//				byte[] bb;
-//				bb = MakePacket(msg);
-//				dos.write(bb, 0, bb.length);
-                ChatMsg obcm = new ChatMsg("SERVER", "1004", msg);
-                oos.writeObject(obcm);
-            } catch (IOException e) {
-                AppendText("dos.writeObject() error");
-                try {
-//					dos.close();
-//					dis.close();
-                    ois.close();
-                    oos.close();
-                    client_socket.close();
-                    client_socket = null;
-                    ois = null;
-                    oos = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
-            }
-        }
-
-
-        public void WriteOne5_5(String msg) {
-            try {
-                ChatMsg obcm = new ChatMsg("SERVER", "1005", msg);
-                oos.writeObject(obcm);
-            } catch (IOException e) {
-                AppendText("dos.writeObject() error");
-                try {
-                    ois.close();
-                    oos.close();
-                    client_socket.close();
-                    client_socket = null;
-                    ois = null;
-                    oos = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                Logout(); // 에러가난 현재 객체를 벡터에서 지운다
             }
         }
 

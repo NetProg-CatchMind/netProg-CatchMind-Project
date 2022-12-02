@@ -428,7 +428,7 @@ public class GameClientView extends JFrame {
         hintPanel.setBackground(Color.black);
         mainPanel.add(hintPanel);
 
-        JButton bgItemBtn = new JButton(bgItemImg1);
+        /*JButton bgItemBtn = new JButton(bgItemImg1);
         bgItemBtn.revalidate();
         bgItemBtn.repaint();
         bgItemBtn.setBorderPainted(false);
@@ -445,7 +445,7 @@ public class GameClientView extends JFrame {
                 main.SendObject(obc);
 
             }
-        });
+        }); */
 
         JButton timeItemBtn = new JButton(timeItemImg1); //시간증가 힌트 버튼
         timeItemBtn.revalidate();
@@ -454,21 +454,23 @@ public class GameClientView extends JFrame {
         timeItemBtn.setContentAreaFilled(false);
         timeItemBtn.setOpaque(false);
         timeItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        timeItemBtn.setBounds(150, 20, 80, 50);
+        timeItemBtn.setBounds(40, 50, 90, 55);
         hintPanel.add(timeItemBtn);
         timeItemBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("time event!\n");
-                HintMsg obc = new HintMsg(UserName, "1001",null); //시간 증가 구현중
-                time = 60; //시간을 60초로 세팅 시키기 / 시간 변경시 여기 건들기,,
+                time = 30 ; //시간을 30초로 세팅 시키기 / 시간 변경시 여기 건들기,,
+                //main.setTime(20);
                 timeLabel.setText(String.valueOf(time));
+                HintMsg obc = new HintMsg(UserName, "1001",null); //시간 증가 구현중
+                //main.writeObject(obc);
                 main.SendObject(obc);
             }
         });
 
 
-        JButton initItemBtn = new JButton(initialItemImg1); //첫글자 알려주는 힌트(?)
+        /*JButton initItemBtn = new JButton(initialItemImg1); //첫글자 알려주는 힌트(?)  //일단 주석처리
         timeItemBtn.revalidate();
         timeItemBtn.repaint();
         timeItemBtn.setBorderPainted(false);
@@ -483,10 +485,10 @@ public class GameClientView extends JFrame {
                 HintMsg obc = new HintMsg(UserName, "1000", null);
                 main.SendObject(obc); //버튼 클릭시 1000으로,,
             }
-        });
+        }); */
 
 
-        JButton cntItemBtn = new JButton(wordCountItemImg1); //글자 수 알려주는 힌트
+        /*JButton cntItemBtn = new JButton(wordCountItemImg1); //글자 수 알려주는 힌트
         cntItemBtn.revalidate();
         cntItemBtn.repaint();
         cntItemBtn.setBorderPainted(false);
@@ -501,7 +503,7 @@ public class GameClientView extends JFrame {
                 HintMsg obc = new HintMsg(UserName, "1003", null);
                 SendObject(obc);
             }
-        });
+        }); */
 
         JButton twiceItemBtn = new JButton(twiceScoreItemImg1); //점수 두배 이벤트
         twiceItemBtn.revalidate();
@@ -510,14 +512,16 @@ public class GameClientView extends JFrame {
         twiceItemBtn.setContentAreaFilled(false);
         twiceItemBtn.setOpaque(false);
         twiceItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        twiceItemBtn.setBounds(150, 80, 80, 50);
+        twiceItemBtn.setBounds(150, 50, 90, 55);
         hintPanel.add(twiceItemBtn);
         twiceItemBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 HintMsg obc = new HintMsg(UserName, "1004", null);
                 //showScore(2*score);
-                //score*=2;
+                score*=2;
+                scoreLabel.setText(String.valueOf(score));
+                revalidate();
                 main.SendObject(obc);
             }
         });
@@ -530,7 +534,7 @@ public class GameClientView extends JFrame {
         ctgItemBtn.setContentAreaFilled(false);
         ctgItemBtn.setOpaque(false);
         ctgItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        ctgItemBtn.setBounds(250, 80, 80, 50);
+        ctgItemBtn.setBounds(260, 50, 90, 55);
         hintPanel.add(ctgItemBtn);
         ctgItemBtn.addActionListener(new ActionListener() {
             @Override
@@ -544,7 +548,7 @@ public class GameClientView extends JFrame {
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 g.drawImage(backgroundImg.getImage(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
-//                 Image 영역이 가려졌다 다시 나타날 때 그려준다.
+//                  Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
         canvasPanel.revalidate();
@@ -665,6 +669,7 @@ public class GameClientView extends JFrame {
         btnNewButton6.revalidate();
         btnNewButton6.repaint();
 
+
         JButton btnNewButton7 = new JButton("clear"); //모두지우기 버튼
         btnNewButton7.setFont(new Font("굴림", Font.PLAIN, 12));
         btnNewButton7.setBounds(710, 505, 70, 40);
@@ -674,9 +679,10 @@ public class GameClientView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(gc2!=null) {
                     gc2.setColor(panel.getBackground());
+                    //gc2.flush();
                     gc2.fillRect(0, 0, panel.getWidth(), panel.getHeight());
                     gc2.setColor(Color.BLACK);
-                    gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
+                    //gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
                 }
 
                 isClear = true;
@@ -893,7 +899,6 @@ public class GameClientView extends JFrame {
 //        super.paint(g);
 
         if(gc!= null && panel != null) gc.drawImage(panelImage, 0,0 , panel.getWidth(), panel.getHeight(), panel);
-
 
     }
 
@@ -1179,6 +1184,7 @@ public class GameClientView extends JFrame {
         if(score <= 0 ) {
             this.score = 0 ;
         }
+
         else this.score = score;
         scoreLabel.setText(String.valueOf(this.score));
         revalidate();
@@ -1197,7 +1203,7 @@ public class GameClientView extends JFrame {
 
         JLabel resultLabel;
         if(code.matches("201")) { //정답 : answer
-            if(userLabel!= null){
+            if(userLabel!= null) {
                 if(userLabel.getIcon() == char1Img)
                 userLabel.setIcon(answerChar1);
                 else if(userLabel.getIcon() == char2Img)
