@@ -44,7 +44,7 @@ public class GameServer extends JFrame {
     public String[] wordMovie = {"매드맥스", "인사이드 아웃", "인셉션", "아바타", "너의이름은", "극한직업", "겨울왕국", "스파이더맨", "공조"};
     public String[] wordAnimal = {"고양이", "호랑이", "햄스터", "강아지", "목도리도마뱀", "라쿤", "앵무새", "자라", "장수풍뎅이"};
     public String[] wordThing = {"옷장", "건조기", "노트북", "어항", "교탁", "자전거", "형광등", "장구", "나침반"};
-    public HashMap<String, String[]> wordMap = new HashMap<>();
+    public HashMap<String, String[]> wordMap = new HashMap<>(); //첫글자 출력시 사용
     HashMap<String, Integer> scoreMap = new HashMap<String, Integer>();
     public String turnUser;
     public int wordturn = 0;
@@ -588,7 +588,7 @@ public class GameServer extends JFrame {
 
                     }
 
-                    else if(hm.code.matches("1001")) { //시간 60초로 초기화
+                    else if(hm.code.matches("1001")) { //시간 15초 증가시키기
                         if(turnUser != cm.UserName && gameStart == 1) {
                             String str = "시간이 60초로 증가했습니다.";
                             HintMsg newHintMsg = new HintMsg("SERVER", "1001", str);

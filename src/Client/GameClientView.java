@@ -471,14 +471,14 @@ public class GameClientView extends JFrame {
         });
 
 
-        /*JButton initItemBtn = new JButton(initialItemImg1); //첫글자 알려주는 힌트(?)  //일단 주석처리
+        JButton initItemBtn = new JButton(initialItemImg1); //첫글자 알려주는 힌트(?)  //일단 주석처리
         timeItemBtn.revalidate();
         timeItemBtn.repaint();
         timeItemBtn.setBorderPainted(false);
         timeItemBtn.setContentAreaFilled(false);
         timeItemBtn.setOpaque(false);
         timeItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        initItemBtn.setBounds(250, 20, 80, 50);
+        initItemBtn.setBounds(260, 50, 90, 55);
         hintPanel.add(initItemBtn);
         initItemBtn.addActionListener(new ActionListener() {
             @Override
@@ -488,7 +488,7 @@ public class GameClientView extends JFrame {
                 obc.wordIndex = currentWordIndex;
                 main.SendObject(obc); //버튼 클릭시 1000으로,,
             }
-        }); */
+        });
 
 
         /*JButton cntItemBtn = new JButton(wordCountItemImg1); //글자 수 알려주는 힌트
@@ -520,6 +520,7 @@ public class GameClientView extends JFrame {
         twiceItemBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("twice socre event\n");
                 HintMsg obc = new HintMsg(UserName, "1004", null);
                 //showScore(2*score);
                 score*=2;
@@ -530,7 +531,7 @@ public class GameClientView extends JFrame {
         });
 
 
-        JButton ctgItemBtn = new JButton(initialItemImg1); //초성힌트(?)
+        /*JButton ctgItemBtn = new JButton(initialItemImg1); //초성힌트(?)
         ctgItemBtn.revalidate();
         ctgItemBtn.repaint();
         ctgItemBtn.setBorderPainted(false);
@@ -545,7 +546,7 @@ public class GameClientView extends JFrame {
                 HintMsg obc = new HintMsg(UserName, "1005", null);
                 main.SendObject(obc);
             }
-        });
+        }); */
 
         canvasPanel = new JPanel() {
             public void paintComponent(Graphics g) {
@@ -730,9 +731,6 @@ public class GameClientView extends JFrame {
         });
         btnNewButton10.revalidate();
         btnNewButton10.repaint();
-
-
-
 
 
         chatingPanel = new JPanel(){

@@ -678,6 +678,13 @@ public class GameClientMain extends JFrame {
                         switch(hm.code){
                             case "1000":
                                 System.out.println(hm.data);
+                                for(int i=0; i<totalRoomList.length; i++){
+                                    if(totalRoomList[i].equals(view.getRoomId())) {
+                                        if (hm.UserName.equals(username)){
+                                            HintMsg obc = new HintMsg(UserName, "1000", null);
+                                        }
+                                    }
+                                }
 
                                 System.out.println("htm::"+hm.data);
                                 view.AppendText(hm.data);
@@ -733,7 +740,7 @@ public class GameClientMain extends JFrame {
                                 for(int i=0; i<totalRoomList.length; i++) {
                                     if (totalRoomList[i].equals(view.getRoomId())) {
                                         if (hm.UserName.equals(username)) {
-                                            score *= 2;  //그냥 맞출때 점수가 두배가 되버림 10 -> 20
+                                            score *= 2;  //점수 10일때 클릭 -> 20됨
                                             view.showScore(score);
                                             view.showResultPanel(hm.code);
                                             view.removeResultPanel();
