@@ -1,7 +1,6 @@
 package Server;
 
 import Client.GameClientMain;
-import Client.GameClientView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,13 +38,14 @@ public class GameServer extends JFrame {
     public int gameStart = 0; //시작시 1로 변경하기
 
 
-//    public String[] wordFood = {"사과", "배", "떡볶이", "라면", "떡국", "파스타", "피자", "비빔밥", "소고기"};
-    public String[] wordFood = {"사과", "배", "떡볶이", "라면"};
+//    public String[] wordFood = {"사과", "닭갈비", "떡볶이", "라면", "떡국", "파스타", "피자", "비빔밥", "소고기"};
+    public String[] wordFood = {"사과", "닭갈비", "떡볶이", "라면"};
     public String[] wordMusic = {"Love Dive", "ASAP", "자격지심", "콘서트", "AntiFragile", "나의 X에게", "아이브", "잔나비", "Dynamite"};
     public String[] wordMovie = {"매드맥스", "인사이드 아웃", "인셉션", "아바타", "너의이름은", "극한직업", "겨울왕국", "스파이더맨", "공조"};
     public String[] wordAnimal = {"고양이", "호랑이", "햄스터", "강아지", "목도리도마뱀", "라쿤", "앵무새", "자라", "장수풍뎅이"};
     public String[] wordThing = {"옷장", "건조기", "노트북", "어항", "교탁", "자전거", "형광등", "장구", "나침반"};
     public HashMap<String, String[]> wordMap = new HashMap<>();
+    HashMap<String, Integer> scoreMap = new HashMap<String, Integer>();
     public String turnUser;
     public int wordturn = 0;
     //public int gamestart = 0;// 게임 시작하면 1로(gameStart로 대체 일단 냅두기)
@@ -225,7 +225,8 @@ public class GameServer extends JFrame {
                     e.printStackTrace();
                     return;
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
+                    return;
                 }
 
                 if (obcm == null){
@@ -241,33 +242,16 @@ public class GameServer extends JFrame {
                         makeRoom(rm.roomId, rm.roomTitle, rm.roomSubject, rm.userCnt);
                     }
 
-                    if(rm.code.matches("800")){
+                    else if(rm.code.matches("800")){
                         for (int i = 0; i < RoomVec.size(); i++) {
                             if (RoomVec.get(i).roomId.equals(rm.roomId)) {
                                 curRoom = RoomVec.get(i);
                             }
                         }
-//                        ChatMsg chatMsg = new ChatMsg("800", cm.roomId, cm.data);
-//
-//                        String curPresenter = cm.data;
-//                        for(int i=0; i<curRoom.socketList.size(); i++){
-//                            if(curRoom.memberList.get(i).equals(curPresenter)){
-//                                GameServer.UserService user = (GameServer.UserService) curRoom.UserVec.get(Integer.parseInt(cm.data));
-//                                user.WriteOneObject(chatMsg);
-//                                GameServer.UserService nextUser = null;
-//                                if(i >= curRoom.socketList.size()-1) nextUser = (GameServer.UserService) UserVec.elementAt(0);
-//                                else nextUser = (GameServer.UserService) UserVec.elementAt(i+1);
-//                                user.WriteOneObject(chatMsg);
-//                            }
-//                        }
-//                        wordMsg newWordMsg = new wordMsg("800", cm.roomId);
-//                        newWordMsg.presenterIndex = wm.presenterIndex+1;
-
-//                        WriteRoomObject(curRoom, wm.code, newWordMsg);
-
 
                         String[] data = rm.data.split(" ");
                         int presenterIndex = Integer.parseInt(data[0]);
+                        System.out.println("index ::: "+data[0] + "presetner :: " + data[1] );
                         int wordIndex = Integer.parseInt(data[1]);
 
                         int newPresenterIndex = 0;
@@ -285,13 +269,25 @@ public class GameServer extends JFrame {
                         UserService user = (UserService) curRoom.socketList.get(newPresenterIndex);
                         System.out.println("server 800 msg:" +  String.valueOf(newPresenterIndex) + " "+ String.valueOf(newWordIndex));
                         Client.RoomMsg changeMsg = new Client.RoomMsg( "800", String.valueOf(newPresenterIndex) + " "+ String.valueOf(newWordIndex));
+                        System.out.println("socket List ::: " + curRoom.socketList);
                         WriteRoomObject(curRoom, changeMsg.code ,changeMsg);
 
-//                        curRoom.socketList.get(newPresenterIndex).WriteOneObject(changeMsg);
-//                        user.WriteOneObject(changeMsg);
-//                        WriteRoomObject(curRoom, "800", changeMsg);
-//
+                    }
+                    else if(rm.code.matches("900")){ //게임 끝
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            if (RoomVec.get(i).roomId.equals(rm.roomId)) {
+                                curRoom = RoomVec.get(i);
+                            }
+                        }
 
+                        String scores = "";
+                        for(int i=0; i<scoreMap.size(); i++){
+                            scores +=curRoom.memberList.get(i)+" "+scoreMap.get(curRoom.memberList.get(i))+"/";
+                        }
+                        System.out.println(scores);
+                        Client.RoomMsg scoreMsg = new Client.RoomMsg("900", scores);
+
+                        WriteRoomObject(curRoom, rm.code, scoreMsg);
                     }
                 }
 
@@ -437,10 +433,16 @@ public class GameServer extends JFrame {
                                     }
                                 }
 
-                                if(isAnswer)
+                                if(isAnswer){
+                                    if(scoreMap.get(cm.UserName) == null) scoreMap.put(cm.UserName, 10);
+                                    else scoreMap.replace(cm.UserName, scoreMap.get(cm.UserName)+10);
                                     cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
-                                else
+                                }
+                                else{
+                                    scoreMap.replace(cm.UserName, scoreMap.get(cm.UserName)-5);
                                     cm = new ChatMsg(cm.UserName,"202", cm.data);
+                                }
+
 
                                 WriteRoomObject(curRoom, cm.code, cm);
                             }
@@ -522,64 +524,7 @@ public class GameServer extends JFrame {
                         chatMsg.roomId = cm.roomId;
                         WriteRoomObject(curRoom, cm.code, chatMsg);
                     }
-
-//                    else if(cm.code.matches("800")){ //출제자 바꾸기
-//                        for (int i = 0; i < RoomVec.size(); i++) {
-//                            if (RoomVec.get(i).roomId.equals(cm.roomId)) {
-//                                curRoom = RoomVec.get(i);
-//                            }
-//                        }
-////                        ChatMsg chatMsg = new ChatMsg("800", cm.roomId, cm.data);
-////
-////                        String curPresenter = cm.data;
-////                        for(int i=0; i<curRoom.socketList.size(); i++){
-////                            if(curRoom.memberList.get(i).equals(curPresenter)){
-////                                GameServer.UserService user = (GameServer.UserService) curRoom.UserVec.get(Integer.parseInt(cm.data));
-////                                user.WriteOneObject(chatMsg);
-////                                GameServer.UserService nextUser = null;
-////                                if(i >= curRoom.socketList.size()-1) nextUser = (GameServer.UserService) UserVec.elementAt(0);
-////                                else nextUser = (GameServer.UserService) UserVec.elementAt(i+1);
-////                                user.WriteOneObject(chatMsg);
-////                            }
-////                        }
-////                        wordMsg newWordMsg = new wordMsg("800", cm.roomId);
-////                        newWordMsg.presenterIndex = wm.presenterIndex+1;
-//
-////                        WriteRoomObject(curRoom, wm.code, newWordMsg);
-//
-//
-//                        String[] data = cm.data.split(" ");
-//                        int presenterIndex = Integer.parseInt(data[0]);
-//                        int wordIndex = Integer.parseInt(data[1]);
-//
-//                        int newPresenterIndex = 0;
-//                        int newWordIndex = 0;
-//
-//                        if(presenterIndex+1 >= curRoom.socketList.size()) newPresenterIndex = 0;
-//                        else newPresenterIndex = presenterIndex+1;
-//
-//                        if(newWordIndex+1 >= wordMap.get(curRoom.subject).length) newWordIndex = 0;
-//                        else newWordIndex = wordIndex+1;
-//
-//                        curRoom.presenterIndex = newPresenterIndex;
-//                        curRoom.wordIndex = newWordIndex;
-//
-//                        UserService user = (UserService) curRoom.socketList.get(newPresenterIndex);
-//                        System.out.println("server 800 msg:" +  String.valueOf(newPresenterIndex) + " "+ String.valueOf(newWordIndex));
-//                        ChatMsg changeMsg = new ChatMsg(UserName, "800", String.valueOf(newPresenterIndex) + " "+ String.valueOf(newWordIndex));
-//                        WriteRoomObject(curRoom, changeMsg.code ,changeMsg);
-//
-////                        curRoom.socketList.get(newPresenterIndex).WriteOneObject(changeMsg);
-////                        user.WriteOneObject(changeMsg);
-////                        WriteRoomObject(curRoom, "800", changeMsg);
-////
-//                    }
-//
-////                        else { // 일반 채팅 메시지
-////                            UserStatus = "O";
-////                            //WriteAll(msg + "\n"); // Write All
-////                            WriteAllObject(cm);
-////                        }
+                    
 
                     //로그아웃!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     else if (cm.code.matches("400")) { // logout message 처리
@@ -620,34 +565,26 @@ public class GameServer extends JFrame {
                 //힌트 메세지 일때.
                 if (obcm instanceof Server.HintMsg) { //obcm(읽어들인 object)이 HintMsg 라면
                     hm = (Server.HintMsg) obcm;
+                    System.out.println(hm.code);
                     //1000~1005 힌트&보너스 구현
                     if(hm.code.matches("1000")) { //첫글자(ex.코끼리/ 코) //일단 동물만 구현
+                        for (int i = 0; i < RoomVec.size(); i++) {
+                            if (RoomVec.get(i).roomId.equals(hm.roomId)) {
+                                curRoom = RoomVec.get(i);
+                            }
+                        }
 
-                        HashMap<String, String[]> wordMap = new HashMap<>();
-                        wordMap.put("food", wordFood);
-                        wordMap.put("music", wordMusic);
-                        wordMap.put("movie", wordMovie);
-                        wordMap.put("animal", wordAnimal);
-                        wordMap.put("thing", wordThing);
-                        if(turnUser != cm.UserName && gameStart == 1) {
+                        System.out.println("in server wordIndex :: " + hm.wordIndex);
+                        String arg = wordMap.get(curRoom.subject)[hm.wordIndex];
 
-                            String arg = wordFood[wordturn];
-                            String arg1 = wordMusic[wordturn];
-                            String arg2 = wordMovie[wordturn];
-                            String arg3 = wordAnimal[wordturn];
-                            String arg4 = wordThing[wordturn];
                             //  String initial = wordMap.get(curRoom.subject)[hm.wordIndex];
 
-                            String str = "첫번째 글자는 ' " + arg.charAt(0) + " ' 입니다.";
-                            HintMsg newHintMsg = new HintMsg("SERVER", "1000", str);
-                            for (int i = 0; i < RoomVec.size(); i++) {
-                                if (RoomVec.get(i).roomId.equals(hm.roomId)) {
-                                    curRoom = RoomVec.get(i);
-                                }
-                            }
+                        String str = "첫번째 글자는 ' " + arg.charAt(0) + " ' 입니다.";
+                        HintMsg newHintMsg = new HintMsg("SERVER", "1000", str);
+                        WriteRoomObject(curRoom, hm.code, newHintMsg);
 //                            WriteRoomObject(curRoom, hm.code, newHintMsg);
 //                            Logout();
-                        }
+
                     }
 
                     else if(hm.code.matches("1001")) { //시간 60초로 초기화
@@ -790,7 +727,8 @@ public class GameServer extends JFrame {
         }
 
         public void WriteRoomObject(GameRoom room, String code, Object ob) {
-            for (int i = 0; i < room.socketList.size(); i++) {
+            for (int i = 0; i < room.socketList.size(); i++) { //IOException 나오면 여기가 문제임.
+                System.out.println(code + " -- room socketList ::: "+room.socketList.size() + " ===" +room.socketList.get(i)) ;
                 GameServer.UserService user = (GameServer.UserService) room.socketList.get(i);
                 user.WriteOneObject(ob);
             }
@@ -808,17 +746,17 @@ public class GameServer extends JFrame {
             }
             catch (IOException e) {
                 AppendText("oos.writeObject(ob) error");
-                try {
-                    ois.close();
-                    oos.close();
-                    client_socket.close();
-                    client_socket = null;
-                    ois = null;
-                    oos = null;
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
+//                try {
+//                    ois.close();
+//                    oos.close();
+//                    client_socket.close();
+//                    client_socket = null;
+//                    ois = null;
+//                    oos = null;
+//                } catch (IOException e1) {
+//                    // TODO Auto-generated catch block
+//                    e1.printStackTrace();
+//                }
                 Logout();
             }
         }

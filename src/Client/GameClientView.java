@@ -126,9 +126,9 @@ public class GameClientView extends JFrame {
     private JPanel presenterPanel;
 
     public String[] wordList;
-    private int indexWordList = 0;
+    public int indexWordList = 0;
 
-    static JPanel panel; //뭐였지,,
+    public JPanel panel;
     private JLabel lblMouseEvent;
     private boolean isClear = false;
     private int preseterIndex;
@@ -150,6 +150,7 @@ public class GameClientView extends JFrame {
 
     public boolean linee = true;
     public boolean isStart = false;
+    public boolean isOver = false;
     private JTextField textField;
 
 //    private Vector userVec = new Vector();
@@ -483,6 +484,8 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 HintMsg obc = new HintMsg(UserName, "1000", null);
+                obc.roomId = roomId;
+                obc.wordIndex = currentWordIndex;
                 main.SendObject(obc); //버튼 클릭시 1000으로,,
             }
         }); */
@@ -527,7 +530,7 @@ public class GameClientView extends JFrame {
         });
 
 
-        JButton ctgItemBtn = new JButton(categoryItemImg1); //초성힌트(?)
+        JButton ctgItemBtn = new JButton(initialItemImg1); //초성힌트(?)
         ctgItemBtn.revalidate();
         ctgItemBtn.repaint();
         ctgItemBtn.setBorderPainted(false);
@@ -679,13 +682,13 @@ public class GameClientView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(gc2!=null) {
                     gc2.setColor(panel.getBackground());
-                    //gc2.flush();
+//                    gc2.flush();
                     gc2.fillRect(0, 0, panel.getWidth(), panel.getHeight());
                     gc2.setColor(Color.BLACK);
                     //gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
+                    pointss.clear();
+                    points.clear();
                 }
-
-                isClear = true;
             }
         });
         btnNewButton7.revalidate();
@@ -865,12 +868,12 @@ public class GameClientView extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             // 서버로 메세지 보내기
+            System.out.println("txt input !!! "+txtInput.getText());
             ChatMsg cm = new ChatMsg(username, "200", txtInput.getText());
             cm.isStart = isStart;
             cm.roomId = roomId;
 
             main.SendObject(cm);
-
             txtInput.setText("");
 
             String sendTxt = "["+ username + "]" + txtInput.getText();
@@ -1096,6 +1099,7 @@ public class GameClientView extends JFrame {
                             removeWord();
                         }
 
+                        System.out.println("in view /// 800번 ");
                         Client.RoomMsg changeMsg = new Client.RoomMsg("800",String.valueOf(presenterIndex) + " "+ String.valueOf(indexWordList));
                         changeMsg.roomId = roomId;
                         main.SendObject(changeMsg);
@@ -1107,6 +1111,8 @@ public class GameClientView extends JFrame {
 //                      changeRole();
                     }
                 }
+
+
             }
         };
             timer.scheduleAtFixedRate(task, 0L, 1000);
@@ -1114,21 +1120,16 @@ public class GameClientView extends JFrame {
 
     public void changeRole(){
         //캔버스 초기화
-        if(gc2!=null && panel!=null){
-            gc2.setColor(Color.WHITE);
-            panel.setBackground(Color.WHITE);
-
-//            panel = new JPanel();
-//            panel.revalidate();
-//            panel.setBorder(new LineBorder(new Color(0, 0, 0)));
-//            panel.setBackground(Color.WHITE);
-//            panel.setBounds(20, 20, 760, 480); //그림판 판넬
-//            canvasPanel.add(panel);
-//            gc = panel.getGraphics();
-
-            canvasPanel.setBackground(Color.WHITE);
-            gc2.clearRect(0,0, 1000, 500);
+        if(gc2!=null && panel!=null) {
+            gc2.setColor(panel.getBackground());
+            //gc2.flush();
+            gc2.fillRect(0, 0, panel.getWidth(), panel.getHeight());
+            gc2.setColor(Color.BLACK);
+            pointss.clear();
+            points.clear();
+            //gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
         }
+
     }
 
     public void showPresenter(int presenterIndex){
@@ -1163,11 +1164,10 @@ public class GameClientView extends JFrame {
     }
 
     public void showWord(int index){
-        System.out.println("show word index"+ this.wordList[index]);
-        if(this.wordList[index] == null){
-            over = new GameClientOver();
-            over.setVisible(true);
-            this.setVisible(false);
+        if(this.wordList.length == index){
+            System.out.println("over!!"+UserName);
+            Client.RoomMsg overRoomMsg = new Client.RoomMsg("900", UserName + " "+ String.valueOf(score));
+            main.SendObject(overRoomMsg);
         }
         else{
             wordLabel.setText(this.wordList[index]);
@@ -1175,12 +1175,18 @@ public class GameClientView extends JFrame {
         }
 
     }
+    public void overGame(String scores){
+        over = new GameClientOver(scores);
+        this.setVisible(false);
+        over.setVisible(true);
+    }
 
     public void removeWord(){
         wordLabel.setVisible(false);
     }
 
     public void showScore(int score){
+
         if(score <= 0 ) {
             this.score = 0 ;
         }
@@ -1188,6 +1194,13 @@ public class GameClientView extends JFrame {
         else this.score = score;
         scoreLabel.setText(String.valueOf(this.score));
         revalidate();
+    }
+
+    public int getScore(){
+        return this.score;
+    }
+    public String getUserName(){
+        return this.UserName;
     }
 
     public void showResultPanel(String code){

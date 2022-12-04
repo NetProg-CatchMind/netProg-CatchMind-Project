@@ -545,16 +545,16 @@ public class GameClientMain extends JFrame {
                         crm = (Client.RoomMsg)obcm;
 
                         if(crm.code.matches("800")){
-                            System.out.println("change role :: i am " + username);
                             String[] data = crm.data.split(" ");
 
                             presenterIndex = Integer.parseInt(data[0]);
                             indexWordList = Integer.parseInt(data[1]);
+                            view.indexWordList = indexWordList;
 
                             if(presenterIndex > 0){
                                 view.showPresenter(presenterIndex);
                                 try {
-                                    Thread.sleep(1000);
+                                    Thread.sleep(2000);
                                 } catch (InterruptedException e) {
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();
@@ -573,10 +573,13 @@ public class GameClientMain extends JFrame {
 
 //                            view.removeWord();
 
-                            if(username.equals(view.userList[presenterIndex])){
-                                System.out.println("presenter");
-                                view.showWord(indexWordList);
-                            }
+//                            if(username.equals(view.userList[presenterIndex])){
+//                                view.showWord(indexWordList);
+//                            }
+                        }
+
+                        else if(crm.code.matches("900")){
+                            view.overGame(crm.data);
                         }
 
                     }
@@ -667,20 +670,17 @@ public class GameClientMain extends JFrame {
 //                            System.out.println("change !! ");
 //                        }
                     }
-                    
+
                     if(obcm instanceof HintMsg){
+                        System.out.println("1000");
                         hm = (HintMsg) obcm;
-                        
+
                         switch(hm.code){
                             case "1000":
-                                System.out.println("첫번째 글자 힌트");
-                                for(int i=0; i<totalRoomList.length; i++) {
-                                    if(totalRoomList[i].equals(view.getRoomId())) {
-                                        if(hm.UserName.equals(username)) {
+                                System.out.println(hm.data);
 
-                                        }
-                                    }
-                                }
+                                System.out.println("htm::"+hm.data);
+                                view.AppendText(hm.data);
 
                             case "1001":
                                 System.out.println("시간 60초 세팅 아이템");
@@ -708,10 +708,10 @@ public class GameClientMain extends JFrame {
                                 }
                                 //main.SendObject();
                                 //break;
-                                
+
                             case "1002":
                                 System.out.println("배경그림 보여주기"); //view에 어딧을까,,
-                                
+
                             case "1003":
                                 System.out.println("글자 수 아이템");
                                 for(int i=0; i<totalRoomList.length; i++) {
@@ -727,7 +727,7 @@ public class GameClientMain extends JFrame {
                                         }
                                     }
                                 }
-                                
+
                             case "1004":
                                 System.out.println("점수 두배 아이템");
                                 for(int i=0; i<totalRoomList.length; i++) {
@@ -773,11 +773,18 @@ public class GameClientMain extends JFrame {
                                     view.setTime(20);
                                     view.showWord(indexWordList+1);
 
+                                    System.out.println("in main2 /// 800번 ");
+                                    Client.RoomMsg changeMsg = new  Client.RoomMsg( "800",String.valueOf(presenterIndex) + " "+ String.valueOf(indexWordList));
+                                    changeMsg.roomId = roomId;
+                                    view.changeRole();
+                                    SendObject(changeMsg);
+
                                 }
                                 else{
                                     view.AppendText(msg);
                                     view.setTime(20);
                                     view.removeWord();
+                                    view.changeRole();
                                 }
 
                                 view.showResultPanel(cm.code); //정답 : answer
@@ -788,12 +795,13 @@ public class GameClientMain extends JFrame {
                                     e.printStackTrace();
                                 }
                                 view.removeResultPanel();
-//                                        view.setTime(20);
+                                view.setTime(20);
 
-                                Client.RoomMsg changeMsg = new  Client.RoomMsg( "800",String.valueOf(presenterIndex) + " "+ String.valueOf(indexWordList));
-                                changeMsg.roomId = roomId;
-                                view.changeRole();
-                                SendObject(changeMsg);
+//                                System.out.println("in main2 /// 800번 ");
+//                                Client.RoomMsg changeMsg = new  Client.RoomMsg( "800",String.valueOf(presenterIndex) + " "+ String.valueOf(indexWordList));
+//                                changeMsg.roomId = roomId;
+//                                view.changeRole();
+//                                SendObject(changeMsg);
 
 //                                System.out.println("main 201 :: "+presenterIndex+ " // " + indexWordList);
 //                                view.changeRole(presenterIndex, indexWordList);
