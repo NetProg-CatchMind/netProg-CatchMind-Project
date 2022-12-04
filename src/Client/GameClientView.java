@@ -688,6 +688,9 @@ public class GameClientView extends JFrame {
                     //gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
                     pointss.clear();
                     points.clear();
+
+                    main.SendMouseEvent(null, c, pen_size, shapes, linee);
+                    repaint();
                 }
             }
         });
@@ -920,41 +923,56 @@ public class GameClientView extends JFrame {
 
         gc2.setColor(co);
 
-        if(cm.lines==false) {
-            pointss.clear();
-            if(shape==1) {
-                gc2.drawOval(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2,cm.pen_size, cm.pen_size);
-                shape=0;
-
-            }else if(shape==3) {
-                gc2.drawRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
-                shape=0;
-
-            }else if(shape==0) {
-
-                gc2.fillRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
+        if(cm.mouse_e==null){
+            if(gc2!=null) {
+                gc2.setColor(panel.getBackground());
+//                    gc2.flush();
+                gc2.fillRect(0, 0, panel.getWidth(), panel.getHeight());
+                gc2.setColor(Color.BLACK);
+                //gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
+                pointss.clear();
+                points.clear();
 
             }
-            shape=0;
-        }else if(cm.lines==true) {
-
-            pointss.add(cm.mouse_e.getPoint());
-
-            if (pointss.size() >1 ) {
-
-                Point p3 = pointss.get(0);
-                Graphics2D g2=(Graphics2D)gc2;
-
-                g2.setStroke(new BasicStroke(cm.pen_size));
-
-                for (int i = 1; i < pointss.size(); i++) {
-                    Point p4 = pointss.get(i);
-                    gc2.drawLine(p3.x, p3.y, p4.x, p4.y);
-                    p3 = p4;
-                }
-            } else if(pointss.size() ==1)
-                pointss.add(cm.mouse_e.getPoint());
         }
+        else{
+            if(cm.lines==false) {
+                pointss.clear();
+                if(shape==1) {
+                    gc2.drawOval(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2,cm.pen_size, cm.pen_size);
+                    shape=0;
+
+                }else if(shape==3) {
+                    gc2.drawRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
+                    shape=0;
+
+                }else if(shape==0) {
+
+                    gc2.fillRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
+
+                }
+                shape=0;
+            }else if(cm.lines==true) {
+
+                pointss.add(cm.mouse_e.getPoint());
+
+                if (pointss.size() >1 ) {
+
+                    Point p3 = pointss.get(0);
+                    Graphics2D g2=(Graphics2D)gc2;
+
+                    g2.setStroke(new BasicStroke(cm.pen_size));
+
+                    for (int i = 1; i < pointss.size(); i++) {
+                        Point p4 = pointss.get(i);
+                        gc2.drawLine(p3.x, p3.y, p4.x, p4.y);
+                        p3 = p4;
+                    }
+                } else if(pointss.size() ==1)
+                    pointss.add(cm.mouse_e.getPoint());
+            }
+        }
+
         update(gc);
         revalidate();
     }

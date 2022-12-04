@@ -807,20 +807,6 @@ public class GameClientMain extends JFrame {
                                 view.removeResultPanel();
                                 view.setTime(20);
 
-//                                System.out.println("in main2 /// 800번 ");
-//                                Client.RoomMsg changeMsg = new  Client.RoomMsg( "800",String.valueOf(presenterIndex) + " "+ String.valueOf(indexWordList));
-//                                changeMsg.roomId = roomId;
-//                                view.changeRole();
-//                                SendObject(changeMsg);
-
-//                                System.out.println("main 201 :: "+presenterIndex+ " // " + indexWordList);
-//                                view.changeRole(presenterIndex, indexWordList);
-//                                        view.setTime(20);
-//                                        view.showTime();
-
-//                                ChatMsg changeMsg = new ChatMsg(UserName, "800", String.valueOf(presenterIndex) + " " + String.valueOf(indexWordList));
-//                                SendObject(changeMsg);
-
                             }
                             break;
 
