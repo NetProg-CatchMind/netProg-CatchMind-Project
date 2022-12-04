@@ -772,6 +772,16 @@ public class GameClientMain extends JFrame {
                                     view.showScore(score);
                                     view.setTime(20);
                                     view.showWord(indexWordList+1);
+                                    if(presenterIndex > 0){
+                                        view.showPresenter(presenterIndex);
+                                        try {
+                                            Thread.sleep(2000);
+                                        } catch (InterruptedException e) {
+                                            // TODO Auto-generated catch block
+                                            e.printStackTrace();
+                                        }
+                                        view.removePresenter();
+                                    }
 
                                     System.out.println("in main2 /// 800번 ");
                                     Client.RoomMsg changeMsg = new  Client.RoomMsg( "800",String.valueOf(presenterIndex) + " "+ String.valueOf(indexWordList));
@@ -819,14 +829,6 @@ public class GameClientMain extends JFrame {
                                 if(totalRoomList[i].equals(view.getRoomId())) {
                                     if (cm.UserName.equals(username)){
                                         view.AppendTextR(msg); // 내 메세지는 우측에
-                                        view.showResultPanel(cm.code);
-                                        try {
-                                            Thread.sleep(1000);
-                                        } catch (InterruptedException e) {
-                                            // TODO Auto-generated catch block
-                                            e.printStackTrace();
-                                        }
-                                        view.removeResultPanel();
 
                                         score -= 5;
                                         view.showScore(score);
@@ -835,6 +837,14 @@ public class GameClientMain extends JFrame {
                                         view.AppendText(msg);
                                     }
 
+                                    view.showResultPanel(cm.code);
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        // TODO Auto-generated catch block
+                                        e.printStackTrace();
+                                    }
+                                    view.removeResultPanel();
                                 }
                             }
                             break;

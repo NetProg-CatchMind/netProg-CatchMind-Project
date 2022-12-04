@@ -1093,10 +1093,32 @@ public class GameClientView extends JFrame {
 //                        showTime();
                         System.out.println("in view::" + UserName + "//" + userList[presenterIndex]);
                         if(username.equals(userList[presenterIndex])){
-                            showWord(indexWordList);
+                            if(presenterIndex > 0){
+                                showPresenter(presenterIndex);
+                                try {
+                                    Thread.sleep(2000);
+                                } catch (InterruptedException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                                removePresenter();
+                            }
+                            removeWord();
+                            changeRole();
                         }
                         else{
-                            removeWord();
+                            if(presenterIndex > 0){
+                                showPresenter(presenterIndex);
+                                try {
+                                    Thread.sleep(2000);
+                                } catch (InterruptedException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                                removePresenter();
+                            }
+                            showWord(indexWordList+1);
+                            changeRole();
                         }
 
                         System.out.println("in view /// 800번 ");

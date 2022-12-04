@@ -439,7 +439,8 @@ public class GameServer extends JFrame {
                                     cm = new ChatMsg(cm.UserName, "201", cm.data); //정답
                                 }
                                 else{
-                                    scoreMap.replace(cm.UserName, scoreMap.get(cm.UserName)-5);
+                                    if(scoreMap.get(cm.UserName) == null) scoreMap.put(cm.UserName, 0);
+                                    else scoreMap.replace(cm.UserName, scoreMap.get(cm.UserName)-5);
                                     cm = new ChatMsg(cm.UserName,"202", cm.data);
                                 }
 

@@ -60,7 +60,7 @@ public class GameClientOver extends JFrame {
                 // Image 영역이 가려졌다 다시 나타날 때 그려준다.
             }
         };
-        scoreTitlePanel.setBounds(500,250, 500, 400);
+        scoreTitlePanel.setBounds(500,200, 500, 400);
         scoreTitlePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         scoreTitlePanel.setOpaque(false);
         this.add(scoreTitlePanel);
@@ -76,11 +76,11 @@ public class GameClientOver extends JFrame {
             System.out.println("score!!!"+scoreMap.toString());
 
             JLabel userLabel = new JLabel(score.getKey());
-            userLabel.setBounds(200,0,250,100);
+            userLabel.setBounds(50,0,200,100);
             userLabel.setFont(new Font("Serif", Font.PLAIN, 50));
             scorePanel.add(userLabel);
             JLabel scoreLabel = new JLabel(score.getValue());
-            scoreLabel.setBounds(450,0,250,100);
+            scoreLabel.setBounds(350,0,200,100);
             scoreLabel.setFont(new Font("Serif", Font.PLAIN, 50));
             scorePanel.add(scoreLabel);
 
@@ -100,6 +100,7 @@ public class GameClientOver extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 GameClientSign sign = new GameClientSign();
+                setVisible(false);
                 sign.setVisible(true);
             }
         });
