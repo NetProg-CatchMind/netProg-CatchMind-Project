@@ -991,7 +991,7 @@ public class GameClientMain extends JFrame {
         roomListScrollPanel.setViewportView(roomListPanel);
     }
 
-    public void SendMouseEvent(MouseEvent e, Color c,int startX, int startY, int endX, int endY, int pen_size, int shapes, boolean linee) {
+    public void SendMouseEvent(MouseEvent e, Color c,int startX, int startY, int endX, int endY, int pen_size, int shapes, boolean linee, boolean isDrawing) {
         Server.ChatMsg cm = new Server.ChatMsg( UserName, "500", "MOUSE");
         cm.roomId = view.roomId;
         cm.mouse_e = e;
@@ -1002,6 +1002,7 @@ public class GameClientMain extends JFrame {
         cm.pen_size = pen_size;
         cm.co=c;
         cm.shape=shapes;
+        cm.isDrawing = isDrawing;
         //System.out.println(linee);
 
         cm.lines=linee;

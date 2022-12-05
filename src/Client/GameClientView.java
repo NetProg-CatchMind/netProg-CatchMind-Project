@@ -162,6 +162,7 @@ public class GameClientView extends JFrame {
     public boolean linee = true;
     public boolean isStart = false;
     public boolean isOver = false;
+    public boolean isDrawing = false;
     private JTextField textField;
 
     //    private Vector userVec = new Vector();
@@ -710,7 +711,7 @@ public class GameClientView extends JFrame {
                     pointss.clear();
                     points.clear();
 
-                    main.SendMouseEvent(null, c,0,0,0,0, pen_size, shapes, linee);
+                    main.SendMouseEvent(null, c,0,0,0,0, pen_size, shapes, linee, isDrawing);
                     repaint();
                 }
             }
@@ -787,7 +788,7 @@ public class GameClientView extends JFrame {
         btnNewButtonRectangle.revalidate();
         btnNewButtonRectangle.repaint();
 
-        JButton btnNewButton10 = new JButton(""); //사각형 그리기
+        JButton btnNewButton10 = new JButton("■"); //사각형 그리기
         btnNewButton10.setFont(new Font("굴림", Font.PLAIN, 12));
         btnNewButton10.setBounds(338, 515, 60, 30);
         btnNewButton10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -991,6 +992,7 @@ public class GameClientView extends JFrame {
         //  return;
         //System.out.println(cm.lines);
 
+        System.out.println((pointss.size()));
         gc2.setColor(co);
 
         if(cm.mouse_e==null){
@@ -1007,7 +1009,6 @@ public class GameClientView extends JFrame {
 
         else{
             if(cm.lines==false) {
-                pointss.clear();
                 if(cm.shape==0){ //line
                     g2 = (Graphics2D) gc2;
 
@@ -1040,50 +1041,39 @@ public class GameClientView extends JFrame {
                     g2.fillRect(cm.startX, cm.startY, cm.endX-cm.startX, cm.endY-cm.startY);
                 }
 
-                points.clear();
-//                pointss.clear();
+                points.clear();;
             }
             else {
-
-                System.out.println(cm.mouse_e.getPoint());
-                pointss.add(cm.mouse_e.getPoint());
-
-                if (pointss.size()>1) {
-                    Point p3 = pointss.get(0);
-                    Graphics2D g2=(Graphics2D)gc2;
-
-                    g2.setColor(co);
-                    g2.setStroke(new BasicStroke(cm.pen_size));
-
-                    for (int i = 1; i < pointss.size(); i++) {
-                        Point p4 = pointss.get(i);
-                        gc2.drawLine(p3.x, p3.y, p4.x, p4.y);
-                        p3 = p4;
-                    }
-                } else if(pointss.size() ==1)
+                if(cm.isDrawing) {
                     pointss.add(cm.mouse_e.getPoint());
 
+                    if (pointss.size() > 1) {
+                        Point p3 = pointss.get(0);
+                        Graphics2D g2 = (Graphics2D) gc2;
+
+                        g2.setStroke(new BasicStroke(cm.pen_size));
+                        gc2.setColor(cm.co);
+                        g2.setColor(co);
+
+                        for (int i = 1; i < pointss.size(); i++) {
+                            Point p4 = pointss.get(i);
+                            gc2.drawLine(p3.x, p3.y, p4.x, p4.y);
+                            p3 = p4;
+                        }
+                    } else if (pointss.size() == 1)
+                        pointss.add(cm.mouse_e.getPoint());
+                }
+                else {
+                    pointss.clear();
+                }
             }
-            points.clear();
+
         }
 
         update(gc);
         revalidate();
     }
 
-
-//    public void SendMouseEvent(MouseEvent e) {
-//        Server.ChatMsg cm = new Server.ChatMsg( UserName, "500", "MOUSE");
-//        cm.roomId = roomId;
-//        cm.mouse_e = e;
-//        cm.pen_size = pen_size;
-//        cm.co=c;
-//        cm.shape=shapes;
-//        //System.out.println(linee);
-//
-//        cm.lines=linee;
-//        main.SendObject(cm);
-//    }
 
     class MyMouseWheelEvent implements MouseWheelListener {
         @Override
@@ -1110,9 +1100,9 @@ public class GameClientView extends JFrame {
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            pointss.clear();
             gc2.setColor(c);
             points.add(e.getPoint());
+            isDrawing = true;
 
             if (linee == false) {
 
@@ -1130,10 +1120,11 @@ public class GameClientView extends JFrame {
                     }
                 } else
                     points.add(e.getPoint());
-
-                update(gc);
-                main.SendMouseEvent(e, c,0, 0, 0, 0, pen_size, shapes, linee);
             }
+
+            update(gc);
+            System.out.println("mouse dragged"+isDrawing);
+            main.SendMouseEvent(e, c,0, 0, 0, 0, pen_size, shapes, linee, isDrawing);
         }
 
 
@@ -1161,6 +1152,7 @@ public class GameClientView extends JFrame {
         public void mousePressed(MouseEvent e) {
             points.clear();
             pointss.clear();
+            isDrawing = true;
 
             startX = e.getX();
             startY = e.getY();
@@ -1169,14 +1161,16 @@ public class GameClientView extends JFrame {
 
         @Override
         public void mouseReleased(MouseEvent e) {
+            pointss.clear();
+            System.out.println(pointss.size());
             points.clear();
+            isDrawing = false;
             if(linee==false){
-                gc2.setColor(c);
+//                gc2.setColor(c);
                 gc.setColor(c);
 
                 endX = e.getX();
                 endY = e.getY();
-                System.out.println("마지막 좌표"+endX+"," + endX);
 
                 if(shapes==0){ //line
                     g2 = (Graphics2D) gc2;
@@ -1217,7 +1211,7 @@ public class GameClientView extends JFrame {
                 update(gc);
                 points.clear();
                 pointss.clear();
-                main.SendMouseEvent(e, c,startX,startY,endX,endY, pen_size, shapes, linee);
+                main.SendMouseEvent(e, c,startX,startY,endX,endY, pen_size, shapes, linee, isDrawing);
 //                shapes=0;
             }
             else{
@@ -1225,9 +1219,8 @@ public class GameClientView extends JFrame {
                 points.clear();
                 pointss.clear();
 //            linee=false;
-                main.SendMouseEvent(e, c,0,0,0,0, pen_size, shapes, linee);
+                main.SendMouseEvent(e, c,0,0,0,0, pen_size, shapes, linee, isDrawing);
             }
-            pointss.clear();
         }
     }
 
@@ -1309,7 +1302,6 @@ public class GameClientView extends JFrame {
             points.clear();
             //gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
         }
-
     }
 
     public void showPresenter(int presenterIndex){

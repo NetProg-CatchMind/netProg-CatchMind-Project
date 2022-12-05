@@ -14,6 +14,7 @@ public class ChatMsg implements Serializable {
     public String char_no;
     public String data;
     public String roomId;
+    public boolean isDrawing;
     public ImageIcon img;
     public int startX, startY;
     public int endX, endY;
