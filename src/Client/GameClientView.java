@@ -991,6 +991,8 @@ public class GameClientView extends JFrame {
         //  return;
         //System.out.println(cm.lines);
 
+        gc2.setColor(co);
+
         if(cm.mouse_e==null){
             if(gc2!=null) {
                 gc2.setColor(panel.getBackground());
@@ -1005,7 +1007,6 @@ public class GameClientView extends JFrame {
 
         else{
             if(cm.lines==false) {
-                gc2.setColor(co);
                 pointss.clear();
                 if(cm.shape==0){ //line
                     g2 = (Graphics2D) gc2;
@@ -1040,16 +1041,18 @@ public class GameClientView extends JFrame {
                 }
 
                 points.clear();
-                pointss.clear();
+//                pointss.clear();
             }
             else {
+
+                System.out.println(cm.mouse_e.getPoint());
                 pointss.add(cm.mouse_e.getPoint());
 
-                if (pointss.size()>1 ) {
-
+                if (pointss.size()>1) {
                     Point p3 = pointss.get(0);
                     Graphics2D g2=(Graphics2D)gc2;
 
+                    g2.setColor(co);
                     g2.setStroke(new BasicStroke(cm.pen_size));
 
                     for (int i = 1; i < pointss.size(); i++) {
@@ -1061,6 +1064,7 @@ public class GameClientView extends JFrame {
                     pointss.add(cm.mouse_e.getPoint());
 
             }
+            points.clear();
         }
 
         update(gc);
@@ -1106,6 +1110,7 @@ public class GameClientView extends JFrame {
 
         @Override
         public void mouseDragged(MouseEvent e) {
+            pointss.clear();
             gc2.setColor(c);
             points.add(e.getPoint());
 
@@ -1125,6 +1130,7 @@ public class GameClientView extends JFrame {
                     }
                 } else
                     points.add(e.getPoint());
+
                 update(gc);
                 main.SendMouseEvent(e, c,0, 0, 0, 0, pen_size, shapes, linee);
             }
@@ -1216,15 +1222,12 @@ public class GameClientView extends JFrame {
             }
             else{
                 points.add(e.getPoint());
-//                points.clear();
+                points.clear();
+                pointss.clear();
 //            linee=false;
                 main.SendMouseEvent(e, c,0,0,0,0, pen_size, shapes, linee);
-
-
             }
-
-
-
+            pointss.clear();
         }
     }
 
