@@ -164,7 +164,7 @@ public class GameClientView extends JFrame {
     public boolean isOver = false;
     private JTextField textField;
 
-//    private Vector userVec = new Vector();
+    //    private Vector userVec = new Vector();
     public String[] socketList;
     public String[] userList;
     public HashMap<String, Boolean> isPresenter = new HashMap<>();
@@ -581,7 +581,7 @@ public class GameClientView extends JFrame {
         panel.revalidate();
         panel.setBorder(new LineBorder(new Color(0, 0, 0)));
         panel.setBackground(Color.WHITE);
-        panel.setBounds(20, 20, 760, 480); //그림판 판넬
+        panel.setBounds(20, 0, 760, 480); //그림판 판넬
         canvasPanel.add(panel);
         gc = panel.getGraphics();
         MyMouseEvent mouse = new MyMouseEvent();
@@ -593,7 +593,8 @@ public class GameClientView extends JFrame {
         JButton btnNewButton1 = new JButton(".");
         btnNewButton1.setBackground(Color.RED);
         btnNewButton1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(ActionEvent e) {
+                linee = true;
                 c = new Color(255, 0, 0);
                 startss();
             }
@@ -601,7 +602,7 @@ public class GameClientView extends JFrame {
         btnNewButton1.revalidate();
         btnNewButton1.repaint();
         btnNewButton1.setForeground(Color.RED);
-        btnNewButton1.setBounds(50, 508, 62, 35);
+        btnNewButton1.setBounds(50, 483, 62, 30);
         canvasPanel.add(btnNewButton1);
 
 
@@ -610,6 +611,7 @@ public class GameClientView extends JFrame {
         btnNewButton2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                linee = true;
                 c = new Color(0, 0, 255);
                 //startss();
             }
@@ -617,7 +619,7 @@ public class GameClientView extends JFrame {
         btnNewButton2.revalidate();
         btnNewButton2.repaint();
         btnNewButton2.setForeground(Color.BLUE);
-        btnNewButton2.setBounds(122, 508, 62, 35);
+        btnNewButton2.setBounds(122, 483, 62, 30);
         canvasPanel.add((btnNewButton2));
 
 
@@ -626,6 +628,7 @@ public class GameClientView extends JFrame {
         btnNewButton3.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                linee = true;
                 c = new Color(255, 255, 0);
                 //startss();
             }
@@ -633,7 +636,7 @@ public class GameClientView extends JFrame {
         btnNewButton3.revalidate();
         btnNewButton3.repaint();
         btnNewButton3.setForeground(Color.YELLOW);
-        btnNewButton3.setBounds(194, 508, 62, 35);
+        btnNewButton3.setBounds(194, 483, 62, 30);
         canvasPanel.add((btnNewButton3));
 
 
@@ -642,6 +645,7 @@ public class GameClientView extends JFrame {
         btnNewButton4.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                linee = true;
                 c = new Color(12, 134, 23);
                 //startss();
             }
@@ -649,7 +653,7 @@ public class GameClientView extends JFrame {
         btnNewButton4.revalidate();
         btnNewButton4.repaint();
         btnNewButton4.setForeground(Color.GREEN);
-        btnNewButton4.setBounds(266, 508, 62, 35);
+        btnNewButton4.setBounds(266, 483, 62, 30);
         canvasPanel.add((btnNewButton4));
 
         JButton btnNewButton5 = new JButton(",");
@@ -657,6 +661,7 @@ public class GameClientView extends JFrame {
         btnNewButton5.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                linee = true;
                 c = new Color(0, 0, 0);
                 //startss();
             }
@@ -664,7 +669,7 @@ public class GameClientView extends JFrame {
         btnNewButton5.revalidate();
         btnNewButton5.repaint();
         btnNewButton5.setForeground(Color.BLACK);
-        btnNewButton5.setBounds(338, 508, 62, 35);
+        btnNewButton5.setBounds(338, 483, 62, 30);
         canvasPanel.add((btnNewButton5));
 
 
@@ -680,6 +685,7 @@ public class GameClientView extends JFrame {
         btnNewButton6.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                linee = true;
                 c = new Color(255,255,255);
                 //startss();
             }
@@ -704,7 +710,7 @@ public class GameClientView extends JFrame {
                     pointss.clear();
                     points.clear();
 
-                    main.SendMouseEvent(null, c, pen_size, shapes, linee);
+                    main.SendMouseEvent(null, c,0,0,0,0, pen_size, shapes, linee);
                     repaint();
                 }
             }
@@ -712,13 +718,29 @@ public class GameClientView extends JFrame {
         btnNewButton7.revalidate();
         btnNewButton7.repaint();
 
+        JButton btnNewButtonLine = new JButton("/"); //Line
+        btnNewButtonLine.setFont(new Font("굴림", Font.PLAIN, 12));
+        btnNewButtonLine.setBounds(50, 515, 60, 30);
+        btnNewButtonLine.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        canvasPanel.add(btnNewButtonLine);
+        btnNewButtonLine.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e1) {
+                shapes=0;
+                linee = false;
+                //c = new Color(255,255,255);
+                //startss();
+            }
+        });
+        btnNewButtonLine.revalidate();
+        btnNewButtonLine.repaint();
 
-        JButton btnNewButton8 = new JButton("●"); //동그라미 그리기
-        btnNewButton8.setFont(new Font("굴림", Font.PLAIN, 12));
-        btnNewButton8.setBounds(410, 508, 60, 35);
-        btnNewButton8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        canvasPanel.add(btnNewButton8);
-        btnNewButton8.addActionListener(new ActionListener() {
+        JButton btnNewButtonCircle = new JButton("o"); //동그라미 그리기
+        btnNewButtonCircle.setFont(new Font("굴림", Font.PLAIN, 12));
+        btnNewButtonCircle.setBounds(122, 515, 60, 30);
+        btnNewButtonCircle.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        canvasPanel.add(btnNewButtonCircle);
+        btnNewButtonCircle.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e1) {
                 shapes=1;
@@ -727,18 +749,54 @@ public class GameClientView extends JFrame {
                 //startss();
             }
         });
+        btnNewButtonCircle.revalidate();
+        btnNewButtonCircle.repaint();
+
+
+        JButton btnNewButton8 = new JButton("●"); //뚫린 동그라미 그리기
+        btnNewButton8.setFont(new Font("굴림", Font.PLAIN, 12));
+        btnNewButton8.setBounds(194, 515, 60, 30);
+        btnNewButton8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        canvasPanel.add(btnNewButton8);
+        btnNewButton8.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e1) {
+                shapes=2;
+                linee = false;
+                //c = new Color(255,255,255);
+                //startss();
+            }
+        });
         btnNewButton8.revalidate();
         btnNewButton8.repaint();
 
-        JButton btnNewButton10 = new JButton("◼"); //사각형 그리기
+        JButton btnNewButtonRectangle = new JButton("□"); //사각형 그리기
+        btnNewButtonRectangle.setFont(new Font("굴림", Font.PLAIN, 12));
+        btnNewButtonRectangle.setBounds(266, 515, 60, 30);
+        btnNewButtonRectangle.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        canvasPanel.add(btnNewButtonRectangle);
+        btnNewButtonRectangle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e2) {
+                shapes=3;
+                linee = false;
+                //c = new Color(255,255,255);
+                //startss();
+            }
+        });
+        btnNewButtonRectangle.revalidate();
+        btnNewButtonRectangle.repaint();
+
+        JButton btnNewButton10 = new JButton(""); //사각형 그리기
         btnNewButton10.setFont(new Font("굴림", Font.PLAIN, 12));
-        btnNewButton10.setBounds(482, 508, 60, 35);
+        btnNewButton10.setBounds(338, 515, 60, 30);
         btnNewButton10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         canvasPanel.add(btnNewButton10);
         btnNewButton10.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e2) {
-                shapes=3;
+                shapes=4;
+                linee = false;
                 //c = new Color(255,255,255);
                 //startss();
             }
@@ -830,9 +888,9 @@ public class GameClientView extends JFrame {
         btnNewButton.setFont(new Font("굴림", Font.PLAIN, 14));
         btnNewButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                    ChatMsg msg = new ChatMsg(UserName, "400", "Bye");
-                    main.SendObject(msg);
-                    System.exit(0);
+                ChatMsg msg = new ChatMsg(UserName, "400", "Bye");
+                main.SendObject(msg);
+                System.exit(0);
             }
         });
         btnNewButton.setBounds(300, 490, 70, 30);
@@ -930,10 +988,8 @@ public class GameClientView extends JFrame {
     // Mouse Event 수신 처리
     public void DoMouseEvent(ChatMsg cm,Color co,int shape) {
         //if (cm.UserName.matches(UserName)) // 본인 것은 이미 Local 로 그렸다.
-          //  return;
+        //  return;
         //System.out.println(cm.lines);
-
-        gc2.setColor(co);
 
         if(cm.mouse_e==null){
             if(gc2!=null) {
@@ -944,31 +1000,52 @@ public class GameClientView extends JFrame {
                 //gc2.drawRect(0, 0, panel.getWidth() - 1, panel.getHeight() - 1);
                 pointss.clear();
                 points.clear();
-
             }
         }
+
         else{
             if(cm.lines==false) {
+                gc2.setColor(co);
                 pointss.clear();
-                if(shape==1) {
-                    gc2.drawOval(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2,cm.pen_size, cm.pen_size);
-                    shape=0;
+                if(cm.shape==0){ //line
+                    g2 = (Graphics2D) gc2;
 
-                }else if(shape==3) {
-                    gc2.drawRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
-                    shape=0;
-
-                }else if(shape==0) {
-
-                    gc2.fillRect(cm.mouse_e.getX() - pen_size/2, cm.mouse_e.getY() - cm.pen_size/2, cm.pen_size, cm.pen_size);
-
+                    g2.setStroke(new BasicStroke(pen_size));
+                    System.out.println((cm.endX-cm.startX)+"//"+ (cm.endY-cm.startY));
+                    g2.drawLine(cm.startX, cm.startY, cm.endX, cm.endY);
                 }
-                shape=0;
-            }else if(cm.lines==true) {
+                else if(cm.shape==1) { // draw circle
+                    g2 = (Graphics2D) gc2;
 
+                    g2.setStroke(new BasicStroke(pen_size));
+                    g2.drawOval(cm.startX, cm.startY, cm.endX-cm.startX, cm.endY-cm.startY);
+
+                }else if(cm.shape==2) { //fill circle
+                    g2 = (Graphics2D) gc2;
+
+                    g2.setStroke(new BasicStroke(pen_size));
+                    g2.fillOval(cm.startX, cm.startY, cm.endX-cm.startX, cm.endY-cm.startY);
+                }
+                else if(cm.shape == 3){ //draw rect
+                    g2 = (Graphics2D) gc2;
+
+                    g2.setStroke(new BasicStroke(pen_size));
+                    g2.drawRect(cm.startX, cm.startY, cm.endX-cm.startX, cm.endY-cm.startY);
+                }
+                else if(cm.shape==4){ //fill rect
+                    g2 = (Graphics2D) gc2;
+
+                    g2.setStroke(new BasicStroke(pen_size));
+                    g2.fillRect(cm.startX, cm.startY, cm.endX-cm.startX, cm.endY-cm.startY);
+                }
+
+                points.clear();
+                pointss.clear();
+            }
+            else {
                 pointss.add(cm.mouse_e.getPoint());
 
-                if (pointss.size() >1 ) {
+                if (pointss.size()>1 ) {
 
                     Point p3 = pointss.get(0);
                     Graphics2D g2=(Graphics2D)gc2;
@@ -982,6 +1059,7 @@ public class GameClientView extends JFrame {
                     }
                 } else if(pointss.size() ==1)
                     pointss.add(cm.mouse_e.getPoint());
+
             }
         }
 
@@ -1022,33 +1100,36 @@ public class GameClientView extends JFrame {
     class MyMouseEvent implements MouseListener, MouseMotionListener {
 
         List<Point> points = new ArrayList<Point>();
+        int startX, startY;
+        int endX, endY;
 
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            linee=true;
             gc2.setColor(c);
             points.add(e.getPoint());
 
-            linee=true;
-            if (points.size() > 1) {
-                Point p1 = points.get(0);
-                g2=(Graphics2D)gc2;
+            if (linee == false) {
 
-                g2.setStroke(new BasicStroke(pen_size));
+            } else {
+                if (points.size() > 1) {
+                    Point p1 = points.get(0);
+                    g2 = (Graphics2D) gc2;
 
-                for (int i = 1; i < points.size(); i++){
-                    Point p2 = points.get(i);
-//                    gc.drawLine(p1.x, p1.y, p2.x, p2.y);
-                    gc2.drawLine(p1.x, p1.y, p2.x, p2.y);
-                    p1 = p2;
-                }
+                    g2.setStroke(new BasicStroke(pen_size));
+
+                    for (int i = 1; i < points.size(); i++) {
+                        Point p2 = points.get(i);
+                        gc2.drawLine(p1.x, p1.y, p2.x, p2.y);
+                        p1 = p2;
+                    }
+                } else
+                    points.add(e.getPoint());
+                update(gc);
+                main.SendMouseEvent(e, c,0, 0, 0, 0, pen_size, shapes, linee);
             }
-            else
-                points.add(e.getPoint());
-            update(gc);
-            main.SendMouseEvent(e, c, pen_size, shapes, linee);
         }
+
 
         @Override
         public void mouseMoved(MouseEvent e) {
@@ -1057,27 +1138,8 @@ public class GameClientView extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            System.out.println("hi" + linee);
-            if(linee=false){
-                gc2.setColor(c);
-                gc.setColor(c);
-
-                if(shapes==1) {
-                    gc2.drawOval(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size*2, pen_size*2);
-//                    gc2.drawImage(panelImage, 0, 0, panel);
-
-                }else if(shapes==2) {
-                    gc2.fillRect(e.getX()-pen_size/2, e.getY()-pen_size/2, pen_size*2, pen_size*2);
-//                    gc2.drawImage(panelImage, 0, 0, panel);
-                }
-
-                update(gc);
-                main.SendMouseEvent(e, c, pen_size, shapes, linee);
-//                shapes=0;
-            }
-            //points.clear();
-            //lblMouseEvent.setText(e.getButton() + " mouseClicked " + e.getX() + "," + e.getY());
-
+            points.clear();
+            pointss.clear();
         }
 
         @Override
@@ -1092,14 +1154,77 @@ public class GameClientView extends JFrame {
         @Override
         public void mousePressed(MouseEvent e) {
             points.clear();
+            pointss.clear();
+
+            startX = e.getX();
+            startY = e.getY();
+
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-//            points.add(e.getPoint());
             points.clear();
-            linee=false;
-            main.SendMouseEvent(e, c, pen_size, shapes, linee);
+            if(linee==false){
+                gc2.setColor(c);
+                gc.setColor(c);
+
+                endX = e.getX();
+                endY = e.getY();
+                System.out.println("마지막 좌표"+endX+"," + endX);
+
+                if(shapes==0){ //line
+                    g2 = (Graphics2D) gc2;
+
+                    g2.setStroke(new BasicStroke(pen_size));
+                    System.out.println((endX-startX)+"//"+ (endY-startY));
+                    g2.drawLine(startX, startY, endX, endY);
+                }
+                else if(shapes==1) { // draw circle
+                    g2 = (Graphics2D) gc2;
+
+                    g2.setStroke(new BasicStroke(pen_size));
+                    System.out.println((endX-startX)+"//"+ (endY-startY));
+                    g2.drawOval(startX, startY, endX-startX, endY-startY);
+
+                }else if(shapes==2) { //fill circle
+                    g2 = (Graphics2D) gc2;
+
+                    g2.setStroke(new BasicStroke(pen_size));
+                    System.out.println((endX-startX)+"//"+ (endY-startY));
+                    g2.fillOval(startX, startY, endX-startX, endY-startY);
+                }
+                else if(shapes == 3){ //draw rect
+                    g2 = (Graphics2D) gc2;
+
+                    g2.setStroke(new BasicStroke(pen_size));
+                    System.out.println((endX-startX)+"//"+ (endY-startY));
+                    g2.drawRect(startX, startY, endX-startX, endY-startY);
+                }
+                else if(shapes==4){ //fill rect
+                    g2 = (Graphics2D) gc2;
+
+                    g2.setStroke(new BasicStroke(pen_size));
+                    System.out.println((endX-startX)+"//"+ (endY-startY));
+                    g2.fillRect(startX, startY, endX-startX, endY-startY);
+                }
+
+                update(gc);
+                points.clear();
+                pointss.clear();
+                main.SendMouseEvent(e, c,startX,startY,endX,endY, pen_size, shapes, linee);
+//                shapes=0;
+            }
+            else{
+                points.add(e.getPoint());
+//                points.clear();
+//            linee=false;
+                main.SendMouseEvent(e, c,0,0,0,0, pen_size, shapes, linee);
+
+
+            }
+
+
+
         }
     }
 
@@ -1167,7 +1292,7 @@ public class GameClientView extends JFrame {
 
             }
         };
-            timer.scheduleAtFixedRate(task, 0L, 1000);
+        timer.scheduleAtFixedRate(task, 0L, 1000);
     }
 
     public void changeRole(){
@@ -1273,7 +1398,7 @@ public class GameClientView extends JFrame {
         if(code.matches("201")) { //정답 : answer
             if(userLabel!= null) {
                 if(userLabel.getIcon() == char1Img)
-                userLabel.setIcon(answerChar1);
+                    userLabel.setIcon(answerChar1);
                 else if(userLabel.getIcon() == char2Img)
                     userLabel.setIcon(answerChar2);
                 else userLabel.setIcon(answerChar3);
