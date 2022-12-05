@@ -119,6 +119,8 @@ public class GameClientView extends JFrame {
     private JTextPane textArea;
     private JTextPane textArea1;
 
+    public JButton timeItemBtn;
+
     private Frame frame;
     private FileDialog fd;
     private JButton imgBtn;
@@ -148,6 +150,15 @@ public class GameClientView extends JFrame {
 
     public Graphics2D g2;
 
+    public String getCurWord() {
+        return curWord;
+    }
+
+    public void setCurWord(String curWord) {
+        this.curWord = curWord;
+    }
+
+    public String curWord="";
     public boolean linee = true;
     public boolean isStart = false;
     public boolean isOver = false;
@@ -449,8 +460,6 @@ public class GameClientView extends JFrame {
         }); */
 
         JButton timeItemBtn = new JButton(timeItemImg1); //시간증가 힌트 버튼
-        timeItemBtn.revalidate();
-        timeItemBtn.repaint();
         timeItemBtn.setBorderPainted(false);
         timeItemBtn.setContentAreaFilled(false);
         timeItemBtn.setOpaque(false);
@@ -461,34 +470,37 @@ public class GameClientView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("time event!\n");
-                time = 30 ; //시간을 30초로 세팅 시키기 / 시간 변경시 여기 건들기,,
-                //main.setTime(20);
-                timeLabel.setText(String.valueOf(time));
-                HintMsg obc = new HintMsg(UserName, "1001",null); //시간 증가 구현중
-                //main.writeObject(obc);
+                timeItemBtn.setEnabled(false);
+                HintMsg obc = new HintMsg(UserName, "1001",String.valueOf(time)); //시간 증가 구현중
+                System.out.println(isStart);
+                obc.isStart = isStart;
+                obc.roomId= roomId;
                 main.SendObject(obc);
+                repaint();
+                revalidate();
+                update(gc2);
             }
         });
 
 
-        JButton initItemBtn = new JButton(initialItemImg1); //첫글자 알려주는 힌트(?)  //일단 주석처리
-        timeItemBtn.revalidate();
-        timeItemBtn.repaint();
-        timeItemBtn.setBorderPainted(false);
-        timeItemBtn.setContentAreaFilled(false);
-        timeItemBtn.setOpaque(false);
-        timeItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        initItemBtn.setBounds(260, 50, 90, 55);
-        hintPanel.add(initItemBtn);
-        initItemBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                HintMsg obc = new HintMsg(UserName, "1000", null);
-                obc.roomId = roomId;
-                obc.wordIndex = currentWordIndex;
-                main.SendObject(obc); //버튼 클릭시 1000으로,,
-            }
-        });
+//        JButton initItemBtn = new JButton(initialItemImg1); //첫글자 알려주는 힌트(?)  //일단 주석처리
+//        timeItemBtn.revalidate();
+//        timeItemBtn.repaint();
+//        timeItemBtn.setBorderPainted(false);
+//        timeItemBtn.setContentAreaFilled(false);
+//        timeItemBtn.setOpaque(false);
+//        timeItemBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+//        initItemBtn.setBounds(260, 50, 90, 55);
+//        hintPanel.add(initItemBtn);
+//        initItemBtn.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                HintMsg obc = new HintMsg(UserName, "1000", null);
+//                obc.roomId = roomId;
+//                obc.wordIndex = currentWordIndex;
+//                main.SendObject(obc); //버튼 클릭시 1000으로,,
+//            }
+//        });
 
 
         /*JButton cntItemBtn = new JButton(wordCountItemImg1); //글자 수 알려주는 힌트
@@ -509,8 +521,6 @@ public class GameClientView extends JFrame {
         }); */
 
         JButton twiceItemBtn = new JButton(twiceScoreItemImg1); //점수 두배 이벤트
-        twiceItemBtn.revalidate();
-        twiceItemBtn.repaint();
         twiceItemBtn.setBorderPainted(false);
         twiceItemBtn.setContentAreaFilled(false);
         twiceItemBtn.setOpaque(false);
@@ -522,18 +532,18 @@ public class GameClientView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("twice socre event\n");
                 HintMsg obc = new HintMsg(UserName, "1004", null);
+                obc.UserName = UserName;
                 //showScore(2*score);
                 score*=2;
                 scoreLabel.setText(String.valueOf(score));
                 revalidate();
                 main.SendObject(obc);
+                twiceItemBtn.setEnabled(false);
             }
         });
 
 
-        /*JButton ctgItemBtn = new JButton(initialItemImg1); //초성힌트(?)
-        ctgItemBtn.revalidate();
-        ctgItemBtn.repaint();
+        JButton ctgItemBtn = new JButton(initialItemImg1); //초성힌트(?)
         ctgItemBtn.setBorderPainted(false);
         ctgItemBtn.setContentAreaFilled(false);
         ctgItemBtn.setOpaque(false);
@@ -543,10 +553,14 @@ public class GameClientView extends JFrame {
         ctgItemBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) { //초성힌트 구현
-                HintMsg obc = new HintMsg(UserName, "1005", null);
+                HintMsg obc = new HintMsg(UserName, "1000", curWord);
+                ctgItemBtn.setEnabled(false);
                 main.SendObject(obc);
+                repaint();
+                revalidate();
+                update(gc2);
             }
-        }); */
+        });
 
         canvasPanel = new JPanel() {
             public void paintComponent(Graphics g) {
@@ -1095,7 +1109,7 @@ public class GameClientView extends JFrame {
         java.util.TimerTask task = new  java.util.TimerTask(){
             public void run(){
                 if(isStart) {
-                    gc.drawImage(panelImage, 0, 0, panel);
+//                    gc.drawImage(panelImage, 0, 0, panel);
 
                     timeLabel.setText(String.valueOf(time--));
 
@@ -1174,6 +1188,10 @@ public class GameClientView extends JFrame {
         this.presenterIndex = presenterIndex;
         String presenter = userList[presenterIndex];
 
+        if(this.wordList.length-1 > indexWordList){
+            curWord = this.wordList[++indexWordList];
+        }
+
         presenterPanel = new JPanel();
         presenterPanel.setBackground(Color.decode("#569A49"));
         presenterPanel.setOpaque(true);
@@ -1203,15 +1221,14 @@ public class GameClientView extends JFrame {
 
     public void showWord(int index){
         if(this.wordList.length == index){
-            System.out.println("over!!"+UserName);
             Client.RoomMsg overRoomMsg = new Client.RoomMsg("900", UserName + " "+ String.valueOf(score));
             main.SendObject(overRoomMsg);
+            this.setVisible(false);
         }
         else{
             wordLabel.setText(this.wordList[index]);
             wordLabel.setVisible(true);
         }
-
     }
     public void overGame(String scores){
         over = new GameClientOver(scores);

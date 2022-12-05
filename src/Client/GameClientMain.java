@@ -95,6 +95,7 @@ public class GameClientMain extends JFrame {
     private JLabel profileInfoLabel;
     private boolean isStart = false;
     private boolean isJoin = false;
+    private boolean isDouble = false;
     private int coin = 10;
     private JLabel profileCoinImgLabel;
     private JLabel profileCoinCntLabel;
@@ -551,6 +552,8 @@ public class GameClientMain extends JFrame {
                             indexWordList = Integer.parseInt(data[1]);
                             view.indexWordList = indexWordList;
 
+                            view.changeRole();
+
                             if(presenterIndex > 0){
                                 view.showPresenter(presenterIndex);
                                 try {
@@ -579,6 +582,7 @@ public class GameClientMain extends JFrame {
                         }
 
                         else if(crm.code.matches("900")){
+                            view.setVisible(false);
                             view.overGame(crm.data);
                         }
 
@@ -619,6 +623,9 @@ public class GameClientMain extends JFrame {
                             isStart = true;
                             view.isStart = true;
 
+                            view.showScore(score);
+                            view.setTime(20);
+                            view.showTime();
                             view.changeRole();
 
                             view.showPresenter(presenterIndex);
@@ -631,10 +638,13 @@ public class GameClientMain extends JFrame {
                             view.removePresenter();
 
                             System.out.println("username ::" + username + "presentIndex" + view.userList[wm.presenterIndex]);
-                            if(username.equals(view.userList[wm.presenterIndex])) view.showWord(0);
-                            view.showScore(score);
-                            view.setTime(20);
-                            view.showTime();
+                            if(username.equals(view.userList[wm.presenterIndex])) {
+                                view.showWord(0);
+                                view.setCurWord(view.wordList[0]);
+                            }
+//                            else{
+//                                view.removeWord();
+//                            }
 
                             view.btnNewButtonStart.setEnabled(false);
 //                            view.revalidate();
@@ -677,47 +687,24 @@ public class GameClientMain extends JFrame {
 
                         switch(hm.code){
                             case "1000":
-                                System.out.println(hm.data);
-                                for(int i=0; i<totalRoomList.length; i++){
-                                    if(totalRoomList[i].equals(view.getRoomId())) {
-                                        if (hm.UserName.equals(username)){
-                                            HintMsg obc = new HintMsg(UserName, "1000", null);
-                                        }
-                                    }
-                                }
-
-                                System.out.println("htm::"+hm.data);
                                 view.AppendText(hm.data);
+                                break;
 
                             case "1001":
-                                System.out.println("시간 60초 세팅 아이템");
-                                for(int i=0; i<totalRoomList.length; i++){
-                                    if(totalRoomList[i].equals(view.getRoomId())) {
-                                        if (hm.UserName.equals(username)){
-                                            try {
-                                                Thread.sleep(1000);
-                                            } catch (InterruptedException e) {
-                                                // TODO Auto-generated catch block
-                                                e.printStackTrace();
-                                            }
-                                            //ChatMsg obcm = new ChatMsg(username, "300", "IMG");
-                                            HintMsg obc = new HintMsg(UserName, "1001", null);
-                                            view.setTime(20);
-                                            view.SendObject(obc);
-                                            //view.setTime(20);
-                                            //view.showTime();
-                                            main.SendObject(obc);
+                                AppendText("시간이 10초 증가되었습니다");
+                                int time = Integer.parseInt(hm.data);
+                                System.out.println(time);
 
-                                            //time = 60;
-                                            //view.showTime(); //수정하기
-                                        }
-                                    }
-                                }
+                                view.setTime(time+10);
+                                //time = 60;
+                                //view.showTime(); //수정하기
+
                                 //main.SendObject();
-                                //break;
+                                break;
 
                             case "1002":
                                 System.out.println("배경그림 보여주기"); //view에 어딧을까,,
+                                break;
 
                             case "1003":
                                 System.out.println("글자 수 아이템");
@@ -734,6 +721,7 @@ public class GameClientMain extends JFrame {
                                         }
                                     }
                                 }
+                                break;
 
                             case "1004":
                                 System.out.println("점수 두배 아이템");
@@ -747,8 +735,10 @@ public class GameClientMain extends JFrame {
                                         }
                                     }
                                 }
+                                break;
                             case "1005":
                                 System.out.println("초성 힌트");
+                                break;
                         }
                     }
 
@@ -775,10 +765,21 @@ public class GameClientMain extends JFrame {
                                 if (cm.UserName.equals(username)){
                                     view.AppendTextR(msg); // 내 메세지는 우측에
 
+
                                     score += 10;
                                     view.showScore(score);
                                     view.setTime(20);
                                     view.showWord(indexWordList+1);
+
+                                    view.showResultPanel(cm.code); //정답 : answer
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        // TODO Auto-generated catch block
+                                        e.printStackTrace();
+                                    }
+                                    view.removeResultPanel();
+
                                     if(presenterIndex > 0){
                                         view.showPresenter(presenterIndex);
                                         try {
@@ -790,10 +791,11 @@ public class GameClientMain extends JFrame {
                                         view.removePresenter();
                                     }
 
+                                    view.changeRole();
+
                                     System.out.println("in main2 /// 800번 ");
                                     Client.RoomMsg changeMsg = new  Client.RoomMsg( "800",String.valueOf(presenterIndex) + " "+ String.valueOf(indexWordList));
                                     changeMsg.roomId = roomId;
-                                    view.changeRole();
                                     SendObject(changeMsg);
 
                                 }
@@ -801,18 +803,19 @@ public class GameClientMain extends JFrame {
                                     view.AppendText(msg);
                                     view.setTime(20);
                                     view.removeWord();
+
+                                    view.showResultPanel(cm.code); //정답 : answer
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        // TODO Auto-generated catch block
+                                        e.printStackTrace();
+                                    }
+                                    view.removeResultPanel();
+
+
                                     view.changeRole();
                                 }
-
-                                view.showResultPanel(cm.code); //정답 : answer
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (InterruptedException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                                view.removeResultPanel();
-                                view.setTime(20);
 
                             }
                             break;

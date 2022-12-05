@@ -39,7 +39,7 @@ public class GameServer extends JFrame {
 
 
 //    public String[] wordFood = {"사과", "닭갈비", "떡볶이", "라면", "떡국", "파스타", "피자", "비빔밥", "소고기"};
-    public String[] wordFood = {"사과", "닭갈비", "떡볶이", "라면"};
+    public String[] wordFood = {"사과", "햄버거", "떡볶이"};
     public String[] wordMusic = {"Love Dive", "ASAP", "자격지심", "콘서트", "AntiFragile", "나의 X에게", "아이브", "잔나비", "Dynamite"};
     public String[] wordMovie = {"매드맥스", "인사이드 아웃", "인셉션", "아바타", "너의이름은", "극한직업", "겨울왕국", "스파이더맨", "공조"};
     public String[] wordAnimal = {"고양이", "호랑이", "햄스터", "강아지", "목도리도마뱀", "라쿤", "앵무새", "자라", "장수풍뎅이"};
@@ -53,6 +53,7 @@ public class GameServer extends JFrame {
     public String UserName = "";
     //public String UserStatus;
     public int backgrounds = 0;
+    public boolean isDouble = false;
 
     Map<String, String> userInfo =  new HashMap<String, String>();
 
@@ -575,12 +576,12 @@ public class GameServer extends JFrame {
                             }
                         }
 
-                        System.out.println("in server wordIndex :: " + hm.wordIndex);
-                        String arg = wordMap.get(curRoom.subject)[hm.wordIndex];
+//                        System.out.println("in server wordIndex :: " + hm.wordIndex);
+//                        String arg = wordMap.get(curRoom.subject)[hm.wordIndex];
 
                             //  String initial = wordMap.get(curRoom.subject)[hm.wordIndex];
 
-                        String str = "첫번째 글자는 ' " + arg.charAt(0) + " ' 입니다.";
+                        String str = "첫번째 글자는 ' " + hm.data.charAt(0) + " ' 입니다.";
                         HintMsg newHintMsg = new HintMsg("SERVER", "1000", str);
                         WriteRoomObject(curRoom, hm.code, newHintMsg);
 //                            WriteRoomObject(curRoom, hm.code, newHintMsg);
@@ -588,12 +589,12 @@ public class GameServer extends JFrame {
 
                     }
 
-                    else if(hm.code.matches("1001")) { //시간 15초 증가시키기
-                        if(turnUser != cm.UserName && gameStart == 1) {
-                            String str = "시간이 60초로 증가했습니다.";
-                            HintMsg newHintMsg = new HintMsg("SERVER", "1001", str);
+                    else if(hm.code.matches("1001")) { //시간 60초로 초기화
+                        if(hm.isStart){
+                            String str = "시간이 10초 증가되었습니다.";
+                            HintMsg newHintMsg = new HintMsg("SERVER", "1001", hm.data);
                             for (int i = 0; i < RoomVec.size(); i++) {
-                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                if (RoomVec.get(i).roomId.equals(hm.roomId)) {
                                     curRoom = RoomVec.get(i);
                                 }
                             }
@@ -635,18 +636,18 @@ public class GameServer extends JFrame {
                     }
 
                     else if(hm.code.matches("1004")) { //정답시 점수 두배
-                        if(turnUser.equals(UserName)) {
+                            if(scoreMap.get(hm.UserName) == null) scoreMap.put(hm.UserName, 20);
+                            else scoreMap.replace(hm.UserName, scoreMap.get(hm.UserName)*2);
+
                             String str = "맞추면 점수 2배!";
                             HintMsg newHintMsg = new HintMsg("SERVER", "1004", str);
                             for (int i = 0; i < RoomVec.size(); i++) {
-                                if (RoomVec.get(i).roomId.equals(cm.roomId)) {
+                                if (RoomVec.get(i).roomId.equals(hm.roomId)) {
                                     curRoom = RoomVec.get(i);
                                    //WriteRoomObject(curRoom, hm.code, newHintMsg);
                                 }
                             }
                             WriteRoomObject(curRoom, hm.code, newHintMsg);
-                            Logout();
-                        }
                     }
 
                     else if(hm.code.matches("1005")) { // 초성
